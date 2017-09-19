@@ -2,7 +2,7 @@
 #
 #   1.  The names of all Serie A's teams. The names are stored inside a list
 #       and saved inside a .pckl file. These teams' names are used by the
-#       spider called "all_players_and_roles" to scrape all the players,
+#       spider called "all_players_per_teams" to scrape all the players,
 #       together with thier Mantra roles, of each Serie A's team.
 #
 #   2.  The names of the fantateams which will be used by the spider

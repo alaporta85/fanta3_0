@@ -14,13 +14,11 @@
 
 
 
-#   2. All the data of each player in Serie A from Fantagazzetta.
-#      The data will be saved in .pckl file called "serieA_votes" and they will
-#      be stored inside a dictionary. The keys of the dictionary are the
-#      players' names. Each player has a value which is a list containing
-#      tuples. There is a tuple for each day of the season in which the player
-#      has on official vote from Fantagazzetta. Each tuple contains 14 values
-#      which are:
+#   2. All the data of each player in Serie A from Fantagazzetta day by day.
+#      The data will be saved in .pckl file called "Day_X" (X is the number of
+#      the day) and they will be stored inside a dictionary. The keys of the
+#      dictionary are the players' names. Each player has a value which is a
+#      tuple. The tuple contains 14 values which are:
 #
 #               1. Day of the season                         (day)
 #               2. Player's team name                        (name)
@@ -52,6 +50,8 @@ import copy
 path = '/Users/andrea/Desktop/fanta3_0/cday_lineups_votes'
 os.chdir(path)
 
+# These will be used to assign default vote (6) to the players of the matches
+# which are not played (bad weather for example)
 f=open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
        'serieA_teams.pckl','rb')
 serieA_teams = pickle.load(f)
@@ -188,8 +188,13 @@ class Cday_lineups_votes(scrapy.Spider):
         # the season
         tables = splash_response.xpath('//table[contains(@class,"no-footer")]')
         
+        # Dict containing all the data for that day
         players_database = {}
         
+        # Every time we scrape the votes of one team (Atalanta, Benevento etc)
+        # we delete the team from this list. In this way we are able to check
+        # whether we scraped all the teams or there are some of them missing.
+        # In this case, it means that 1 or more matches have not been played.
         copy_serieA_teams = copy.copy(serieA_teams)
                                 
         for table in tables:
@@ -198,6 +203,7 @@ class Cday_lineups_votes(scrapy.Spider):
             team_name = table.xpath('.//span[contains(@class,"txtbig")]/'+
                                     'text()').extract_first()
             
+            # Remove the team
             copy_serieA_teams.remove(team_name)
             
             # All players who have vote in that specific day
@@ -349,23 +355,28 @@ class Cday_lineups_votes(scrapy.Spider):
                                  YC,RC,Gs,Gp,Gt,Ps,Pf,Og,As,Asf)
                         
                     
-                    players_database[name] = [fin_tuple]
+                    # Store the result inside the dict
+                    players_database[name] = fin_tuple
         
+        # Now we check if all the teams have been scraped (copy_serieA_teams
+        # should be empty). If not empty
         if copy_serieA_teams:
-            aaa = copy.copy(all_players_per_team)
+            
+            # For each team left we create the default tuple
             for team in copy_serieA_teams:
                 fin_tuple = (self.url_day,team,6,6,0,0,0,0,0,0,0,0,0,0)
-                for player in aaa[team]:
-                    players_database[player] = [fin_tuple]
+                
+                # And we assign it to every player of that team
+                for player in all_players_per_team[team]:
+                    players_database[player] = fin_tuple
         
-        # Save the updated version of the database
+        # Save the database
         filename = ('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/'+
                     'Day_%d.pckl' % self.url_day)
         f = open(filename, 'wb')
         pickle.dump(players_database, f)
         f.close()
 
-                
 
     def parse_cday(self, response):
         
