@@ -57,11 +57,6 @@ f=open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
 serieA_teams = pickle.load(f)
 f.close()
 
-f=open('/Users/andrea/Desktop/fanta3_0/all_players_per_team/'+
-       'all_players_per_team.pckl','rb')
-all_players_per_team = pickle.load(f)
-f.close()
-
 class Cday_lineups_votes(scrapy.Spider):
     
     def __init__(self):
@@ -361,6 +356,13 @@ class Cday_lineups_votes(scrapy.Spider):
         # Now we check if all the teams have been scraped (copy_serieA_teams
         # should be empty). If not empty
         if copy_serieA_teams:
+            
+            filename = ('/Users/andrea/Desktop/fanta3_0/all_players_per_team/'+
+                        'players/players_%d.pckl' % self.url_day)
+            
+            f=open(filename,'rb')
+            all_players_per_team = pickle.load(f)
+            f.close()
             
             # For each team left we create the default tuple
             for team in copy_serieA_teams:
