@@ -587,29 +587,24 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                         n_malus = find_adapted_solution(new_cand, a_module,
                                                         n_of_players_with_vote)
                         
-                        # If it is <= than the last one (or less than 4 in
+                        # If it is < than the last one (or less than 4 in
                         # the first case) we overwrite its value, the module
                         # and the lineup. In this way we check all the lineups
                         # and at the end we will have only the one with the
-                        # lower number of malus
-                        if n_malus <= malus:
+                        # lower number of malus. We also empty the list of all
+                        # alternative modules in order to have the right list
+                        # at the end
+                        if n_malus < malus:
                             malus = n_malus
                             adapted_module = a_module
                             final = candidate
-    
-                            alternative_modules.append((a_module,n_malus))
-
-            # Stop the iteration over the other candidates
-            if final:
-                break
-        
-        # Delete from the alternative module
-        copy_of_modules = copy.copy(alternative_modules)
-        for x in alternative_modules:
-            if x[0] == adapted_module or x[1]!= malus:
-                copy_of_modules.remove(x)
+                            alternative_modules = []
+                        elif n_malus == malus:
+                            alternative_modules.append(a_module)
                 
-        alternative_modules = list(set([x[0] for x in copy_of_modules]))
+        alternative_modules = list(set(alternative_modules))
+        if alternative_modules:
+            alternative_modules.remove(adapted_module)
             
     
     def look_for_solution(module,n_of_players_with_vote,n_subst):
