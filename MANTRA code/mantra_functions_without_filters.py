@@ -3,7 +3,7 @@ import pickle
 from itertools import combinations, permutations, product
 import copy
 
-f=open('/Users/andrea/Desktop/fanta2_0/pickle_files/lineups.pckl', 'rb')
+f=open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/lineups.pckl', 'rb')
 lineups = pickle.load(f)
 # =============================================================================
 # lineups2 = pickle.load(f)
@@ -18,16 +18,23 @@ lineups = pickle.load(f)
 # =============================================================================
 f.close()
 
-# =============================================================================
-# f=open('esempi_voti.pckl', 'rb')
-# players_database = pickle.load(f)
-# f.close()
-# 
-# l = open('/Users/andrea/Desktop/fanta2_0/all_roles.pckl', 'rb')
-# all_roles = pickle.load(l)
-# l.close()
-# =============================================================================
+f=open('esempi_voti.pckl', 'rb')
+players_database = pickle.load(f)
+f.close()
 
+
+def modify_player_name(player):
+    
+    '''When a player leaves a team, in the website he will be marked with the
+       simbol '*' after the name, which causes errors when we look for the vote
+       of that player. This function returns the clean name of the player.'''
+       
+    if player[-1] == '*':
+        final_name = player[:-2]
+    else:
+        final_name = player
+        
+    return final_name
 
 def take_vote_from_database(player,day,mode='ST'):
     
@@ -37,16 +44,33 @@ def take_vote_from_database(player,day,mode='ST'):
        than we take the normal votes from Fantagazzetta. In case player does
        NOT have a vote in that day, it manages the KeyError and returns n.e.
        (not evaluated).'''
-       
+           
+    filename = ('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/'+
+                'Day_%d.pckl' % day)
+    
+    f=open(filename,'rb')
+    players_database = pickle.load(f)
+    f.close()
+    
     try:
-        for atuple in players_database[player]:
-            if atuple[0] == day and mode == 'FG':
-                return atuple[2]
-            elif atuple[0] == day:
-                return atuple[3]
-        return 'n.e.'
+        if mode == 'FG':
+            return players_database[player][2]
+        else:
+            return players_database[player][3]
     except KeyError:
         return 'n.e.'
+    
+# =============================================================================
+#     try:
+#         for atuple in players_database[player]:
+#             if atuple[0] == day and mode == 'FG':
+#                 return atuple[2]
+#             elif atuple[0] == day:
+#                 return atuple[3]
+#         return 'n.e.'
+#     except KeyError:
+#         return 'n.e.'
+# =============================================================================
 
 
 def players_with_vote(list_of_tuples,mode='ST'):
@@ -58,7 +82,7 @@ def players_with_vote(list_of_tuples,mode='ST'):
     bench = []
     
     for player in list_of_tuples:
-        
+                        
         # Extract the day
         day = int(player[0].split()[1])
         
@@ -654,17 +678,20 @@ def MANTRA_simulation(lineup,module,mode='ST'):
             return calculation(a_number-1)
 
     
+    new_lineup = [(player[0],modify_player_name(player[1]),player[2])
+                  for player in lineup]
+    
     # Select the players with vote and store the number of substitutions needed
     if mode == 'FG':
-        field,bench = players_with_vote(lineup, 'FG')
-        n_subst = n_of_subst(lineup, mode='FG')
+        field,bench = players_with_vote(new_lineup, 'FG')
+        n_subst = n_of_subst(new_lineup, mode='FG')
     else:
-        field,bench = players_with_vote(lineup)
-        n_subst = n_of_subst(lineup)
+        field,bench = players_with_vote(new_lineup)
+        n_subst = n_of_subst(new_lineup)
         
     
     # Make a copy of the starting lineup. We will NOT modify this copy
-    original = copy.copy(lineup)
+    original = copy.copy(new_lineup)
     
     # Initialize all the parameters. We chose 10 for malus just because it is
     # a number high enough and we look for the solution with the lower number
