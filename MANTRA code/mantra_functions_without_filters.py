@@ -5,21 +5,6 @@ import copy
 
 f=open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/lineups.pckl', 'rb')
 lineups = pickle.load(f)
-# =============================================================================
-# lineups2 = pickle.load(f)
-# lineups3 = pickle.load(f)
-# lineups4 = pickle.load(f)
-# lineups5 = pickle.load(f)
-# lineups6 = pickle.load(f)
-# lineups7 = pickle.load(f)
-# lineups8 = pickle.load(f)
-# lineups9 = pickle.load(f)
-# lineups10 = pickle.load(f)
-# =============================================================================
-f.close()
-
-f=open('esempi_voti.pckl', 'rb')
-players_database = pickle.load(f)
 f.close()
 
 
@@ -59,18 +44,6 @@ def take_vote_from_database(player,day,mode='ST'):
             return players_database[player][3]
     except KeyError:
         return 'n.e.'
-    
-# =============================================================================
-#     try:
-#         for atuple in players_database[player]:
-#             if atuple[0] == day and mode == 'FG':
-#                 return atuple[2]
-#             elif atuple[0] == day:
-#                 return atuple[3]
-#         return 'n.e.'
-#     except KeyError:
-#         return 'n.e.'
-# =============================================================================
 
 
 def players_with_vote(list_of_tuples,mode='ST'):

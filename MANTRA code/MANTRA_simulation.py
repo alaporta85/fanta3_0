@@ -1,40 +1,53 @@
-import mantra_functions_without_filters
+import mantra_functions_without_filters as mswf
 import os
 import pickle
 import copy
 
-path = '/Users/andrea/Desktop/fanta2_0'
-os.chdir(path)
-
-f = open('all_players_per_team.pckl', 'rb')
-all_players = pickle.load(f)
-f.close()
-
-g = open('SerieA_players_database.pckl', 'rb')
-players_database = pickle.load(g)
+g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
+         'schedule.pckl', 'rb')
+schedule = pickle.load(g)
 g.close()
 
-h = open('schedule.pckl', 'rb')
-schedule = pickle.load(h)
+
+h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
+         'lineups.pckl', 'rb')
+lineups = pickle.load(h)
 h.close()
 
-l = open('all_roles.pckl', 'rb')
-all_roles = pickle.load(l)
+
+i = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/'+
+         'all_players_per_fantateam.pckl', 'rb')
+fantaplayers = pickle.load(i)
+i.close()
+
+
+l = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
+         'fantateams_names.pckl', 'rb')
+fantanames = pickle.load(l)
 l.close()
 
-m = open('lineups.pckl', 'rb')
-lineups = pickle.load(m)
-m.close()
 
-n = open('all_players_per_fantateam.pckl', 'rb')
-fantaplayers = pickle.load(n)
-n.close()
+files = os.listdir('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes')[1:]
+players_database = {}
+for file in files:
+    f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/'+
+             '%s' % file, 'rb')
+    day = pickle.load(f)
+    f.close()
+    for player in day:
+        if player in players_database:
+            players_database[player].append(day[player])
+        else:
+            players_database[player] = [day[player]]
+            
+del day,file,files,player
+
 
 class Player(object):
     def __init__(self,name):
         self.name = name
         self.team = ''
-        self.role = []
+#        self.role = []
         self.FG_avrg = 0
         self.ST_avrg = 0
         self.YC = 0
@@ -82,8 +95,8 @@ class Player(object):
                 self.As += day[12]
                 self.Asf += day[13]
             calculate_avrg(self)
-            if self.name in all_players[self.team]:
-                self.role = all_roles[self.name]
+#            if self.name in all_players[self.team]:
+#                self.role = all_roles[self.name]
             
         update_player(self)
     
@@ -100,6 +113,7 @@ class Fantateam(object):
         self.lineups = lineups[self.name]
         self.players = fantaplayers[self.name]
         
+        
     def lineup(self, day):
         return self.lineups[day-1]
                 
@@ -107,7 +121,20 @@ class Fantateam(object):
         return self.players
 
 class Match(object):
-    def __init__(self):
+    def __init__(self,team1,team2,day):
+        self.team1 = team1
+        self.team2 = team2
+        self.day = day
+        self.abs_points1 = 0
+        self.abs_points2 = 0
+        self.goals1 = 0
+        self.goals2 = 0
+        self.lineup1 = fantanames[team1].lineup(day)
+        self.lineup2 = fantanames[team2].lineup(day)
+        
+        
+fantanames = {team:Fantateam(team) for team in fantanames}
+all_players = {player:Player(player) for player in players_database}
         
 
         

@@ -1,10 +1,7 @@
 import random
 import mantra_functions_without_filters as ms
-from schemes_allowed_changes import schemes, compatible_roles, malus_roles
 import pickle
-from itertools import combinations, permutations, product
-import copy
-
+import os
 
 
 acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO','yes'),
@@ -15,10 +12,10 @@ acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO','yes'),
              ('CASTRO', ['C', 'T'], 'CHIEVO','yes'),
              ('ZIELINSKI', ['C', 'T'], 'NAPOLI','yes'),
              ('LICHTSTEINER', ['Dd', 'E'], 'JUVENTUS','yes'),
-             ('CALHANOGLU', ['T'], 'MILAN','no'),
+             ('CALHANOGLU', ['T'], 'MILAN','yes'),
              ('CUADRADO', ['W'], 'JUVENTUS','yes'),
              ("ANDRE' SILVA", ['Pc'], 'MILAN','no'),
-             ('CUTRONE', ['Pc'], 'MILAN','no'),
+             ('CUTRONE', ['Pc'], 'MILAN','yes'),
              ('EL SHAARAWY', ['A'], 'ROMA','yes'),
              ('DEFREL', ['A'], 'ROMA','yes'),
              ('DOUGLAS COSTA', ['W', 'A'], 'JUVENTUS','yes'),
@@ -26,7 +23,7 @@ acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO','yes'),
              ('JORGINHO', ['M', 'C'], 'NAPOLI','no'),
              ('ALLAN', ['M', 'C'], 'NAPOLI','yes'),
              ('BRUNO PERES', ['Dd', 'E'], 'ROMA','yes'),
-             ('LETIZIA', ['Dd', 'Ds', 'E'], 'BENEVENTO','no'),
+             ('LETIZIA', ['Dd', 'Ds', 'E'], 'BENEVENTO','yes'),
              ('GAMBERINI', ['Dc'], 'CHIEVO','yes'),
              ('SAMIR', ['Ds', 'Dc'], 'UDINESE','yes'),
              ('MIRANTE', ['Por'], 'BOLOGNA','no'),
@@ -53,15 +50,12 @@ def check_in_advance(module,fantateam):
     
     lineup = [('Day 99',player[0],player[1]) for player in fantateam]
     
-    return ms.MANTRA_simulation(lineup,module)
+    res = ms.MANTRA_simulation(lineup,module)
     
-#    return lineup
+    os.remove('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/'+
+              'Day_99.pckl')
     
-    
-    
-    
-    
-    
+    return res
     
     
     
