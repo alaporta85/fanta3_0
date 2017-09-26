@@ -48,8 +48,14 @@ class Player(object):
         self.name = name
         self.team = ''
 #        self.role = []
+        self.FG_votes = []
+        self.FGfantavotes = []
         self.FG_avrg = 0
+        self.FG_fanta_avrg = 0
+        self.ST_votes = []
+        self.STfantavotes = []
         self.ST_avrg = 0
+        self.ST_fanta_avrg = 0
         self.YC = 0
         self.RC = 0
         self.Gs = 0
@@ -99,6 +105,11 @@ class Player(object):
 #                self.role = all_roles[self.name]
             
         update_player(self)
+        
+    def fantavote(self,day,mode='ST'):
+        for data in players_database[self.name]:
+            if data[0] == day:
+                return
     
 class Fantateam(object):
     def __init__(self, name):
