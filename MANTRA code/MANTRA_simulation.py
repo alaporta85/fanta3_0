@@ -2,6 +2,7 @@ import mantra_functions_without_filters as mswf
 import os
 import pickle
 import copy
+import random
 
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
          'schedule.pckl', 'rb')
@@ -27,7 +28,8 @@ fantanames = pickle.load(l)
 l.close()
 
 
-files = os.listdir('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes')[1:]
+files = os.listdir('/Users/andrea/Desktop/fanta3_0/'+
+                   'cday_lineups_votes/votes')[1:]
 players_database = {}
 for file in files:
     f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/'+
@@ -48,11 +50,13 @@ class Player(object):
         self.name = name
         self.team = ''
 #        self.role = []
-        self.FG_votes = []
+        self.FG_votes = [(data[0],data[2]) for data in
+                         players_database[self.name] if data[2] != 'n.e.']
         self.FGfantavotes = []
         self.FG_avrg = 0
         self.FG_fanta_avrg = 0
-        self.ST_votes = []
+        self.ST_votes = [(data[0],data[3]) for data in
+                         players_database[self.name] if data[3] != 'n.e.']
         self.STfantavotes = []
         self.ST_avrg = 0
         self.ST_fanta_avrg = 0
@@ -66,26 +70,58 @@ class Player(object):
         self.Og = 0
         self.As = 0
         self.Asf = 0
-        self.matches_played = 0
+        self.FG_matches_played = len(self.FG_votes)
+        self.ST_matches_played = len(self.ST_votes)
         
         def calculate_avrg(self):            
-            list_of_votes_FG = []
-            list_of_votes_ST = []
             try:
-                for day in players_database[self.name]:
-                    self.matches_played += 1
-                    if day[2] != 'n.e.':
-                        list_of_votes_FG.append(day[2])
-                    if day[3] != 'n.e.':
-                        list_of_votes_ST.append(day[3])
-            except KeyError:
-                pass
+                avrg_FG = (sum([vote[1] for vote in self.FG_votes])/
+                                self.FG_matches_played)
+                self.FG_avrg = round(avrg_FG,2)
+            except ZeroDivisionError:
+                self.FG_avrg = 0
             
-            avrg_FG = sum(list_of_votes_FG)/self.matches_played
-            avrg_ST = sum(list_of_votes_ST)/self.matches_played
+            try:
+                avrg_ST = (sum([vote[1] for vote in self.ST_votes])/
+                                self.ST_matches_played)
+                self.ST_avrg = round(avrg_ST,2)
+            except ZeroDivisionError:
+                self.ST_avrg = 0
+                
+                
+        def calculate_fantavotes(day):
+            FG_vote = [data[1] for data in self.FG_votes if data[0] == day][0]
+            ST_vote = [data[1] for data in self.ST_votes if data[0] == day][0]
+                        
+            all_player_data_in_day = [data[4:] for data in
+                                      players_database[self.name]
+                                      if data[0] == day][0]
             
-            self.FG_avrg = round(avrg_FG,2)
-            self.ST_avrg = round(avrg_ST,2)
+            FG_fantavote = (FG_vote
+                            - 0.5*all_player_data_in_day[0]
+                            - all_player_data_in_day[1]
+                            + 3*all_player_data_in_day[2]
+                            + 3*all_player_data_in_day[3]
+                            - all_player_data_in_day[4]
+                            + 3*all_player_data_in_day[5]
+                            - 3*all_player_data_in_day[6]
+                            - 2*all_player_data_in_day[7]
+                            + all_player_data_in_day[8])
+            ST_fantavote = (ST_vote
+                            - 0.5*all_player_data_in_day[0]
+                            - all_player_data_in_day[1]
+                            + 3*all_player_data_in_day[2]
+                            + 3*all_player_data_in_day[3]
+                            - all_player_data_in_day[4]
+                            + 3*all_player_data_in_day[5]
+                            - 3*all_player_data_in_day[6]
+                            - 2*all_player_data_in_day[7]
+                            + all_player_data_in_day[8])
+        
+            
+            self.FGfantavotes.append(FG_fantavote)
+            self.STfantavotes.append(ST_fantavote)
+            
                 
         def update_player(self):
             for day in players_database[self.name]:
@@ -100,16 +136,19 @@ class Player(object):
                 self.Og += day[11]
                 self.As += day[12]
                 self.Asf += day[13]
+                calculate_fantavotes(day[0])
             calculate_avrg(self)
 #            if self.name in all_players[self.team]:
 #                self.role = all_roles[self.name]
             
         update_player(self)
         
-    def fantavote(self,day,mode='ST'):
-        for data in players_database[self.name]:
-            if data[0] == day:
-                return
+# =============================================================================
+#     def fantavote(self,day,mode='ST'):
+#         for data in players_database[self.name]:
+#             if data[0] == day:
+#                 return
+# =============================================================================
     
 class Fantateam(object):
     def __init__(self, name):
@@ -145,7 +184,7 @@ class Match(object):
         
         
 fantanames = {team:Fantateam(team) for team in fantanames}
-all_players = {player:Player(player) for player in players_database}
+#all_players = {player:Player(player) for player in players_database}
         
 
         
