@@ -345,16 +345,51 @@ class Match(object):
             fantanames[self.team1].defeats += 1
             fantanames[self.team2].victories += 1
             fantanames[self.team2].points += 3
+            
+            
+class Day(object):
+    def __init__(self,day,schedule,mode):
+        self.day = day
+        self.schedule = schedule
+        self.mode = mode
+        self.matches = self.schedule[str(day)]
+        
+    def play_day(self):
+        
+        '''Plays all the matches of the day.'''
+        
+        for match in self.matches:
+            Match(match[0],match[1],self.day,self.mode)
+            
+            
+class League(object):
+    def __init__(self,n_days,schedule,mode):
+        self.n_days = n_days
+        self.schedule = schedule
+        self.mode = mode
+        
+    def play_league(self):
+        
+        '''Plays n_days days in the schedule.'''
+        
+        for i in range(1,self.n_days+1):
+            day = Day(i,self.schedule,self.mode)
+            day.play_day()
         
 
         
 fantanames = {team:Fantateam(team) for team in fantanames}
 all_players = {player:Player(player) for player in players_database}
 
-a = Match('FC Pastaboy','Fc Stress',4,'ST')
-#a.play_match()
+a = League(6,schedule,'ST')
+a.play_league()
 
-        
+b = []
+
+for team in fantanames:
+    b.append((team,fantanames[team].abs_points))
+    
+print(sorted(b,key=lambda x:x[1],reverse=True))
 
         
         
