@@ -1,11 +1,13 @@
 import mantra_functions_without_filters as mfwf
+import statistic_functions as sf
+import pandas as pd
 import os
 import pickle
 
 # Load the dict with the schedule
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
          'schedule.pckl', 'rb')
-schedule = pickle.load(g)
+our_schedule = pickle.load(g)
 g.close()
 
 # Load the dict with all the lineups day by day
@@ -233,13 +235,14 @@ class Fantateam(object):
     def __init__(self, name):
         self.name = name
         self.points = 0
-        self.abs_points = 0
         self.victories = 0
         self.draws = 0
         self.defeats = 0
-        self.malus = 0
         self.goals_scored = 0
         self.goals_taken = 0
+        self.goals_diff = 0
+        self.abs_points = 0
+        self.malus = 0
         self.lineups = lineups[self.name]
         self.players = fantaplayers[self.name]
         
@@ -329,6 +332,8 @@ class Match(object):
         fantanames[self.team1].goals_taken += goals2
         fantanames[self.team2].goals_scored += goals2
         fantanames[self.team2].goals_taken += goals1
+        fantanames[self.team1].goals_diff += goals1 - goals2
+        fantanames[self.team2].goals_diff += goals2 - goals1
         
         # Update the rest of the attributes based on the number of goals scored
         # in the match by the fantateams
@@ -375,22 +380,51 @@ class League(object):
         for i in range(1,self.n_days+1):
             day = Day(i,self.schedule,self.mode)
             day.play_day()
+            
+    def print_league(self):
+                
+        all_data = [(fantanames[team].name,
+                     fantanames[team].points,
+                     fantanames[team].victories,
+                     fantanames[team].draws,
+                     fantanames[team].defeats,
+                     fantanames[team].goals_scored,
+                     fantanames[team].goals_taken,
+                     fantanames[team].goals_diff,
+                     fantanames[team].abs_points) for team in fantanames]
+            
+        all_data = sorted(all_data,key=lambda x:x[3],reverse=True)
+        all_data = sorted(all_data,key=lambda x:x[2],reverse=True)
+        all_data = sorted(all_data,key=lambda x:x[7],reverse=True)
+        all_data = sorted(all_data,key=lambda x:x[5],reverse=True)
+        all_data = sorted(all_data,key=lambda x:x[8],reverse=True)
+        all_data = sorted(all_data,key=lambda x:x[1],reverse=True)
+            
+        table = pd.DataFrame(all_data)
+        
+        return table
         
 
         
 fantanames = {team:Fantateam(team) for team in fantanames}
+teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 
-a = League(6,schedule,'ST')
+#rounds = sf.leagues_generator(teams,20,'YES')
+
+a = League(3,our_schedule,'ST')
 a.play_league()
-
-b = []
-
-for team in fantanames:
-    b.append((team,fantanames[team].abs_points))
-    
-print(sorted(b,key=lambda x:x[1],reverse=True))
-
+print(a.print_league())
+#
+#b = []
+#
+#for team in fantanames:
+#    b.append((team,fantanames[team].points))
+#    
+#b = sorted(b,key=lambda x:x[1],reverse=True)
+#
+#for i in b:
+#    print(i)
         
         
         
