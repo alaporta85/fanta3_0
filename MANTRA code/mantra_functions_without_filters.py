@@ -474,6 +474,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         
         nonlocal all_lineups   
         nonlocal final
+        nonlocal malus
         
         # For each candidate
         for candidate in all_lineups:
@@ -492,6 +493,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                 
             # And stop the iteration over the other condidates
             if final:
+                malus = 0
                 break
 
             
@@ -507,6 +509,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         nonlocal all_lineups
         nonlocal final
         nonlocal efficient_module
+        nonlocal malus
         
         # Iterate over all the candidates
         for candidate in all_lineups:
@@ -528,6 +531,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                 
             # Stop the iteration over the other candidates
             if final:
+                malus = 0
                 break
                 
     def try_adapted_solution(module,n_of_players_with_vote,n_subst):
@@ -717,30 +721,35 @@ def MANTRA_simulation(lineup,module,mode='ST'):
             printed_lineup.append(new_tuple)
     
     
-    separator = '- - - - - - - - - - - - - -'
-    printed_lineup.insert(11, separator)
+# =============================================================================
+#     separator = '- - - - - - - - - - - - - -'
+#     printed_lineup.insert(11, separator)
+#     
+# 
+#     if not efficient_module and not adapted_module:
+#         print('\n')
+#         print('Optimal solution found: module is %s' % module)
+#         print('\n')
+#         print('Malus %d' % malus)
+#     elif efficient_module:
+#         print('\n')
+#         print('Efficient solution found: module changed from %s to %s'
+#               % (module, efficient_module))
+#         print('\n')
+#     else:
+#         print('\n')
+#         print('Adapted solution found: module changed from %s to %s.'
+#               % (module, adapted_module))
+#         print('Players with malus: %d' % malus)
+#         print('\n')
+#         print('Equivalent modules were: %s.' % alternative_modules)
+#         print('\n')
+# =============================================================================
     
-
-    if not efficient_module and not adapted_module:
-        print('\n')
-        print('Optimal solution found: module is %s' % module)
-        print('\n')
-    elif efficient_module:
-        print('\n')
-        print('Efficient solution found: module changed from %s to %s'
-              % (module, efficient_module))
-        print('\n')
-    else:
-        print('\n')
-        print('Adapted solution found: module changed from %s to %s.'
-              % (module, adapted_module))
-        print('Players with malus: %d' % malus)
-        print('\n')
-        print('Equivalent modules were: %s.' % alternative_modules)
-        print('\n')
     
-    return printed_lineup
-
+    
+    return printed_lineup,malus
+    
 
 
 
