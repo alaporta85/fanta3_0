@@ -9,10 +9,8 @@
 #       'cday_lineups_votes' to scrape the lineups for each day. They will be
 #       stored in a .pckl file inside a list.
 #
-#   3.  The schedule of the fantaleague ('Fantascandalo' in our case).
-#       It will be stored in a .pckl file inside a dict: the keys are the days
-#       (1, 2, 3, etc etc) and values are lists containing tuples. Each tuple
-#       represent a match of that day.
+#   3.  The round of the fantaleague ('Fantascandalo' in our case).
+#       It will be stored in a .pckl file inside a list.
 
 
 import scrapy
@@ -20,12 +18,12 @@ from scrapy_splash import SplashRequest
 import pickle
 import os
 
-path = '/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule'
+path = '/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round'
 os.chdir(path)
 
-class SerieA_fantateams_schedule(scrapy.Spider):
+class SerieA_fantateams_our_round(scrapy.Spider):
     
-    name = 'serieA_fantateams_schedule'
+    name = 'serieA_fantateams_our_round'
             
     start_urls = ['https://www.fantagazzetta.com/squadre',
                   'http://leghe.fantagazzetta.com/fantascandalo/squadre',
@@ -85,45 +83,52 @@ class SerieA_fantateams_schedule(scrapy.Spider):
         
     def parse_schedule(self, response):
         
-        # This dict will be filled with final result
-        schedule = {}
+        # This list will be filled with final result
+        our_round = []
         
         # All the tables containing all the days of the schedule
         tables = response.xpath('//table[contains(@class,"tbblu")]')
         
+        # to count the iterations and scrape only the first round, not the
+        # whole schedule
+        count = 0
+        
         # For each day of the schedule
         for table in tables:
             
-            # Initialize an empty list to store all the matches for this day
-            fin_list = []
+            count += 1
             
-            # Extract the number representing the day
-            day = table.xpath('.//h4/text()').extract_first().split()[0][0:-1]
-            
-            # All the matches of that specific day
-            matches = table.xpath('.//td[contains(@class,"match")]')
-            
-            # For each match
-            for match in matches:
+            if count < 8:
+                # Initialize an empty list to store all the matches for this
+                # day
+                fin_list = []
                 
-                # Extract the names of both fantateams
-                team1 = match.xpath('.//span[contains(@class,"tleft")]/'+
-                                    'a/text()').extract_first()
-                team2 = match.xpath('.//span[contains(@class,"tright")]/'+
-                                    'a/text()').extract_first()
+                # All the matches of that specific day
+                matches = table.xpath('.//td[contains(@class,"match")]')
                 
-                # Append them as a single tuple
-                fin_list.append((team1, team2))
-            
-            # Store the whole day inside the dict
-            schedule[day] = fin_list
+                # For each match
+                for match in matches:
+                    
+                    # Extract the names of both fantateams
+                    team1 = match.xpath('.//span[contains(@class,"tleft")]/'+
+                                        'a/text()').extract_first()
+                    team2 = match.xpath('.//span[contains(@class,"tright")]/'+
+                                        'a/text()').extract_first()
+                    
+                    # Append them as a single tuple
+                    fin_list.append((team1, team2))
+                
+                # Store the whole day inside the list
+                our_round.append(tuple(fin_list))
+            else:
+                break
         
         # Save the final result
-        f = open('schedule.pckl', 'wb')
-        pickle.dump(schedule, f)
+        f = open('our_round.pckl', 'wb')
+        pickle.dump(our_round, f)
         f.close()
         
         # This message will shown in the Terminal if scraping goes fine
         print('\n')
-        print('Schedule scraped succefully.')
+        print('Our round scraped succefully.')
         print('\n')

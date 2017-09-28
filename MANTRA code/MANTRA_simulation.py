@@ -4,11 +4,10 @@ import pandas as pd
 import os
 import pickle
 
-# Load the dict with the schedule
-g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
-         'schedule.pckl', 'rb')
-our_schedule = pickle.load(g)
-our_round = [our_schedule[str(i)] for i in range(1,8)]
+# Load the list with our round
+g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/'+
+         'our_round.pckl', 'rb')
+our_round = pickle.load(g)
 g.close()
 
 # Load the dict with all the lineups day by day
@@ -24,7 +23,7 @@ fantaplayers = pickle.load(i)
 i.close()
 
 # Load the dict with the names of the fantateams
-l = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
+l = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/'+
          'fantateams_names.pckl', 'rb')
 fantanames = pickle.load(l)
 l.close()
@@ -351,14 +350,14 @@ class Match(object):
             fantanames[self.team1].defeats += 1
             fantanames[self.team2].victories += 1
             fantanames[self.team2].points += 3
-            
+
             
 class Day(object):
     def __init__(self,day,schedule,mode):
         self.day = day
         self.schedule = schedule
         self.mode = mode
-        self.matches = self.schedule[str(day)]
+        self.matches = self.schedule[day]
         
     def play_day(self):
         
@@ -380,7 +379,7 @@ class League(object):
         '''Plays n_days days in the schedule.'''
         
         for i in self.schedule:
-            day = Day(int(i),self.schedule,self.mode)
+            day = Day(i,self.schedule,self.mode)
             day.play_day()
                 
             
@@ -419,10 +418,11 @@ class League(object):
 fantanames = {team:Fantateam(team) for team in fantanames}
 teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
-
-#rounds = sf.leagues_generator(teams,1,'YES')
-
-a = League(our_round,6,'FG')
+n_days = len(lineups['Ciolle United'])
+#
+##rounds = sf.leagues_generator(teams,1,'YES')
+#
+a = League(our_round,n_days,'FG')
 a.play_league()
 print(a.print_league())
         

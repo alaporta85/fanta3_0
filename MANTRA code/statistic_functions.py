@@ -85,6 +85,10 @@ def leagues_generator(teams, n_rounds,rand):
 
 
 def generate_schedule(a_round,total_matches):
+    
+    '''Returns a dict which represents the complete schedule, created by the
+       input a_round and containing 'total_matches' matches.'''
+       
     if not total_matches%len(a_round):
         number = total_matches//len(a_round)
         fin_list = a_round*number
@@ -95,7 +99,7 @@ def generate_schedule(a_round,total_matches):
         last_matches = [a_round[i] for i in range(n_matches_left)]
         fin_list = (a_round*n_complete_rounds) + last_matches
         
-    return {str(i):fin_list[i-1] for i in range(1,total_matches+1)}
+    return {i:fin_list[i-1] for i in range(1,total_matches+1)}
         
                                 
                                 
