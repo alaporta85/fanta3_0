@@ -8,6 +8,7 @@ import pickle
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
          'schedule.pckl', 'rb')
 our_schedule = pickle.load(g)
+our_round = [our_schedule[str(i)] for i in range(1,8)]
 g.close()
 
 # Load the dict with all the lineups day by day
@@ -368,20 +369,24 @@ class Day(object):
             
             
 class League(object):
-    def __init__(self,n_days,schedule,mode):
-        self.n_days = n_days
-        self.schedule = schedule
+    def __init__(self,a_round,n_matches,mode):
+        self.a_round = a_round
+        self.n_matches = n_matches
         self.mode = mode
+        self.schedule = sf.generate_schedule(self.a_round,self.n_matches)
         
     def play_league(self):
         
         '''Plays n_days days in the schedule.'''
         
-        for i in range(1,self.n_days+1):
-            day = Day(i,self.schedule,self.mode)
+        for i in self.schedule:
+            day = Day(int(i),self.schedule,self.mode)
             day.play_day()
+                
             
     def print_league(self):
+        
+        '''Prints the ranking after playing all the matches in the schedule.'''
                 
         all_data = [(fantanames[team].name,
                      fantanames[team].points,
@@ -392,15 +397,20 @@ class League(object):
                      fantanames[team].goals_taken,
                      fantanames[team].goals_diff,
                      fantanames[team].abs_points) for team in fantanames]
+        
+        # Sort the data according to:
+        all_data = sorted(all_data,key=lambda x:x[3],reverse=True) # Draws
+        all_data = sorted(all_data,key=lambda x:x[2],reverse=True) # Victories
+        all_data = sorted(all_data,key=lambda x:x[7],reverse=True) # Diff goals
+        all_data = sorted(all_data,key=lambda x:x[5],reverse=True) # Goals scored
+        all_data = sorted(all_data,key=lambda x:x[8],reverse=True) # Abs points
+        all_data = sorted(all_data,key=lambda x:x[1],reverse=True) # Points
+        
+        all_names = [team[0] for team in all_data]
+        short_data = [team[1:] for team in all_data]
+        header = ['Points','V','N','P','Gs','Gt','Dr','Abs Points']
             
-        all_data = sorted(all_data,key=lambda x:x[3],reverse=True)
-        all_data = sorted(all_data,key=lambda x:x[2],reverse=True)
-        all_data = sorted(all_data,key=lambda x:x[7],reverse=True)
-        all_data = sorted(all_data,key=lambda x:x[5],reverse=True)
-        all_data = sorted(all_data,key=lambda x:x[8],reverse=True)
-        all_data = sorted(all_data,key=lambda x:x[1],reverse=True)
-            
-        table = pd.DataFrame(all_data)
+        table = pd.DataFrame(short_data,all_names,header)
         
         return table
         
@@ -410,21 +420,11 @@ fantanames = {team:Fantateam(team) for team in fantanames}
 teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 
-#rounds = sf.leagues_generator(teams,20,'YES')
+#rounds = sf.leagues_generator(teams,1,'YES')
 
-a = League(3,our_schedule,'ST')
+a = League(our_round,6,'FG')
 a.play_league()
 print(a.print_league())
-#
-#b = []
-#
-#for team in fantanames:
-#    b.append((team,fantanames[team].points))
-#    
-#b = sorted(b,key=lambda x:x[1],reverse=True)
-#
-#for i in b:
-#    print(i)
         
         
         

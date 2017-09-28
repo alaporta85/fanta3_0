@@ -82,6 +82,21 @@ def leagues_generator(teams, n_rounds,rand):
     recursive_rounds(a_round,all_valid_days)
                 
     return all_valid_rounds
+
+
+def generate_schedule(a_round,total_matches):
+    if not total_matches%len(a_round):
+        number = total_matches//len(a_round)
+        fin_list = a_round*number
+        return {i:fin_list[i-1] for i in range(1,total_matches+1)}
+    else:
+        n_complete_rounds = total_matches//len(a_round)
+        n_matches_left = total_matches%len(a_round)
+        last_matches = [a_round[i] for i in range(n_matches_left)]
+        fin_list = (a_round*n_complete_rounds) + last_matches
+        
+    return {str(i):fin_list[i-1] for i in range(1,total_matches+1)}
+        
                                 
                                 
         
