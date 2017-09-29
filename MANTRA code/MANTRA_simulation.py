@@ -425,11 +425,12 @@ class League(object):
         for i in self.schedule:
             day = Day(i,self.schedule,self.mode)
             day.play_fast_day()
-                
             
-    def print_league(self):
+    def create_final_data(self):
         
-        '''Prints the ranking after playing all the matches in the schedule.'''
+        '''Returns a list with only the names of the fantateams in order of
+           ranking and another list containing all the data of the league per
+           fantateam.'''
                 
         all_data = [(fantanames[team].name,
                      fantanames[team].points,
@@ -449,11 +450,91 @@ class League(object):
         all_data = sorted(all_data,key=lambda x:x[8],reverse=True) # Abs points
         all_data = sorted(all_data,key=lambda x:x[1],reverse=True) # Points
         
-        all_names = [team[0] for team in all_data]
+        only_names = [team[0] for team in all_data]
+        
+        return only_names,all_data
+    
+    def final_ranking(self):
+        
+        '''Returns the names in order of ranking.'''
+        
+        only_names,all_data = self.create_final_data()
+        
+        return only_names
+    
+    def print_league(self):
+        
+        '''Returns a table showing all the data of the league per fantateam.'''
+        
+        only_names,all_data = self.create_final_data()
         short_data = [team[1:] for team in all_data]
         header = ['Points','V','N','P','Gs','Gt','Dr','Abs Points']
             
-        table = pd.DataFrame(short_data,all_names,header)
+        table = pd.DataFrame(short_data,only_names,header)
+        
+        return table
+    
+    
+class Statistic(object):
+    def __init__(self,list_of_rounds,n_days,mode):
+        self.list_of_rounds = list_of_rounds
+        self.n_days = n_days
+        self.mode = mode
+        self.place1 = {team:0 for team in fantanames}
+        self.place2 = {team:0 for team in fantanames}
+        self.place3 = {team:0 for team in fantanames}
+        self.place4 = {team:0 for team in fantanames}
+        self.place5 = {team:0 for team in fantanames}
+        self.place6 = {team:0 for team in fantanames}
+        self.place7 = {team:0 for team in fantanames}
+        self.place8 = {team:0 for team in fantanames}
+        self.all_positions = [self.place1,self.place2,self.place3,self.place4,
+                              self.place5,self.place6,self.place7,self.place8]
+        
+        self.create_statistic()
+        
+    def create_statistic(self):
+        for a_round in self.list_of_rounds:
+            new_league = League(a_round,self.n_days,self.mode)
+            new_league.play_fast_league()
+            
+            ranking = new_league.final_ranking()
+            
+            for fantaname in ranking:
+                for position in self.all_positions:
+                    if ranking.index(fantaname) == self.all_positions.index(position):
+                        position[fantaname] += 1
+                        break
+                    
+    def positions_rate(self):
+        n_leagues = len(self.list_of_rounds)
+        
+        rates = [(fantaname,
+                  round((self.place1[fantaname]*100)/n_leagues,2),
+                  round((self.place2[fantaname]*100)/n_leagues,2),
+                  round((self.place3[fantaname]*100)/n_leagues,2),
+                  round((self.place4[fantaname]*100)/n_leagues,2),
+                  round((self.place5[fantaname]*100)/n_leagues,2),
+                  round((self.place6[fantaname]*100)/n_leagues,2),
+                  round((self.place7[fantaname]*100)/n_leagues,2),
+                  round((self.place8[fantaname]*100)/n_leagues,2))
+                  for fantaname in fantanames]
+        
+        rates = sorted(rates,key=lambda x:x[8],reverse=True)
+        rates = sorted(rates,key=lambda x:x[7],reverse=True)
+        rates = sorted(rates,key=lambda x:x[6],reverse=True)
+        rates = sorted(rates,key=lambda x:x[5],reverse=True)
+        rates = sorted(rates,key=lambda x:x[4],reverse=True)
+        rates = sorted(rates,key=lambda x:x[3],reverse=True)
+        rates = sorted(rates,key=lambda x:x[2],reverse=True)
+        rates = sorted(rates,key=lambda x:x[1],reverse=True)
+        
+        only_names = [element[0] for element in rates]
+        short_data = [element[1:] for element in rates]
+        header = ['1st(%)','2nd(%)','3rd(%)','4th(%)',
+                  '5th(%)','6th(%)','7th(%)','8th(%)']
+        
+        table = pd.DataFrame(short_data,only_names,header)
         
         return table
         
@@ -464,12 +545,15 @@ teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
-#rounds = sf.leagues_generator(teams,1,'YES')
+rounds = sf.leagues_generator(teams,20000,'YES')
 
-a = League(our_round,n_days,'ST')
+#a = League(our_round,n_days,'ST')
 #a.play_league()
-a.play_fast_league()
-print(a.print_league())
+#a.play_fast_league()
+#print(a.print_league())
+
+a = Statistic(rounds,6,'ST')
+print(a.positions_rate())
         
         
         

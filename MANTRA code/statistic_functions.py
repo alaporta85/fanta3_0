@@ -4,7 +4,7 @@ import random
 
 #teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 #teams = ['A', 'B', 'C', 'D', 'E', 'F']
-#teams = ['A', 'B', 'C', 'D']
+teams = ['A', 'B', 'C', 'D']
 
 def no_repeated_teams(day,teams):
     
@@ -79,9 +79,9 @@ def leagues_generator(teams, n_rounds,rand):
     all_valid_rounds = []
             
     a_round = []
-    recursive_rounds(a_round,all_valid_days)
+    yield recursive_rounds(a_round,all_valid_days)
                 
-    return all_valid_rounds
+#    return all_valid_rounds
 
 
 def generate_schedule(a_round,total_days):
