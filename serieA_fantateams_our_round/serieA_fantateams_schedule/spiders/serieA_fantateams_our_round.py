@@ -21,7 +21,7 @@ import os
 path = '/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round'
 os.chdir(path)
 
-class SerieA_fantateams_our_round(scrapy.Spider):
+class SerieA_fantateams_schedule(scrapy.Spider):
     
     name = 'serieA_fantateams_our_round'
             

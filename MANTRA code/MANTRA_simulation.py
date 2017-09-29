@@ -28,6 +28,12 @@ l = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/'+
 fantanames = pickle.load(l)
 l.close()
 
+# Load the absolute points. Used to play fast leagues
+m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
+         'abs_points.pckl', 'rb')
+abs_points = pickle.load(m)
+m.close()
+
 # Votes are stored in different .pckl files for different days. Here we create
 # a unique dict with all the votes. First we create the list with all the files
 files = os.listdir('/Users/andrea/Desktop/fanta3_0/'+
@@ -268,7 +274,6 @@ class Match(object):
         self.lineup1 = fantanames[team1].lineup(day)
         self.lineup2 = fantanames[team2].lineup(day)
         
-        self.play_match()
         
     def calculate_goals(self,a_number):
         
@@ -284,8 +289,7 @@ class Match(object):
     
     def play_match(self):
         
-        '''Plays the match and updates all the parameters realtive to each
-           fantateam.'''
+        '''Plays the match by applying the MANTRA algorithm.'''
         
         # Separate module and player in two different variables and launch the
         # MANTRA simulation for both teams
@@ -318,6 +322,26 @@ class Match(object):
                               if player[1]==player[1].upper()]
         abs_points2 = sum([player.fantavote(self.day,self.mode) for player
                            in players_with_vote2]) - 0.5*malus2
+        
+        return abs_points1,abs_points2
+    
+    def play_fast_match(self):
+        
+        '''Play the match by taking directly the absolute points from the dict.
+           This can be used only in 'ST' mode because it is the one we are
+           using on the website. To be able to use it in 'FG', a dict with all
+           the FG absolute points must be created first.'''
+           
+        abs_points1 = [x[1] for x in abs_points[self.team1]
+                       if x[0]==self.day][0]
+        abs_points2 = [x[1] for x in abs_points[self.team2]
+                       if x[0]==self.day][0]
+        
+        return abs_points1,abs_points2
+        
+    def update_fantateams(self,abs_points1,abs_points2):
+        
+        '''Updates all the parameters realtive to each fantateam.'''
         
         # Update the abs_points attribute of both fantateams
         fantanames[self.team1].abs_points += abs_points1
@@ -364,23 +388,43 @@ class Day(object):
         '''Plays all the matches of the day.'''
         
         for match in self.matches:
-            Match(match[0],match[1],self.day,self.mode)
+            the_match = Match(match[0],match[1],self.day,self.mode)
+            abs_points1,abs_points2 = the_match.play_match()
+            the_match.update_fantateams(abs_points1,abs_points2)
+            
+    def play_fast_day(self):
+        
+        '''Plays fast all the matches of the day.'''
+        
+        for match in self.matches:
+            the_match = Match(match[0],match[1],self.day,self.mode)
+            abs_points1,abs_points2 = the_match.play_fast_match()
+            the_match.update_fantateams(abs_points1,abs_points2)
+            
             
             
 class League(object):
-    def __init__(self,a_round,n_matches,mode):
+    def __init__(self,a_round,n_days,mode):
         self.a_round = a_round
-        self.n_matches = n_matches
+        self.n_days = n_days
         self.mode = mode
-        self.schedule = sf.generate_schedule(self.a_round,self.n_matches)
+        self.schedule = sf.generate_schedule(self.a_round,self.n_days)
         
     def play_league(self):
         
-        '''Plays n_days days in the schedule.'''
+        '''Plays all the matches in the schedule.'''
         
         for i in self.schedule:
             day = Day(i,self.schedule,self.mode)
             day.play_day()
+            
+    def play_fast_league(self):
+        
+        '''Plays fast all the matches in the schedule.'''
+        
+        for i in self.schedule:
+            day = Day(i,self.schedule,self.mode)
+            day.play_fast_day()
                 
             
     def print_league(self):
@@ -419,11 +463,12 @@ fantanames = {team:Fantateam(team) for team in fantanames}
 teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#
-##rounds = sf.leagues_generator(teams,1,'YES')
-#
-a = League(our_round,n_days,'FG')
-a.play_league()
+
+#rounds = sf.leagues_generator(teams,1,'YES')
+
+a = League(our_round,n_days,'ST')
+#a.play_league()
+a.play_fast_league()
 print(a.print_league())
         
         

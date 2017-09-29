@@ -16,7 +16,7 @@ NEWSPIDER_MODULE = 'serieA_fantateams_schedule.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'serieA_fantateams_schedule (+http://www.yourdomain.com)'
+#USER_AGENT = 'serieA_fantateams_our_round (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
