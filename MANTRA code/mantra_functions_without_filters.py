@@ -721,30 +721,28 @@ def MANTRA_simulation(lineup,module,mode='ST'):
             printed_lineup.append(new_tuple)
     
     
-# =============================================================================
-#     separator = '- - - - - - - - - - - - - -'
-#     printed_lineup.insert(11, separator)
-#     
-# 
-#     if not efficient_module and not adapted_module:
-#         print('\n')
-#         print('Optimal solution found: module is %s' % module)
-#         print('\n')
-#         print('Malus %d' % malus)
-#     elif efficient_module:
-#         print('\n')
-#         print('Efficient solution found: module changed from %s to %s'
-#               % (module, efficient_module))
-#         print('\n')
-#     else:
-#         print('\n')
-#         print('Adapted solution found: module changed from %s to %s.'
-#               % (module, adapted_module))
-#         print('Players with malus: %d' % malus)
-#         print('\n')
-#         print('Equivalent modules were: %s.' % alternative_modules)
-#         print('\n')
-# =============================================================================
+#    separator = '- - - - - - - - - - - - - -'
+#    printed_lineup.insert(11, separator)
+#    
+#
+#    if not efficient_module and not adapted_module:
+#        print('\n')
+#        print('Optimal solution found: module is %s' % module)
+#        print('\n')
+#        print('Malus %d' % malus)
+#    elif efficient_module:
+#        print('\n')
+#        print('Efficient solution found: module changed from %s to %s'
+#              % (module, efficient_module))
+#        print('\n')
+#    else:
+#        print('\n')
+#        print('Adapted solution found: module changed from %s to %s.'
+#              % (module, adapted_module))
+#        print('Players with malus: %d' % malus)
+#        print('\n')
+#        print('Equivalent modules were: %s.' % alternative_modules)
+#        print('\n')
     
     
     

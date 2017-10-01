@@ -27,18 +27,46 @@ acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO','yes'),
              ('GAMBERINI', ['Dc'], 'CHIEVO','yes'),
              ('SAMIR', ['Ds', 'Dc'], 'UDINESE','yes'),
              ('MIRANTE', ['Por'], 'BOLOGNA','no'),
-# =============================================================================
-#              ('VIVIANO', ['Por'], 'SAMPDORIA'),
-#              ('HOWEDES', ['Dd', 'Dc'], 'JUVENTUS'),
-#              ('KARSDORP', ['Dd', 'E'], 'ROMA'),
-#              ('DE SCIGLIO', ['Dd', 'Ds', 'E'], 'JUVENTUS'),
-#              ('GOBBI', ['Ds', 'E'], 'CHIEVO'),
-#              ('DIAWARA', ['M', 'C'], 'NAPOLI'),
-#              ('BASELLI', ['C'], 'TORINO'),
-#              ('SCHICK', ['A'], 'ROMA'),
-#              ('BORRIELLO', ['Pc'], 'SPAL')
-# =============================================================================
+#             ('VIVIANO', ['Por'], 'SAMPDORIA'),
+#             ('HOWEDES', ['Dd', 'Dc'], 'JUVENTUS'),
+#             ('KARSDORP', ['Dd', 'E'], 'ROMA'),
+#             ('DE SCIGLIO', ['Dd', 'Ds', 'E'], 'JUVENTUS'),
+#             ('GOBBI', ['Ds', 'E'], 'CHIEVO'),
+#             ('DIAWARA', ['M', 'C'], 'NAPOLI'),
+#             ('BASELLI', ['C'], 'TORINO'),
+#             ('SCHICK', ['A'], 'ROMA'),
+#             ('BORRIELLO', ['Pc'], 'SPAL')
              ]
+
+bucalina = [('BUFFON', ['Por'], 'JUVENTUS','yes'),
+            ('STRINIC', ['Ds', 'E'], 'SAMPDORIA','yes'),
+            ('FELIPE', ['Dc'], 'SPAL','yes'),
+            ('DE VRIJ', ['Dc'], 'LAZIO','yes'),
+            ('MATTIELLO', ['Dd', 'Ds', 'E'], 'SPAL','no'),
+            ('PERISIC', ['W', 'A'], 'INTER','yes'),
+            ('BROZOVIC', ['C', 'T'], 'INTER','yes'),
+            ('BARRETO E', ['M', 'C'], 'SAMPDORIA','yes'),
+            ('CHIESA', ['W', 'A'], 'FIORENTINA','yes'),
+            ('HIGUAIN', ['Pc'], 'JUVENTUS','yes'),
+            ('VERDI', ['T', 'A'], 'BOLOGNA','yes'),
+            ('MAXI LOPEZ', ['Pc'], 'UDINESE','yes'),
+            ('FALCINELLI', ['Pc'], 'SASSUOLO','no'),
+            ('PRAET', ['C', 'T'], 'SAMPDORIA','yes'),
+            ("KESSIE'", ['M', 'C'], 'MILAN','yes'),
+            ('CATALDI', ['M', 'C'], 'BENEVENTO','yes'),
+            ('LAXALT', ['E'], 'GENOA','yes'),
+            ('IZCO', ['E', 'M'], 'CROTONE','no'),
+            ('RANOCCHIA', ['Dc'], 'INTER','no'),
+            ('DE MAIO', ['Dc'], 'BOLOGNA','no'),
+            ('HEURTAUX', ['Dc'], 'VERONA','yes'),
+            ('ANDREOLLI', ['Dc'], 'CAGLIARI','yes'),
+            ('SZCZESNY', ['Por'], 'JUVENTUS','no'),
+#            ('PINSOGLIO', ['Por'], 'JUVENTUS'),
+#            ('CANCELO', ['Dd', 'E'], 'INTER'),
+#            ('BARRECA', ['Ds', 'E'], 'TORINO'),
+#            ('VAN DER WIEL', ['Dd', 'E'], 'CAGLIARI'),
+#            ('ANTEI', ['Dd', 'Dc'], 'BENEVENTO'),
+            ]
 
 
 def check_in_advance(module,fantateam):
@@ -59,7 +87,7 @@ def check_in_advance(module,fantateam):
     
     
     
-    
+
     
     
     

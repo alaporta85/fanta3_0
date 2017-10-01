@@ -29,10 +29,10 @@ fantanames = pickle.load(l)
 l.close()
 
 # Load the absolute points. Used to play fast leagues
-m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
-         'abs_points.pckl', 'rb')
-abs_points = pickle.load(m)
-m.close()
+#m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
+#         'abs_points.pckl', 'rb')
+#abs_points = pickle.load(m)
+#m.close()
 
 # Votes are stored in different .pckl files for different days. Here we create
 # a unique dict with all the votes. First we create the list with all the files
@@ -266,13 +266,14 @@ class Fantateam(object):
         return self.players
 
 class Match(object):
-    def __init__(self,team1,team2,day,mode):
+    def __init__(self,team1,team2,day,fantateams,mode):
         self.team1 = team1
         self.team2 = team2
         self.day = day
         self.mode = mode
-        self.lineup1 = fantanames[team1].lineup(day)
-        self.lineup2 = fantanames[team2].lineup(day)
+        self.fantateams = fantateams
+#        self.lineup1 = self.fantateams[team1].lineup(day)
+#        self.lineup2 = self.fantateams[team2].lineup(day)
         
         
     def calculate_goals(self,a_number):
@@ -305,8 +306,8 @@ class Match(object):
                                                             module2,
                                                             self.mode)
         # Update the number of malus
-        fantanames[self.team1].malus += malus1
-        fantanames[self.team2].malus += malus2
+        self.fantateams[self.team1].malus += malus1
+        self.fantateams[self.team2].malus += malus2
         
         # Create a list of all players who will contribute to the final
         # fantavote calculation and finally calculate the abs_points for each
@@ -344,51 +345,52 @@ class Match(object):
         '''Updates all the parameters realtive to each fantateam.'''
         
         # Update the abs_points attribute of both fantateams
-        fantanames[self.team1].abs_points += abs_points1
-        fantanames[self.team2].abs_points += abs_points2
+        self.fantateams[self.team1].abs_points += abs_points1
+        self.fantateams[self.team2].abs_points += abs_points2
         
         # Calculate the goals scored by each fantateam in the match
         goals1 = self.calculate_goals(abs_points1)
         goals2 = self.calculate_goals(abs_points2)
         
         # Update goals_scored and goals_taken attributes for both teams
-        fantanames[self.team1].goals_scored += goals1
-        fantanames[self.team1].goals_taken += goals2
-        fantanames[self.team2].goals_scored += goals2
-        fantanames[self.team2].goals_taken += goals1
-        fantanames[self.team1].goals_diff += goals1 - goals2
-        fantanames[self.team2].goals_diff += goals2 - goals1
+        self.fantateams[self.team1].goals_scored += goals1
+        self.fantateams[self.team1].goals_taken += goals2
+        self.fantateams[self.team2].goals_scored += goals2
+        self.fantateams[self.team2].goals_taken += goals1
+        self.fantateams[self.team1].goals_diff += goals1 - goals2
+        self.fantateams[self.team2].goals_diff += goals2 - goals1
         
         # Update the rest of the attributes based on the number of goals scored
         # in the match by the fantateams
         if goals1 == goals2:
-            fantanames[self.team1].draws += 1
-            fantanames[self.team2].draws += 1
-            fantanames[self.team1].points += 1
-            fantanames[self.team2].points += 1
+            self.fantateams[self.team1].draws += 1
+            self.fantateams[self.team2].draws += 1
+            self.fantateams[self.team1].points += 1
+            self.fantateams[self.team2].points += 1
         elif goals1 > goals2:
-            fantanames[self.team1].victories += 1
-            fantanames[self.team2].defeats += 1
-            fantanames[self.team1].points += 3
+            self.fantateams[self.team1].victories += 1
+            self.fantateams[self.team2].defeats += 1
+            self.fantateams[self.team1].points += 3
         else:
-            fantanames[self.team1].defeats += 1
-            fantanames[self.team2].victories += 1
-            fantanames[self.team2].points += 3
+            self.fantateams[self.team1].defeats += 1
+            self.fantateams[self.team2].victories += 1
+            self.fantateams[self.team2].points += 3
 
             
 class Day(object):
-    def __init__(self,day,schedule,mode):
+    def __init__(self,day,schedule,fantateams,mode):
         self.day = day
         self.schedule = schedule
         self.mode = mode
         self.matches = self.schedule[day]
+        self.fantateams =fantateams
         
     def play_day(self):
         
         '''Plays all the matches of the day.'''
         
         for match in self.matches:
-            the_match = Match(match[0],match[1],self.day,self.mode)
+            the_match = Match(match[0],match[1],self.day,self.fantateams,self.mode)
             abs_points1,abs_points2 = the_match.play_match()
             the_match.update_fantateams(abs_points1,abs_points2)
             
@@ -397,7 +399,7 @@ class Day(object):
         '''Plays fast all the matches of the day.'''
         
         for match in self.matches:
-            the_match = Match(match[0],match[1],self.day,self.mode)
+            the_match = Match(match[0],match[1],self.day,self.fantateams,self.mode)
             abs_points1,abs_points2 = the_match.play_fast_match()
             the_match.update_fantateams(abs_points1,abs_points2)
             
@@ -409,13 +411,14 @@ class League(object):
         self.n_days = n_days
         self.mode = mode
         self.schedule = sf.generate_schedule(self.a_round,self.n_days)
+        self.fantateams = {team:Fantateam(team) for team in fantanames}
         
     def play_league(self):
         
         '''Plays all the matches in the schedule.'''
         
         for i in self.schedule:
-            day = Day(i,self.schedule,self.mode)
+            day = Day(i,self.schedule,self.fantateams,self.mode)
             day.play_day()
             
     def play_fast_league(self):
@@ -423,7 +426,7 @@ class League(object):
         '''Plays fast all the matches in the schedule.'''
         
         for i in self.schedule:
-            day = Day(i,self.schedule,self.mode)
+            day = Day(i,self.schedule,self.fantateams,self.mode)
             day.play_fast_day()
             
     def create_final_data(self):
@@ -432,15 +435,15 @@ class League(object):
            ranking and another list containing all the data of the league per
            fantateam.'''
                 
-        all_data = [(fantanames[team].name,
-                     fantanames[team].points,
-                     fantanames[team].victories,
-                     fantanames[team].draws,
-                     fantanames[team].defeats,
-                     fantanames[team].goals_scored,
-                     fantanames[team].goals_taken,
-                     fantanames[team].goals_diff,
-                     fantanames[team].abs_points) for team in fantanames]
+        all_data = [(self.fantateams[team].name,
+                     self.fantateams[team].points,
+                     self.fantateams[team].victories,
+                     self.fantateams[team].draws,
+                     self.fantateams[team].defeats,
+                     self.fantateams[team].goals_scored,
+                     self.fantateams[team].goals_taken,
+                     self.fantateams[team].goals_diff,
+                     self.fantateams[team].abs_points) for team in fantanames]
         
         # Sort the data according to:
         all_data = sorted(all_data,key=lambda x:x[3],reverse=True) # Draws
@@ -472,7 +475,7 @@ class League(object):
             
         table = pd.DataFrame(short_data,only_names,header)
         
-        return table
+        print(table)
     
     
 class Statistic(object):
@@ -497,6 +500,8 @@ class Statistic(object):
         for a_round in self.list_of_rounds:
             new_league = League(a_round,self.n_days,self.mode)
             new_league.play_fast_league()
+            new_league.print_league()
+            print('\n')
             
             ranking = new_league.final_ranking()
             
@@ -509,30 +514,45 @@ class Statistic(object):
     def positions_rate(self):
         n_leagues = len(self.list_of_rounds)
         
+#        rates = [(fantaname,
+#                  round((self.place1[fantaname]*100)/n_leagues,1),
+#                  round((self.place2[fantaname]*100)/n_leagues,1),
+#                  round((self.place3[fantaname]*100)/n_leagues,1),
+#                  round((self.place4[fantaname]*100)/n_leagues,1),
+#                  round((self.place5[fantaname]*100)/n_leagues,1),
+#                  round((self.place6[fantaname]*100)/n_leagues,1),
+#                  round((self.place7[fantaname]*100)/n_leagues,1),
+#                  round((self.place8[fantaname]*100)/n_leagues,1))
+#                  for fantaname in fantanames]
+        
         rates = [(fantaname,
-                  round((self.place1[fantaname]*100)/n_leagues,2),
-                  round((self.place2[fantaname]*100)/n_leagues,2),
-                  round((self.place3[fantaname]*100)/n_leagues,2),
-                  round((self.place4[fantaname]*100)/n_leagues,2),
-                  round((self.place5[fantaname]*100)/n_leagues,2),
-                  round((self.place6[fantaname]*100)/n_leagues,2),
-                  round((self.place7[fantaname]*100)/n_leagues,2),
-                  round((self.place8[fantaname]*100)/n_leagues,2))
+                  self.place1[fantaname],
+                  self.place2[fantaname],
+                  self.place3[fantaname],
+                  self.place4[fantaname],
+                  self.place5[fantaname],
+                  self.place6[fantaname],
+                  self.place7[fantaname],
+                  self.place8[fantaname])
                   for fantaname in fantanames]
         
-        rates = sorted(rates,key=lambda x:x[8],reverse=True)
-        rates = sorted(rates,key=lambda x:x[7],reverse=True)
-        rates = sorted(rates,key=lambda x:x[6],reverse=True)
-        rates = sorted(rates,key=lambda x:x[5],reverse=True)
-        rates = sorted(rates,key=lambda x:x[4],reverse=True)
-        rates = sorted(rates,key=lambda x:x[3],reverse=True)
-        rates = sorted(rates,key=lambda x:x[2],reverse=True)
-        rates = sorted(rates,key=lambda x:x[1],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[8],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[7],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[6],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[5],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[4],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[3],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[2],reverse=True)
+#        rates = sorted(rates,key=lambda x:x[1],reverse=True)
         
         only_names = [element[0] for element in rates]
         short_data = [element[1:] for element in rates]
-        header = ['1st(%)','2nd(%)','3rd(%)','4th(%)',
-                  '5th(%)','6th(%)','7th(%)','8th(%)']
+#        short_data = [element[1] for element in rates]
+        header = ['1st(%)',
+                  '2nd(%)','3rd(%)',
+                  '4th(%)','5th(%)','6th(%)','7th(%)',
+                  '8th(%)'
+                  ]
         
         table = pd.DataFrame(short_data,only_names,header)
         
@@ -540,19 +560,18 @@ class Statistic(object):
         
 
         
-fantanames = {team:Fantateam(team) for team in fantanames}
 teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
-rounds = sf.leagues_generator(teams,20000,'YES')
+rounds = sf.leagues_generator(teams,2,'YES')
 
 #a = League(our_round,n_days,'ST')
 #a.play_league()
-#a.play_fast_league()
 #print(a.print_league())
+#a.play_fast_league()
 
-a = Statistic(rounds,6,'ST')
+a = Statistic(rounds,34,'ST')
 print(a.positions_rate())
         
         

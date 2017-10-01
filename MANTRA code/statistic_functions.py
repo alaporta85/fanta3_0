@@ -4,7 +4,7 @@ import random
 
 #teams = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 #teams = ['A', 'B', 'C', 'D', 'E', 'F']
-teams = ['A', 'B', 'C', 'D']
+#teams = ['A', 'B', 'C', 'D']
 
 def no_repeated_teams(day,teams):
     
@@ -44,7 +44,7 @@ def leagues_generator(teams, n_rounds,rand):
         nonlocal all_valid_rounds
         
         if rand == 'YES':
-            all_valid_days = random.sample(all_valid_days, len(all_valid_days))
+            random.shuffle(all_valid_days)
                 
         for day in all_valid_days:
             a_round_copy = copy.copy(a_round)
@@ -62,6 +62,8 @@ def leagues_generator(teams, n_rounds,rand):
     
     # All the possible matches
     pairs = list(combinations(teams,2))
+    if rand == 'YES':
+        random.shuffle(pairs)
     
     n_matches_per_day = len(teams)//2
     
@@ -76,13 +78,16 @@ def leagues_generator(teams, n_rounds,rand):
         if no_repeated_teams(day,teams):
             all_valid_days.append(day)
             
+    if rand == 'YES':
+        random.shuffle(all_valid_days)
+            
     all_valid_rounds = []
             
     a_round = []
-    yield recursive_rounds(a_round,all_valid_days)
+    recursive_rounds(a_round,all_valid_days)
                 
-#    return all_valid_rounds
-
+    return all_valid_rounds
+                
 
 def generate_schedule(a_round,total_days):
     
