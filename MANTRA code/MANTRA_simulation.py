@@ -3,6 +3,7 @@ import statistic_functions as sf
 import pandas as pd
 import os
 import pickle
+import time
 
 # Load the list with our round
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/'+
@@ -581,8 +582,8 @@ class Statistic(object):
 
         
 teams = [name for name in fantanames]
-all_players = {player:Player(player) for player in players_database}
-n_days = len(lineups['Ciolle United'])
+#all_players = {player:Player(player) for player in players_database}
+#n_days = len(lineups['Ciolle United'])
 
 #a = League(our_round,n_days,'ST')
 #a.play_league()
@@ -590,9 +591,13 @@ n_days = len(lineups['Ciolle United'])
 #a.play_fast_league()
 #a.print_league()
 
-rounds = sf.leagues_generator(teams,2000,'YES')
+
+
+start = time.time()
+rounds = sf.random_rounds(10000)
 a = Statistic(rounds,7,'ST')
-print(a.positions8_rate())
+print(a.positions4_rate())
+print(round(time.time() - start,2))
         
         
         
