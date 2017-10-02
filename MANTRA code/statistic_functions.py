@@ -239,16 +239,16 @@ def random_rounds(number):
        complete schedule by using the function generate_schedule(a_round,
        total_days).'''
     
-    myfile = ('/Users/andrea/Desktop/fanta3_0/MANTRA code/'+
-              'Reduced_Leagues_8teams.txt')
+#    myfile = ('/Users/andrea/Desktop/fanta3_0/MANTRA code/'+
+#              'Reduced_Leagues_8teams.txt')
+    
+    myfile = ('/Users/andrea/Desktop/All_Leagues_8teams.txt')
+    
     res = []
     for x in range(number):
         line = get_random_line(myfile)
-        try:
-            real_round = real_round_from_line(line)
-            res.append(real_round)
-        except KeyError:
-            print(line)
+        real_round = real_round_from_line(line)
+        res.append(real_round)
         
     return res
                 

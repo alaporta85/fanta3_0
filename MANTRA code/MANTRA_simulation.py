@@ -480,8 +480,8 @@ class League(object):
     
     
 class Statistic(object):
-    def __init__(self,list_of_rounds,n_days,mode):
-        self.list_of_rounds = list_of_rounds
+    def __init__(self,leagues,n_days,mode):
+        self.leagues = leagues
         self.n_days = n_days
         self.mode = mode
         self.place1 = {team:0 for team in fantanames}
@@ -498,11 +498,10 @@ class Statistic(object):
         self.create_statistic()
         
     def create_statistic(self):
-        for a_round in self.list_of_rounds:
+        list_of_rounds = sf.random_rounds(self.leagues)
+        for a_round in list_of_rounds:
             new_league = League(a_round,self.n_days,self.mode)
             new_league.play_fast_league()
-#            new_league.print_league()
-#            print('\n')
             
             ranking = new_league.final_ranking()
             
@@ -513,7 +512,7 @@ class Statistic(object):
                         break
                     
     def positions8_rate(self):
-        n_leagues = len(self.list_of_rounds)
+        n_leagues = self.leagues
         
         rates = [(fantaname,
                   round((self.place1[fantaname]*100)/n_leagues,1),
@@ -525,17 +524,7 @@ class Statistic(object):
                   round((self.place7[fantaname]*100)/n_leagues,1),
                   round((self.place8[fantaname]*100)/n_leagues,1))
                   for fantaname in fantanames]
-        
-#        rates = [(fantaname,
-#                  self.place1[fantaname],
-#                  self.place2[fantaname],
-#                  self.place3[fantaname],
-#                  self.place4[fantaname],
-#                  self.place5[fantaname],
-#                  self.place6[fantaname],
-#                  self.place7[fantaname],
-#                  self.place8[fantaname])
-#                  for fantaname in fantanames]
+
         
         rates.sort(key=lambda x:x[1],reverse=True)
         rates[1:]=sorted(rates[1:],key=lambda x:x[2],reverse=True)
@@ -557,7 +546,7 @@ class Statistic(object):
     
     
     def positions4_rate(self):
-        n_leagues = len(self.list_of_rounds)
+        n_leagues = self.leagues
         
         rates = [(fantaname,
                   round((self.place1[fantaname]*100)/n_leagues,1),
@@ -578,12 +567,28 @@ class Statistic(object):
         table = pd.DataFrame(short_data,only_names,header)
         
         return table
-        
+    
+    def round_team_position(self,a_team_name,position):
+        list_of_rounds = sf.random_rounds(self.leagues)
+        all_rounds = []
+        best_round = 0
+        points = 0
+        for a_round in list_of_rounds:
+            new_league = League(a_round,self.n_days,self.mode)
+            new_league.play_fast_league()
+            ranking = new_league.final_ranking()
+            if ranking[position-1]==a_team_name:
+                all_rounds.append(a_round)
+                if new_league.fantateams[a_team_name].points > points:
+                    best_round = (a_round,new_league.fantateams[a_team_name].points)
+                    points = new_league.fantateams[a_team_name].points
+                
+        return all_rounds,best_round
 
         
 teams = [name for name in fantanames]
-#all_players = {player:Player(player) for player in players_database}
-#n_days = len(lineups['Ciolle United'])
+all_players = {player:Player(player) for player in players_database}
+n_days = len(lineups['Ciolle United'])
 
 #a = League(our_round,n_days,'ST')
 #a.play_league()
@@ -594,9 +599,9 @@ teams = [name for name in fantanames]
 
 
 start = time.time()
-rounds = sf.random_rounds(10000)
-a = Statistic(rounds,7,'ST')
-print(a.positions4_rate())
+a = Statistic(50000,7,'ST')
+#print(a.positions4_rate())
+b,c = a.round_team_position('AC PICCHIA',1)
 print(round(time.time() - start,2))
         
         
