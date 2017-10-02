@@ -16,7 +16,7 @@ class Players(scrapy.Spider):
     
     name = 'all_players_per_team'
 
-    f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
+    f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/'+
              'serieA_teams.pckl', 'rb')
     serieA_teams = pickle.load(f)
     f.close()

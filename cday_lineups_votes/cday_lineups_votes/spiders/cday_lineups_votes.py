@@ -100,7 +100,7 @@ class Cday_lineups_votes(scrapy.Spider):
     # To handle some 302 Redirecting issues
     handle_httpstatus_list = [302]
     
-    name = 'cday_lineups_votes2'
+    name = 'cday_lineups_votes'
     
     # Divide all the links to scrape in three different lists. The reason
     # is that we need the value of self.cday to be scraped first because it

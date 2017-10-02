@@ -29,10 +29,10 @@ fantanames = pickle.load(l)
 l.close()
 
 # Load the absolute points. Used to play fast leagues
-#m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
-#         'abs_points.pckl', 'rb')
-#abs_points = pickle.load(m)
-#m.close()
+m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
+         'abs_points.pckl', 'rb')
+abs_points = pickle.load(m)
+m.close()
 
 # Votes are stored in different .pckl files for different days. Here we create
 # a unique dict with all the votes. First we create the list with all the files
@@ -272,8 +272,8 @@ class Match(object):
         self.day = day
         self.mode = mode
         self.fantateams = fantateams
-#        self.lineup1 = self.fantateams[team1].lineup(day)
-#        self.lineup2 = self.fantateams[team2].lineup(day)
+        self.lineup1 = self.fantateams[team1].lineup(day)
+        self.lineup2 = self.fantateams[team2].lineup(day)
         
         
     def calculate_goals(self,a_number):
@@ -500,8 +500,8 @@ class Statistic(object):
         for a_round in self.list_of_rounds:
             new_league = League(a_round,self.n_days,self.mode)
             new_league.play_fast_league()
-            new_league.print_league()
-            print('\n')
+#            new_league.print_league()
+#            print('\n')
             
             ranking = new_league.final_ranking()
             
@@ -511,48 +511,68 @@ class Statistic(object):
                         position[fantaname] += 1
                         break
                     
-    def positions_rate(self):
+    def positions8_rate(self):
         n_leagues = len(self.list_of_rounds)
         
-#        rates = [(fantaname,
-#                  round((self.place1[fantaname]*100)/n_leagues,1),
-#                  round((self.place2[fantaname]*100)/n_leagues,1),
-#                  round((self.place3[fantaname]*100)/n_leagues,1),
-#                  round((self.place4[fantaname]*100)/n_leagues,1),
-#                  round((self.place5[fantaname]*100)/n_leagues,1),
-#                  round((self.place6[fantaname]*100)/n_leagues,1),
-#                  round((self.place7[fantaname]*100)/n_leagues,1),
-#                  round((self.place8[fantaname]*100)/n_leagues,1))
-#                  for fantaname in fantanames]
-        
         rates = [(fantaname,
-                  self.place1[fantaname],
-                  self.place2[fantaname],
-                  self.place3[fantaname],
-                  self.place4[fantaname],
-                  self.place5[fantaname],
-                  self.place6[fantaname],
-                  self.place7[fantaname],
-                  self.place8[fantaname])
+                  round((self.place1[fantaname]*100)/n_leagues,1),
+                  round((self.place2[fantaname]*100)/n_leagues,1),
+                  round((self.place3[fantaname]*100)/n_leagues,1),
+                  round((self.place4[fantaname]*100)/n_leagues,1),
+                  round((self.place5[fantaname]*100)/n_leagues,1),
+                  round((self.place6[fantaname]*100)/n_leagues,1),
+                  round((self.place7[fantaname]*100)/n_leagues,1),
+                  round((self.place8[fantaname]*100)/n_leagues,1))
                   for fantaname in fantanames]
         
-#        rates = sorted(rates,key=lambda x:x[8],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[7],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[6],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[5],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[4],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[3],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[2],reverse=True)
-#        rates = sorted(rates,key=lambda x:x[1],reverse=True)
+#        rates = [(fantaname,
+#                  self.place1[fantaname],
+#                  self.place2[fantaname],
+#                  self.place3[fantaname],
+#                  self.place4[fantaname],
+#                  self.place5[fantaname],
+#                  self.place6[fantaname],
+#                  self.place7[fantaname],
+#                  self.place8[fantaname])
+#                  for fantaname in fantanames]
+        
+        rates.sort(key=lambda x:x[1],reverse=True)
+        rates[1:]=sorted(rates[1:],key=lambda x:x[2],reverse=True)
+        rates[2:]=sorted(rates[2:],key=lambda x:x[3],reverse=True)
+        rates[3:]=sorted(rates[3:],key=lambda x:x[4],reverse=True)
+        rates[4:]=sorted(rates[4:],key=lambda x:x[5],reverse=True)
+        rates[5:]=sorted(rates[5:],key=lambda x:x[6],reverse=True)
+        rates[6:]=sorted(rates[6:],key=lambda x:x[7],reverse=True)
+        rates[7:]=sorted(rates[7:],key=lambda x:x[8])
         
         only_names = [element[0] for element in rates]
         short_data = [element[1:] for element in rates]
-#        short_data = [element[1] for element in rates]
-        header = ['1st(%)',
-                  '2nd(%)','3rd(%)',
-                  '4th(%)','5th(%)','6th(%)','7th(%)',
-                  '8th(%)'
-                  ]
+        header = ['1st(%)','2nd(%)','3rd(%)','4th(%)',
+                  '5th(%)','6th(%)','7th(%)','8th(%)']
+        
+        table = pd.DataFrame(short_data,only_names,header)
+        
+        return table
+    
+    
+    def positions4_rate(self):
+        n_leagues = len(self.list_of_rounds)
+        
+        rates = [(fantaname,
+                  round((self.place1[fantaname]*100)/n_leagues,1),
+                  round((self.place2[fantaname]*100)/n_leagues,1),
+                  round((self.place3[fantaname]*100)/n_leagues,1),
+                  round((self.place8[fantaname]*100)/n_leagues,1))
+                  for fantaname in fantanames]
+        
+        rates.sort(key=lambda x:x[1],reverse=True)
+        rates[1:]=sorted(rates[1:],key=lambda x:x[2],reverse=True)
+        rates[2:]=sorted(rates[2:],key=lambda x:x[3],reverse=True)
+        rates[3:]=sorted(rates[3:],key=lambda x:x[4])
+        
+        only_names = [element[0] for element in rates]
+        short_data = [element[1:] for element in rates]
+        header = ['1st(%)','2nd(%)','3rd(%)','8th(%)']
         
         table = pd.DataFrame(short_data,only_names,header)
         
@@ -564,15 +584,15 @@ teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
-rounds = sf.leagues_generator(teams,2,'YES')
-
 #a = League(our_round,n_days,'ST')
 #a.play_league()
-#print(a.print_league())
+#a.print_league()
 #a.play_fast_league()
+#a.print_league()
 
-a = Statistic(rounds,34,'ST')
-print(a.positions_rate())
+rounds = sf.leagues_generator(teams,2000,'YES')
+a = Statistic(rounds,7,'ST')
+print(a.positions8_rate())
         
         
         
