@@ -35,6 +35,8 @@ m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/'+
 abs_points = pickle.load(m)
 m.close()
 
+all_roles = {player[0]:player[1] for team in fantaplayers for player in fantaplayers[team]}
+
 # Votes are stored in different .pckl files for different days. Here we create
 # a unique dict with all the votes. First we create the list with all the files
 files = os.listdir('/Users/andrea/Desktop/fanta3_0/'+
@@ -391,7 +393,8 @@ class Day(object):
         '''Plays all the matches of the day.'''
         
         for match in self.matches:
-            the_match = Match(match[0],match[1],self.day,self.fantateams,self.mode)
+            the_match = Match(match[0],match[1],self.day,self.fantateams,
+                              self.mode)
             abs_points1,abs_points2 = the_match.play_match()
             the_match.update_fantateams(abs_points1,abs_points2)
             
@@ -400,7 +403,8 @@ class Day(object):
         '''Plays fast all the matches of the day.'''
         
         for match in self.matches:
-            the_match = Match(match[0],match[1],self.day,self.fantateams,self.mode)
+            the_match = Match(match[0],match[1],self.day,self.fantateams,
+                              self.mode)
             abs_points1,abs_points2 = the_match.play_fast_match()
             the_match.update_fantateams(abs_points1,abs_points2)
             
@@ -446,13 +450,13 @@ class League(object):
                      self.fantateams[team].goals_diff,
                      self.fantateams[team].abs_points) for team in fantanames]
         
-        # Sort the data according to:
-        all_data = sorted(all_data,key=lambda x:x[3],reverse=True) # Draws
-        all_data = sorted(all_data,key=lambda x:x[2],reverse=True) # Victories
-        all_data = sorted(all_data,key=lambda x:x[7],reverse=True) # Diff goals
-        all_data = sorted(all_data,key=lambda x:x[5],reverse=True) # Goals scored
-        all_data = sorted(all_data,key=lambda x:x[8],reverse=True) # Abs points
-        all_data = sorted(all_data,key=lambda x:x[1],reverse=True) # Points
+        # Sort the data according to        
+        all_data.sort(key=lambda x:x[3],reverse=True)        # Draws
+        all_data.sort(key=lambda x:x[2],reverse=True)        # Victories
+        all_data.sort(key=lambda x:x[7],reverse=True)        # Diff goals
+        all_data.sort(key=lambda x:x[5],reverse=True)        # Goals scored
+        all_data.sort(key=lambda x:x[8],reverse=True)        # Abs points
+        all_data.sort(key=lambda x:x[1],reverse=True)        # Points
         
         only_names = [team[0] for team in all_data]
         
@@ -466,6 +470,79 @@ class League(object):
         
         return only_names
     
+    def best_players(self,mode):
+        roles_defense = ['Dc','Dd','Ds']
+        roles_midfield = ['E','M','C','W','T']
+        roles_attack = ['Pc','A']
+        gkeepers_vote = []
+        gkeepers_fantavote = []
+        defenders_vote = []
+        defenders_fantavote = []
+        midfielders_vote = []
+        midfielders_fantavote = []
+        forwards_vote = []
+        forwards_fantavote = []
+        
+        for player in players_database:
+            try:
+                roles = all_roles[player]
+                if mode=='FG':
+                    avrg = all_players[player].FGavrg
+                    fanta_avrg = all_players[player].FGfanta_avrg
+                else:
+                    avrg = all_players[player].STavrg
+                    fanta_avrg = all_players[player].STfanta_avrg
+                    
+                if roles == ['Por']:
+                    gkeepers_vote.append((player,avrg))
+                    gkeepers_fantavote.append((player,fanta_avrg))
+                    gkeepers_vote.sort(key=lambda x:x[1],reverse=True)
+                    gkeepers_fantavote.sort(key=lambda x:x[1],reverse=True)
+                    gkeepers_vote = gkeepers_vote[:3]
+                    gkeepers_fantavote = gkeepers_fantavote[:3]
+                    
+                if set(roles).intersection(roles_defense):
+                    defenders_vote.append((player,avrg))
+                    defenders_fantavote.append((player,fanta_avrg))
+                    defenders_vote.sort(key=lambda x:x[1],reverse=True)
+                    defenders_fantavote.sort(key=lambda x:x[1],reverse=True)
+                    defenders_vote = defenders_vote[:3]
+                    defenders_fantavote = defenders_fantavote[:3]
+                
+                if set(roles).intersection(roles_midfield):
+                    midfielders_vote.append((player,avrg))
+                    midfielders_fantavote.append((player,fanta_avrg))
+                    midfielders_vote.sort(key=lambda x:x[1],reverse=True)
+                    midfielders_fantavote.sort(key=lambda x:x[1],reverse=True)
+                    midfielders_vote = midfielders_vote[:3]
+                    midfielders_fantavote = midfielders_fantavote[:3]
+                
+                if set(roles).intersection(roles_attack):
+                    forwards_vote.append((player,avrg))
+                    forwards_fantavote.append((player,fanta_avrg))
+                    forwards_vote.sort(key=lambda x:x[1],reverse=True)
+                    forwards_fantavote.sort(key=lambda x:x[1],reverse=True)
+                    forwards_vote = forwards_vote[:3]
+                    forwards_fantavote = forwards_fantavote[:3]
+            except KeyError:
+                pass
+            
+        gkeeper = [a+b for a,b in zip(gkeepers_vote,gkeepers_fantavote)]
+        defense = [a+b for a,b in zip(defenders_vote,defenders_fantavote)]
+        midfield = [a+b for a,b in zip(midfielders_vote,midfielders_fantavote)]
+        attack = [a+b for a,b in zip(forwards_vote,forwards_fantavote)]
+        
+        spacer = [('','','','')]
+        fin_list = gkeeper+spacer+defense+spacer+midfield+spacer+attack
+            
+        first_col = ['' for i in range(len(fin_list))]
+        header = ['','Vote average','','Fantavote average']
+        
+        table = pd.DataFrame(fin_list,first_col,header)
+        
+        print(table)
+        print('\n')
+        
     def print_league(self):
         
         '''Returns a table showing all the data of the league per fantateam.'''
@@ -507,7 +584,8 @@ class Statistic(object):
             
             for fantaname in ranking:
                 for position in self.all_positions:
-                    if ranking.index(fantaname) == self.all_positions.index(position):
+                    if (ranking.index(fantaname)
+                    ==self.all_positions.index(position)):
                         position[fantaname] += 1
                         break
                     
@@ -580,7 +658,8 @@ class Statistic(object):
             if ranking[position-1]==a_team_name:
                 all_rounds.append(a_round)
                 if new_league.fantateams[a_team_name].points > points:
-                    best_round = (a_round,new_league.fantateams[a_team_name].points)
+                    best_round = (a_round,
+                                  new_league.fantateams[a_team_name].points)
                     points = new_league.fantateams[a_team_name].points
                 
         return all_rounds,best_round
@@ -590,19 +669,16 @@ teams = [name for name in fantanames]
 all_players = {player:Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
-#a = League(our_round,n_days,'ST')
-#a.play_league()
-#a.print_league()
-#a.play_fast_league()
-#a.print_league()
 
 
-
-start = time.time()
-a = Statistic(50000,7,'ST')
-#print(a.positions4_rate())
-b,c = a.round_team_position('AC PICCHIA',1)
-print(round(time.time() - start,2))
+a = League(our_round,n_days,'ST')
+a.play_league()
+a.print_league()
+print('\n')
+b = Statistic(10000,n_days,'ST')
+print(b.positions4_rate())
+print('\n')
+a.best_players('ST')
         
         
         
