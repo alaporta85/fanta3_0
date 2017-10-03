@@ -239,9 +239,6 @@ def random_rounds(number):
        complete schedule by using the function generate_schedule(a_round,
        total_days).'''
     
-#    myfile = ('/Users/andrea/Desktop/fanta3_0/MANTRA code/'+
-#              'Reduced_Leagues_8teams.txt')
-    
     myfile = ('/Users/andrea/Desktop/All_Leagues_8teams.txt')
     
     res = []
