@@ -1,4 +1,4 @@
-import mantra_functions_without_filters as mfwf
+import mantra_functions_without_filters2 as mfwf
 import statistic_functions as sf
 import pandas as pd
 import os
@@ -204,6 +204,27 @@ class Player(object):
             
         update_player(self)
         
+    def goals(self,day,mode='ST'):
+        
+        data = [atuple for atuple in players_database[self.name] if atuple[0]==day]
+        
+        if data:
+            goals = data[0][6] + data[0][7]
+            return goals
+        else:
+            return 0
+    
+    def assists(self,day,mode='ST'):
+        
+        data = [atuple for atuple in players_database[self.name] if atuple[0]==day]
+        
+        if data:
+            assists = data[0][12]
+            return assists
+        else:
+            return 0
+        
+        
     def vote(self,day,mode='ST'):
         
         '''Return the vote of the player in that day.'''
@@ -257,6 +278,13 @@ class Fantateam(object):
         self.lucky_points = 0
         self.lineups = lineups[self.name]
         self.players = fantaplayers[self.name]
+        self.goals_from_field = 0
+        self.goals_from_bench = 0
+        self.assist_from_field = 0
+        self.assist_from_bench = 0
+        self.defense_contribute = 0
+        self.midfield_contribute = 0
+        self.attack_contribute = 0
         
         
     def lineup(self, day):
@@ -275,6 +303,10 @@ class Match(object):
     def __init__(self,team1,team2,day,fantateams,mode):
         self.team1 = team1
         self.team2 = team2
+        self.final_field1 = 0
+        self.final_field2 = 0
+        self.final_bench1 = 0
+        self.final_bench2 = 0
         self.day = day
         self.mode = mode
         self.fantateams = fantateams
@@ -302,15 +334,15 @@ class Match(object):
         # MANTRA simulation for both teams
         module1 = self.lineup1[0]
         lineup1 = self.lineup1[1]
-        lineup_after_playing1,malus1 = mfwf.MANTRA_simulation(lineup1,
+        self.final_field1,self.final_bench1,malus1 = mfwf.MANTRA_simulation(lineup1,
                                                             module1,
-                                                            self.mode)
+                                                            self.mode)[:3]
         
         module2 = self.lineup2[0]
         lineup2 = self.lineup2[1]
-        lineup_after_playing2,malus2 = mfwf.MANTRA_simulation(lineup2,
+        self.final_field2,self.final_bench2,malus2 = mfwf.MANTRA_simulation(lineup2,
                                                             module2,
-                                                            self.mode)
+                                                            self.mode)[:3]
         # Update the number of malus
         self.fantateams[self.team1].malus += malus1
         self.fantateams[self.team2].malus += malus2
@@ -319,14 +351,12 @@ class Match(object):
         # fantavote calculation and finally calculate the abs_points for each
         # team, including eventual malus
         players_with_vote1 = [all_players[player[1]] for player
-                              in lineup_after_playing1
-                              if player[1]==player[1].upper()]
+                              in self.final_field1]
         abs_points1 = sum([player.fantavote(self.day,self.mode) for player
                            in players_with_vote1]) - 0.5*malus1
         
         players_with_vote2 = [all_players[player[1]] for player
-                              in lineup_after_playing2
-                              if player[1]==player[1].upper()]
+                              in self.final_field2]
         abs_points2 = sum([player.fantavote(self.day,self.mode) for player
                            in players_with_vote2]) - 0.5*malus2
         
@@ -406,6 +436,36 @@ class Match(object):
             if (reference_list[0][1]-66)%6==5.5:
                 self.fantateams[reference_list[0][0]].lucky_points -= 1
                 self.fantateams[reference_list[1][0]].lucky_points += 2
+                
+    
+    def update_bonus_from_field_and_bench(self,the_team,the_final_field,
+                                          the_final_bench):
+        for player in the_final_field:
+            if player[1] in all_players:
+                goals_to_add = all_players[player[1]].goals(self.day,self.mode)
+                assist_to_add = all_players[player[1]].assists(self.day,self.mode)
+                self.fantateams[the_team].goals_from_field += goals_to_add
+                self.fantateams[the_team].assist_from_field += assist_to_add
+            
+        for player in the_final_bench:
+            if player[1] in all_players:
+                goals_to_add = all_players[player[1]].goals(self.day,self.mode)
+                assist_to_add = all_players[player[1]].assists(self.day,self.mode)
+                self.fantateams[the_team].goals_from_bench += goals_to_add
+                self.fantateams[the_team].assist_from_bench += assist_to_add
+                
+    
+    def update_contributes(self,the_final_lineup):
+        
+        roles_defense = ['Dc','Dd','Ds']
+        roles_midfield = ['E','M','C','W','T']
+        roles_attack = ['Pc','A']
+        
+        final_contribute_from_defense = 0
+        final_contribute_from_midfield = 0
+        final_contribute_from_attack = 0
+        
+        
             
             
         
@@ -445,6 +505,11 @@ class Match(object):
             self.fantateams[self.team2].victories += 1
             self.fantateams[self.team2].points += 3
             
+        self.update_bonus_from_field_and_bench(self.team1,self.final_field1,
+                                               self.final_bench1)
+        self.update_bonus_from_field_and_bench(self.team2,self.final_field2,
+                                               self.final_bench2)
+        
         self.update_lucky_points(abs_points1,abs_points2,goals1,goals2)
 
             
@@ -534,10 +599,8 @@ class League(object):
     def final_ranking(self):
         
         '''Returns the names in order of ranking.'''
-        
-        only_names,all_data = self.create_final_data()
-        
-        return only_names
+                
+        return self.create_final_data()[0]
     
     def best_players(self,pos,mode):
         
@@ -800,8 +863,8 @@ a.print_lucky_points()
 print('\n')
 #a.best_players(2,'ST')
 #print('\n')
-b = Statistic(10000,n_days,'ST')
-b.positions4_rate()
+#b = Statistic(10000,n_days,'ST')
+#b.positions4_rate()
         
         
         
