@@ -639,6 +639,24 @@ class League(object):
         table = pd.DataFrame(short_data,only_names,header)
         
         print(table)
+        
+    def print_half_point(self):
+        
+        '''Print the ranking based on the points gained for a difference of 0.5
+           in the absolute points of the two teams during each match of the
+           league.'''
+           
+        fin_list = [(team,self.fantateams[team].half_point)
+        for team in fantanames]
+        
+        fin_list.sort(key=lambda x:x[1],reverse=True)
+        
+        first_col = [x[0] for x in fin_list]
+        data = [x[1] for x in fin_list]
+        
+        table = pd.DataFrame(data,first_col,['Lucky Points'])
+        
+        print(table)
     
     
 class Statistic(object):
@@ -772,11 +790,13 @@ n_days = len(lineups['Ciolle United'])
 
 
 
-#a = League(our_round,n_days,'ST')
-#a.play_league()
-#a.print_league()
+a = League(our_round,n_days,'ST')
+a.play_league()
+a.print_league()
+print('\n')
+a.print_half_point()
 #print('\n')
-b = Statistic(100,n_days,'ST')
+#b = Statistic(100,n_days,'ST')
 #b.positions4_rate()
 #print('\n')
 #a.best_players(2,'ST')
