@@ -215,9 +215,26 @@ class Player(object):
             goals = data[0][6] + data[0][7]
             assists = data[0][12]
             penalties_saved = data[0][9]
-            return goals,assists,penalties_saved
+            return 3*goals+assists+3*penalties_saved
         else:
-            return 0,0,0
+            return 0
+        
+    def all_malus(self,day,mode='ST'):
+        
+        '''Return all the malus points given by the Player on that day.'''
+        
+        data = [atuple for atuple in players_database[self.name]
+                if atuple[0]==day]
+        
+        if data:
+            YC = data[0][4]
+            RC = data[0][5]
+            Gt = data[0][8]
+            Pf = data[0][10]
+            Og = data[0][11]
+            return 0.5*YC+RC+Gt+3*Pf+2*Og
+        else:
+            return 0
         
     def vote(self,day,mode='ST'):
         
@@ -271,9 +288,12 @@ class Fantateam(object):
         self.malus = 0
         self.lucky_points = 0
         self.lineups = lineups[self.name]
+        self.fields = []
         self.players = fantaplayers[self.name]
         self.bonus_from_field = 0
         self.bonus_from_bench = 0
+        self.malus_from_field = 0
+        self.malus_from_bench = 0
         self.gkeeper_contribute = 0
         self.defense_contribute = 0
         self.midfield_contribute = 0
@@ -340,9 +360,14 @@ class Match(object):
                                                                 lineup2,
                                                                 module2,
                                                                 self.mode)[:3]
+        
         # Update the number of malus
         self.fantateams[self.team1].malus += malus1
         self.fantateams[self.team2].malus += malus2
+        
+        # Update the final lineup after the match
+        self.fantateams[self.team1].fields.append(self.final_field1)
+        self.fantateams[self.team2].fields.append(self.final_field2)
         
         # Create a list of all players who will contribute to the final
         # fantavote calculation and finally calculate the abs_points for each
@@ -439,34 +464,61 @@ class Match(object):
                                           the_final_bench):
         
         '''Update the two attributes of each fantateam relative to the bonus
-           points coming from field and bench, separately.'''
+           points coming from field and bench, separately. In the calculation
+           votes are NOT included, only the bonus points.'''
            
         for player in the_final_field:
             if player[1] in all_players:
-                goals,assist,penalties = all_players[player[1]].all_bonus(
-                                                                     self.day,
-                                                                     self.mode)
-                total_bonus = 3*goals+assist+3*penalties
+                total_bonus = all_players[player[1]].all_bonus(self.day,self.mode)
                 self.fantateams[the_team].bonus_from_field += total_bonus
+                total_malus = all_players[player[1]].all_malus(self.day,self.mode)
+                self.fantateams[the_team].malus_from_field += total_malus
             
         for player in the_final_bench:
             if player[1] in all_players:
-                goals,assist,penalties = all_players[player[1]].all_bonus(
-                                                                     self.day,
-                                                                     self.mode)
-                total_bonus = 3*goals+assist+3*penalties
+                total_bonus = all_players[player[1]].all_bonus(self.day,self.mode)
                 self.fantateams[the_team].bonus_from_bench += total_bonus
+                total_malus = all_players[player[1]].all_malus(self.day,self.mode)
+                self.fantateams[the_team].malus_from_bench += total_malus
+            
                 
     
-    def update_contributes(self,the_final_lineup):
+    def update_contributes(self,the_team,the_final_lineup):
         
         roles_defense = ['Dc','Dd','Ds']
         roles_midfield = ['E','M','C','W','T']
         roles_attack = ['Pc','A']
         
-        final_contribute_from_defense = 0
-        final_contribute_from_midfield = 0
-        final_contribute_from_attack = 0
+        def count_players(the_final_lineup):
+            count_def = 0
+            count_mid = 0
+            count_for = 0
+            
+            for player in the_final_lineup:
+                role = player[2]
+                if role in roles_defense:
+                    count_def += 1
+                elif role in roles_midfield:
+                    count_mid += 1
+                elif role in roles_attack:
+                    count_for += 1
+                    
+            return count_def,count_mid,count_for
+        
+        n_def,n_mid,n_for = count_players(the_final_lineup)
+        
+        for player in the_final_lineup:
+            role = player[2]
+            contribute = all_players[player[1]].fantavote(self.day,self.mode)
+            
+            if role == 'Por':
+                self.fantateams[the_team].gkeeper_contribute += contribute
+            elif role in roles_defense:
+                self.fantateams[the_team].defense_contribute += contribute/n_def
+            elif role in roles_midfield:
+                self.fantateams[the_team].midfield_contribute += contribute/n_mid
+            elif role in roles_attack:
+                self.fantateams[the_team].attack_contribute += contribute/n_for
         
         
             
@@ -512,6 +564,9 @@ class Match(object):
                                                self.final_bench1)
         self.update_bonus_from_field_and_bench(self.team2,self.final_field2,
                                                self.final_bench2)
+        
+        self.update_contributes(self.team1,self.final_field1)
+        self.update_contributes(self.team2,self.final_field2)
         
         self.update_lucky_points(abs_points1,abs_points2,goals1,goals2)
 
@@ -561,6 +616,12 @@ class League(object):
         for i in self.schedule:
             day = Day(i,self.schedule,self.fantateams,self.mode)
             day.play_day()
+#            print(a.fantateams['AC PICCHIA'].abs_points)
+#            print(a.fantateams['AC PICCHIA'].gkeeper_contribute)
+#            print(a.fantateams['AC PICCHIA'].defense_contribute)
+#            print(a.fantateams['AC PICCHIA'].midfield_contribute)
+#            print(a.fantateams['AC PICCHIA'].attack_contribute)
+#            print('\n')
             
     def play_fast_league(self):
         
@@ -724,6 +785,47 @@ class League(object):
         table = pd.DataFrame(data,first_col,['Lucky Points'])
         
         print(table)
+        
+    def print_contributes(self):
+        
+        ranking = self.final_ranking()
+        
+        ref_list = [(team,
+                     round(self.fantateams[team].gkeeper_contribute/n_days,1),
+                     round(self.fantateams[team].defense_contribute/n_days,1),
+                     round(self.fantateams[team].midfield_contribute/n_days,1),
+                     round(self.fantateams[team].attack_contribute/n_days,1))
+                     for team in ranking]
+        
+        names = [element[0] for element in ref_list]
+        data = [element[1:] for element in ref_list]
+        header = ['Por','Dc,Dd,Ds','E,M,C,W,T','A,Pc']
+        
+        table = pd.DataFrame(data,names,header)
+        
+        print("Average player's fantavote according to the role.")
+        print(table)
+        
+    def print_rates_bonus_malus(self):
+        
+        ranking = self.final_ranking()
+        
+        ref_list = []
+        
+        for team in ranking:
+            bonus_field = self.fantateams[team].bonus_from_field
+            bonus_bench = self.fantateams[team].bonus_from_bench
+            rate = round((bonus_field/(bonus_field+bonus_bench))*100,1)
+            
+            ref_list.append((team,bonus_field,rate))
+            
+        names = [element[0] for element in ref_list]
+        data = [element[1:] for element in ref_list]
+        header = ['Bonus Points','%%']
+        
+        table = pd.DataFrame(data,names,header)
+        
+        print(table)
     
     
 class Statistic(object):
@@ -844,7 +946,8 @@ class Statistic(object):
         
         if all_rounds:
             print('Number of rounds found where %s ends in position %d in the'\
-                  ' final ranking: %d' % (a_team_name,position,len(all_rounds)))
+                  ' final ranking: %d' % (a_team_name,
+                                          position,len(all_rounds)))
             print('In the best case %s ends with %d points. The round is:\n'\
                   % (a_team_name,all_rounds[0][0]))
             return all_rounds[0][1]
@@ -862,12 +965,15 @@ a = League(our_round,n_days,'ST')
 a.play_league()
 a.print_league()
 print('\n')
+a.print_contributes()
+print('\n')
+a.print_rates_bonus_malus()
 a.print_lucky_points()
 print('\n')
 #a.best_players(2,'ST')
 #print('\n')
-#b = Statistic(10000,n_days,'ST')
-#b.positions4_rate()
+b = Statistic(10000,n_days,'ST')
+b.positions4_rate()
         
         
         
