@@ -204,26 +204,20 @@ class Player(object):
             
         update_player(self)
         
-    def goals(self,day,mode='ST'):
+    def all_bonus(self,day,mode='ST'):
         
-        data = [atuple for atuple in players_database[self.name] if atuple[0]==day]
+        '''Return all the bonus points given by the Player on that day.'''
+        
+        data = [atuple for atuple in players_database[self.name]
+                if atuple[0]==day]
         
         if data:
             goals = data[0][6] + data[0][7]
-            return goals
-        else:
-            return 0
-    
-    def assists(self,day,mode='ST'):
-        
-        data = [atuple for atuple in players_database[self.name] if atuple[0]==day]
-        
-        if data:
             assists = data[0][12]
-            return assists
+            penalties_saved = data[0][9]
+            return goals,assists,penalties_saved
         else:
-            return 0
-        
+            return 0,0,0
         
     def vote(self,day,mode='ST'):
         
@@ -278,10 +272,9 @@ class Fantateam(object):
         self.lucky_points = 0
         self.lineups = lineups[self.name]
         self.players = fantaplayers[self.name]
-        self.goals_from_field = 0
-        self.goals_from_bench = 0
-        self.assist_from_field = 0
-        self.assist_from_bench = 0
+        self.bonus_from_field = 0
+        self.bonus_from_bench = 0
+        self.gkeeper_contribute = 0
         self.defense_contribute = 0
         self.midfield_contribute = 0
         self.attack_contribute = 0
@@ -328,21 +321,25 @@ class Match(object):
     
     def play_match(self):
         
-        '''Plays the match by applying the MANTRA algorithm.'''
+        '''Plays the match by applying the MANTRA algorithm. We extract the
+           final field and the final bench in order to be able to create later
+           statistics on the bonus coming either from field and bench.'''
         
         # Separate module and player in two different variables and launch the
         # MANTRA simulation for both teams
         module1 = self.lineup1[0]
         lineup1 = self.lineup1[1]
-        self.final_field1,self.final_bench1,malus1 = mfwf.MANTRA_simulation(lineup1,
-                                                            module1,
-                                                            self.mode)[:3]
+        self.final_field1,self.final_bench1,malus1 = mfwf.MANTRA_simulation(
+                                                                lineup1,
+                                                                module1,
+                                                                self.mode)[:3]
         
         module2 = self.lineup2[0]
         lineup2 = self.lineup2[1]
-        self.final_field2,self.final_bench2,malus2 = mfwf.MANTRA_simulation(lineup2,
-                                                            module2,
-                                                            self.mode)[:3]
+        self.final_field2,self.final_bench2,malus2 = mfwf.MANTRA_simulation(
+                                                                lineup2,
+                                                                module2,
+                                                                self.mode)[:3]
         # Update the number of malus
         self.fantateams[self.team1].malus += malus1
         self.fantateams[self.team2].malus += malus2
@@ -440,19 +437,25 @@ class Match(object):
     
     def update_bonus_from_field_and_bench(self,the_team,the_final_field,
                                           the_final_bench):
+        
+        '''Update the two attributes of each fantateam relative to the bonus
+           points coming from field and bench, separately.'''
+           
         for player in the_final_field:
             if player[1] in all_players:
-                goals_to_add = all_players[player[1]].goals(self.day,self.mode)
-                assist_to_add = all_players[player[1]].assists(self.day,self.mode)
-                self.fantateams[the_team].goals_from_field += goals_to_add
-                self.fantateams[the_team].assist_from_field += assist_to_add
+                goals,assist,penalties = all_players[player[1]].all_bonus(
+                                                                     self.day,
+                                                                     self.mode)
+                total_bonus = 3*goals+assist+3*penalties
+                self.fantateams[the_team].bonus_from_field += total_bonus
             
         for player in the_final_bench:
             if player[1] in all_players:
-                goals_to_add = all_players[player[1]].goals(self.day,self.mode)
-                assist_to_add = all_players[player[1]].assists(self.day,self.mode)
-                self.fantateams[the_team].goals_from_bench += goals_to_add
-                self.fantateams[the_team].assist_from_bench += assist_to_add
+                goals,assist,penalties = all_players[player[1]].all_bonus(
+                                                                     self.day,
+                                                                     self.mode)
+                total_bonus = 3*goals+assist+3*penalties
+                self.fantateams[the_team].bonus_from_bench += total_bonus
                 
     
     def update_contributes(self,the_final_lineup):
