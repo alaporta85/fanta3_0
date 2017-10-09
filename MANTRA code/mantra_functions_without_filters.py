@@ -2,11 +2,12 @@ from schemes_allowed_changes import schemes, compatible_roles, malus_roles
 import pickle
 from itertools import combinations, permutations, product
 import copy
+import random
 
+# Load the dict with all the lineups day by day
 f=open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/lineups.pckl', 'rb')
 lineups = pickle.load(f)
 f.close()
-
 
 def modify_player_name(player):
     
@@ -68,11 +69,11 @@ def players_with_vote(list_of_tuples,mode='ST'):
         # If player has a vote on that day and his position is in the first
         # eleven spots we assign him to the field
         if vote != 'n.e.' and list_of_tuples.index(player) <= 10:
-            field.append((player[0],player[1],player[2],vote))
+            field.append((player[0],player[1],player[2]))
         
         # Otherwise to the bench
         elif vote != 'n.e.' and list_of_tuples.index(player) > 10:
-            bench.append((player[0],player[1],player[2],vote))
+            bench.append((player[0],player[1],player[2]))
     
     return field, bench
 
@@ -473,7 +474,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
            globally. That's why we refers to it later by using "nonlocal".'''
         
         nonlocal all_lineups   
-        nonlocal final
+        nonlocal final_field
         nonlocal malus
         
         # For each candidate
@@ -488,11 +489,11 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                 
                 # If we find a solution we store the result
                 if find_solution(new_cand,module,n_of_players_with_vote):
-                    final = candidate
+                    final_field = new_cand
                     break
                 
             # And stop the iteration over the other condidates
-            if final:
+            if final_field:
                 malus = 0
                 break
 
@@ -507,7 +508,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         modules_for_efficient_solution.remove(module)
         
         nonlocal all_lineups
-        nonlocal final
+        nonlocal final_field
         nonlocal efficient_module
         nonlocal malus
         
@@ -521,16 +522,16 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                     
                     # If we find a solution we store the result
                     if find_solution(new_cand,a_module,n_of_players_with_vote):
-                        final = candidate
+                        final_field = new_cand
                         efficient_module = a_module
                         break
                 
                 # Stop the iteration over the other permutations
-                if final:
+                if final_field:
                     break
                 
             # Stop the iteration over the other candidates
-            if final:
+            if final_field:
                 malus = 0
                 break
                 
@@ -543,7 +544,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         modules_for_adapted_solution = copy.copy(all_modules)
         
         nonlocal all_lineups
-        nonlocal final
+        nonlocal final_field
         nonlocal adapted_module
         nonlocal malus
         nonlocal alternative_modules
@@ -574,7 +575,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
                         if n_malus < malus:
                             malus = n_malus
                             adapted_module = a_module
-                            final = candidate
+                            final_field = new_cand
                             alternative_modules = []
                         elif n_malus == malus:
                             alternative_modules.append(a_module)
@@ -590,9 +591,9 @@ def MANTRA_simulation(lineup,module,mode='ST'):
            solution.'''
 
         try_optimal_solution(module,n_of_players_with_vote,n_subst)
-        if not final:
+        if not final_field:
             try_efficient_solution(module,n_of_players_with_vote,n_subst)
-        if not final:
+        if not final_field:
             try_adapted_solution(module,n_of_players_with_vote,n_subst)
             
     
@@ -645,14 +646,14 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         all_lineups = valid_lineups(field,bench,module,n_subst)
         look_for_solution(module,a_number,n_subst)
                 
-        if not final:
+        if not final_field:
             n_subst -= 1
             return calculation(a_number-1)
 
     
     new_lineup = [(player[0],modify_player_name(player[1]),player[2])
                   for player in lineup]
-    
+            
     # Select the players with vote and store the number of substitutions needed
     if mode == 'FG':
         field,bench = players_with_vote(new_lineup, 'FG')
@@ -668,7 +669,8 @@ def MANTRA_simulation(lineup,module,mode='ST'):
     # Initialize all the parameters. We chose 10 for malus just because it is
     # a number high enough and we look for the solution with the lower number
     # of malus
-    final = 0                          # The final lineup
+    final_field = 0                    # The final lineup
+    final_bench = []
     efficient_module = 0               # Valid module in case of eff solution
     adapted_module = 0                 # Valid module in case of adp solution
     malus = 10                         # Number of malus assigned
@@ -706,7 +708,8 @@ def MANTRA_simulation(lineup,module,mode='ST'):
         calculation(magic_number)
     
     if gkeeper:
-        final.insert(0,gkeeper)
+        gkeeper = (gkeeper[0],gkeeper[1],gkeeper[2][0])
+        final_field.insert(0,gkeeper)
         
         
     # This is for printing the result. We initialize the final list. In this
@@ -714,12 +717,16 @@ def MANTRA_simulation(lineup,module,mode='ST'):
     printed_lineup =[]
     
     for player in original:
-        if player[1] in [data[1] for data in final]:
-            printed_lineup.append(player)
+        if player[1] in [data[1] for data in final_field]:
+            player_single_role = [new_player for new_player in final_field
+                                  if new_player[1]==player[1]][0]
+            printed_lineup.append((player[0],player[1],player_single_role[2]))
         else:
             new_tuple = (player[0], player[1].title(), player[2])
             printed_lineup.append(new_tuple)
-    
+            new_tuple = (player[0], player[1].upper(), player[2])
+            final_bench.append(new_tuple)
+
     
 #    separator = '- - - - - - - - - - - - - -'
 #    printed_lineup.insert(11, separator)
@@ -745,8 +752,7 @@ def MANTRA_simulation(lineup,module,mode='ST'):
 #        print('\n')
     
     
-    
-    return printed_lineup,malus
+    return final_field,final_bench,malus,printed_lineup
     
 
 

@@ -1,7 +1,7 @@
-# Spider to scrape the players of each fantateam. They will be stored in a dict
-# and saved inside a .pckl file. The keys of the dict are the names of the
-# fantateams while the values are lists containing a tuple for each player. The
-# tuple is:
+# Spider to scrape the players of each fantateam day by day. They will be
+# stored in a dict and saved inside a .pckl file. The keys of the dict are the
+# names of the fantateams while the values are lists containing a tuple for
+# each player. The tuple is:
 #
 #                       (name_of_the_player, roles)
 
@@ -20,6 +20,8 @@ class Players_Roles(scrapy.Spider):
     
     start_urls = ['http://leghe.fantagazzetta.com/fantascandalo/'+
                   'tutte-le-rose']
+    
+    players_dict = {}
 
     
     def start_requests(self):
@@ -29,22 +31,17 @@ class Players_Roles(scrapy.Spider):
                                 args={'wait': 0.5})
 
     def parse(self, response):
-        
-        f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_schedule/'+
-                 'fantateams_names.pckl', 'rb')
-        fantateams = pickle.load(f)
-        f.close()
-        
-        players_dict = {team:[] for team in fantateams}
                     
         # Tables containing all the players, one table each fantateam
         all_tables = response.xpath('//table[contains(@class,"tbpink")]')
-        
+                
         # For each table
         for table in all_tables:
             
             # Extract the fantateam
             fantateam = table.xpath('.//h3/text()').extract_first()
+            
+            players_container = []
             
             # All the players of the fantateam
             players = table.xpath('.//tbody/tr')
@@ -63,19 +60,29 @@ class Players_Roles(scrapy.Spider):
                 team = player.xpath('.//td[contains(@class,"aleft")]/'+
                                     'text()').extract_first()
                 
-                # Store the result in the dict
-                players_dict[fantateam].append((name,roles,team))
+                players_container.append((name,roles,team))
+                
+            # Store the result in the dict
+            self.players_dict[fantateam] = players_container
             
-        # Save inside a .pckl file
-        f = open('all_players_per_fantateam.pckl', 'wb')
-        pickle.dump(players_dict, f)
+                    
+        players_dir = path + '/fantaplayers'
+        
+        n_files_present = len([file for file in os.listdir(players_dir) if
+                                       file.endswith('.pckl')])
+        
+        next_file = n_files_present + 1
+        
+        filename = players_dir + '/fantaplayers_%d.pckl' % next_file
+        
+        # Save the file
+        f = open(filename, 'wb')
+        pickle.dump(self.players_dict, f)
         f.close()
         
-        # Print at the end to confirm everything is fine
         print('\n')
-        print('Players of all fantateams scraped correctly.')
+        print('Fantaplayers of day %d scraped correctly.' % next_file)
         print('\n')
-                
                 
                 
                 

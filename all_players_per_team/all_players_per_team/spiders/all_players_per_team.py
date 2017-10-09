@@ -57,16 +57,15 @@ class Players(scrapy.Spider):
         # When we have all the 20 teams we save the result
         if len(self.players_dict) == 20:
             
-            players_dir = ('/Users/andrea/Desktop/fanta3_0/'+
-                           'all_players_per_team/players')
+            players_dir = path + '/players'
             
             n_files_present = len([file for file in os.listdir(players_dir) if
                                            file.endswith('.pckl')])
             
             next_file = n_files_present + 1
             
-            filename = ('/Users/andrea/Desktop/fanta3_0/all_players_per_team/'+
-                        'players/players_%d.pckl' % next_file)
+            filename = players_dir + '/players_%d.pckl' % next_file
+            
             # Save the file
             f = open(filename, 'wb')
             pickle.dump(self.players_dict, f)
