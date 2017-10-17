@@ -3,6 +3,8 @@ import statistic_functions as sf
 import pandas as pd
 import os
 import pickle
+import copy
+from itertools import permutations
 
 # Load the list with our round
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
@@ -689,6 +691,7 @@ class League(object):
         all_data.sort(key=lambda x: x[7], reverse=True)        # Diff goals
         all_data.sort(key=lambda x: x[5], reverse=True)        # Goals scored
         all_data.sort(key=lambda x: x[9], reverse=True)        # Abs points
+        all_data = self.classifica_avulsa(all_data)            # Class. Avulsa
         all_data.sort(key=lambda x: x[1], reverse=True)        # Points
 
         only_names = [team[0] for team in all_data]
@@ -792,6 +795,96 @@ class League(object):
 
         print(table)
         print('\n')
+
+    def classifica_avulsa(self, ranking):
+
+        '''Return the ranking ordered according the rules of classifica
+           avulsa.'''
+
+        def mini_league(teams_with_equal_points):
+
+            '''Calculate the classifica avulsa between the teams with same
+               points in the ranking.'''
+
+            names = [element[0] for element in teams_with_equal_points]
+
+            matches = list(permutations(names, 2))
+
+            points = {team: 0 for team in [element[0] for element
+                                           in teams_with_equal_points]}
+
+            # Play all the matches between the teams
+            for i in range(1, n_days+1):
+                day = self.schedule[i]
+
+                for match in matches:
+                    if match in day:
+
+                        team1 = match[0]
+                        team2 = match[1]
+                        abs_points1 = [x[1] for x in abs_points[team1]
+                                       if x[0] == i][0]
+                        abs_points2 = [x[1] for x in abs_points[team2]
+                                       if x[0] == i][0]
+
+                        if abs_points1 < 66:
+                            goals1 = 0
+                        else:
+                            goals1 = int((abs_points1-66)//6 + 1)
+
+                        if abs_points2 < 66:
+                            goals2 = 0
+                        else:
+                            goals2 = int((abs_points2-66)//6 + 1)
+
+                        if goals1 == goals2:
+                            points[team1] += 1
+                            points[team2] += 1
+                        elif goals1 > goals2:
+                            points[team1] += 3
+                        else:
+                            points[team2] += 3
+
+            # Create a list with (name, points) and sort it
+            res = [(team, points[team]) for team in points]
+            res.sort(key=lambda x: x[1], reverse=True)
+
+            # Substitute the short tuple with the complete one
+            for i in range(len(res)):
+                complete_data = [element for element in teams_with_equal_points
+                                 if element[0] == res[i][0]][0]
+                res[i] = complete_data
+
+            return res
+
+        def order_ranking(res, ranking, team_points):
+
+            '''Look for teams with equal points and, if found, call the
+               function mini_league to calculate the classifica avulsa.'''
+
+            copy_of_res = copy.copy(res)
+
+            mini_round = [element for element in ranking
+                          if element[1] == team_points]
+
+            if len(mini_round) == 1:
+                copy_of_res.append(mini_round[0])
+            else:
+                mini_ranking = mini_league(mini_round)
+
+                for element in mini_ranking:
+                    copy_of_res.append(element)
+
+            return copy_of_res
+
+        res = []
+
+        for element in ranking:
+            if element not in res:
+                res = order_ranking(res, ranking,
+                                    self.fantateams[element[0]].points)
+
+        return res
 
     def print_league(self):
 
