@@ -137,7 +137,7 @@ class Cday_lineups_votes(scrapy.Spider):
             # of two fanta-teams. The counter is used to assign the correct
             # lineup to the correct fanta-team
             table_count = 0
-            
+                        
             # Names of the fanta-teams
             team1 = table.xpath('.//h3/text()').extract()[0]
             team2 = table.xpath('.//h3/text()').extract()[2]

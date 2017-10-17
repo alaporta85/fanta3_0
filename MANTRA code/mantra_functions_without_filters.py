@@ -2,7 +2,6 @@ from schemes_allowed_changes import schemes, compatible_roles, malus_roles
 import pickle
 from itertools import combinations, permutations, product
 import copy
-import random
 
 # Load the dict with all the lineups day by day
 f=open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/lineups.pckl', 'rb')
