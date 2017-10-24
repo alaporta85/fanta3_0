@@ -1137,6 +1137,7 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
+#n_days = 6
 
 
 print('\n')
