@@ -478,6 +478,11 @@ class Cday_lineups_votes(scrapy.Spider):
         if not os.path.isfile('lineups.pckl'):
             lineups, abs_points = self.lineups_scraping(response,
                                                         self.teams_names)
+
+            for fantateam in lineups:
+                lineups[fantateam].sort(key=lambda x:
+                                        int(x[1][0][0].split(' ')[1]))
+
             f = open('lineups.pckl', 'wb')
             pickle.dump(lineups, f)
             f.close()
@@ -511,6 +516,10 @@ class Cday_lineups_votes(scrapy.Spider):
                 abs_points[fantateam].append(new_abs_points[fantateam][0])
                 abs_points[fantateam] = sorted(abs_points[fantateam],
                                                key=lambda x: x[0])
+
+            for fantateam in lineups:
+                lineups[fantateam].sort(key=lambda x:
+                                        int(x[1][0][0].split(' ')[1]))
 
             f = open('lineups.pckl', 'wb')
             pickle.dump(lineups, f)

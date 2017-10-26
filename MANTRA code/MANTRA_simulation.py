@@ -1,4 +1,4 @@
-import mantra_functions_without_filters as mfwf
+import MANTRA_functions as mfwf
 import statistic_functions as sf
 import pandas as pd
 import os
@@ -12,11 +12,11 @@ g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
 our_round = pickle.load(g)
 g.close()
 
-# Load the dict with all the lineups day by day
-h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
-         'lineups.pckl', 'rb')
-lineups = pickle.load(h)
-h.close()
+## Load the dict with all the lineups day by day
+#h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+#         'lineups.pckl', 'rb')
+#lineups = pickle.load(h)
+#h.close()
 
 # Load the dict with all the players of each fantateam. This dict if made of
 # all the fantaplayers updated to the last played day
@@ -1151,4 +1151,4 @@ a.print_contributes()
 a.print_rates_bonus_malus()
 #a.best_players(2,'ST')
 c = Statistic(10000, n_days, 'ST')
-c.positions4_rate()
+c.positions8_rate()
