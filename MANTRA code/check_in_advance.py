@@ -107,6 +107,39 @@ stress = [('REINA', ['Por'], 'NAPOLI', 'yes'),
 #          ('RICCI', ['A'], 'GENOA'),
           ]
 
+ciolle = [('ALISSON', ['Por'], 'ROMA', 'yes'),
+          ('KOLAROV', ['Ds', 'E'], 'ROMA', 'no'),
+          ('SKRINIAR', ['Dc'], 'INTER', 'yes'),
+          ('KOULIBALY', ['Dc'], 'NAPOLI', 'no'),
+          ('HYSAJ', ['Dd', 'Ds', 'E'], 'NAPOLI', 'no'),
+          ('BENASSI', ['C'], 'FIORENTINA', 'yes'),
+          ('GAGLIARDINI', ['M', 'C'], 'INTER', 'yes'),
+          ('JANKTO', ['E', 'C'], 'UDINESE', 'no'),
+          ('ILICIC', ['T', 'A'], 'ATALANTA', 'yes'),
+          ('SIMEONE', ['Pc'], 'FIORENTINA', 'yes'),
+          ('CALLEJON', ['A'], 'NAPOLI', 'yes'),
+          ('CORNELIUS', ['Pc'], 'ATALANTA', 'no'),
+          ('BELOTTI', ['Pc'], 'TORINO', 'yes'),
+          ('JOAO MARIO', ['C', 'T'], 'INTER', 'yes'),
+          ('BESSA', ['C', 'T'], 'VERONA', 'yes'),
+          ('RINCON', ['M', 'C'], 'TORINO', 'no'),
+          ('SENSI', ['M', 'C'], 'SASSUOLO', 'yes'),
+          ('RODRIGUEZ R', ['Ds', 'E'], 'MILAN', 'yes'),
+          ('PADOIN', ['Dd', 'E', 'M'], 'CAGLIARI', 'yes'),
+          ('LIROLA', ['Dd', 'E'], 'SASSUOLO', 'no'),
+          ('MUSACCHIO', ['Dc'], 'MILAN', 'no'),
+          ('GRAVILLON', ['Dd', 'Dc'], 'BENEVENTO', 'no'),
+          ('SKORUPSKI', ['Por'], 'ROMA', 'no'),
+#          ('LOBONT', ['Por'], 'ROMA'),
+#          ('NUYTINCK', ['Dc'], 'UDINESE'),
+#          ('DALBERT', ['Ds', 'E'], 'INTER'),
+#          ('FERRARI A', ['Dd', 'Dc'], 'VERONA'),
+#          ('MARCHISIO', ['M', 'C'], 'JUVENTUS'),
+#          ('CALLEJON', ['A'], 'NAPOLI'),
+#          ('KARAMOH', ['A'], 'INTER'),
+#          ('KEAN', ['Pc'], 'VERONA')
+          ]
+
 
 def check_in_advance(module, fantateam):
     players_database = {player[0]: (99, 'aaa', random.randint(1, 10),
@@ -125,3 +158,8 @@ def check_in_advance(module, fantateam):
               'Day_99.pckl')
 
     return res
+
+#%%
+#fantateam = ciolle
+#module = '4312'
+#check_in_advance(module, fantateam)

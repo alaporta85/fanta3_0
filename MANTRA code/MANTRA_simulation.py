@@ -12,11 +12,11 @@ g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
 our_round = pickle.load(g)
 g.close()
 
-## Load the dict with all the lineups day by day
-#h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
-#         'lineups.pckl', 'rb')
-#lineups = pickle.load(h)
-#h.close()
+# Load the dict with all the lineups day by day
+h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+         'lineups.pckl', 'rb')
+lineups = pickle.load(h)
+h.close()
 
 # Load the dict with all the players of each fantateam. This dict if made of
 # all the fantaplayers updated to the last played day
@@ -1137,18 +1137,17 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 6
 
 
 print('\n')
 a = League(our_round, n_days, 'ST')
 a.play_league()
 a.print_league()
-#b = League(our_round,n_days,'FG')
+#b = League(our_round, n_days, 'FG')
 #b.play_league()
 #b.print_league()
 a.print_contributes()
 a.print_rates_bonus_malus()
-#a.best_players(2,'ST')
+#a.best_players(2, 'ST')
 c = Statistic(10000, n_days, 'ST')
-c.positions8_rate()
+c.positions4_rate()
