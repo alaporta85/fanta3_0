@@ -62,6 +62,9 @@ for file in files:
         else:
             players_database[player] = [day[player]]
 
+for player in players_database:
+    players_database[player].sort(key=lambda x: x[0])
+
 # Finally we delete some variables we do not need anymore
 del day, file, files, player
 
