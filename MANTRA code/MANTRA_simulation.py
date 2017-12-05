@@ -45,22 +45,23 @@ all_roles = {player[0]: player[1] for team in fantaplayers
 # Votes are stored in different .pckl files for different days. Here we create
 # a unique dict with all the votes. First we create the list with all the files
 files = os.listdir('/Users/andrea/Desktop/fanta3_0/' +
-                   'cday_lineups_votes/votes')[1:]
+                   'cday_lineups_votes/votes')
 
 # Initialize the database
 players_database = {}
 
 # For each .pckl file we add to the database the data relative to each player
 for file in files:
-    f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
-             '%s' % file, 'rb')
-    day = pickle.load(f)
-    f.close()
-    for player in day:
-        if player in players_database:
-            players_database[player].append(day[player])
-        else:
-            players_database[player] = [day[player]]
+    if file.endswith('.pckl'):
+        f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
+                 '%s' % file, 'rb')
+        day = pickle.load(f)
+        f.close()
+        for player in day:
+            if player in players_database:
+                players_database[player].append(day[player])
+            else:
+                players_database[player] = [day[player]]
 
 for player in players_database:
     players_database[player].sort(key=lambda x: x[0])
