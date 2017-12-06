@@ -5,6 +5,8 @@ import os
 import pickle
 import copy
 from itertools import permutations
+pd.set_option('display.max_columns', 500)
+pd.set_option('display.width', 1000)
 
 # Load the list with our round
 g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
@@ -798,7 +800,7 @@ class League(object):
         table = pd.DataFrame(fin_list, first_col, header)
 
         print(table)
-        print('\n')
+        print()
 
     def classifica_avulsa(self, ranking):
 
@@ -907,7 +909,7 @@ class League(object):
             print('Fantagazzetta')
 
         print(table)
-        print('\n')
+        print()
 
     def print_lucky_points(self):
 
@@ -926,7 +928,7 @@ class League(object):
         table = pd.DataFrame(data, first_col, ['Lucky Points'])
 
         print(table)
-        print('\n')
+        print()
 
     def print_contributes(self):
 
@@ -968,7 +970,7 @@ class League(object):
 
         print("Average player's fantavote according to the role.")
         print(table)
-        print('\n')
+        print()
 
     def print_rates_bonus_malus(self):
 
@@ -1007,7 +1009,7 @@ class League(object):
         print('% of bonus/malus points used and points obtained thanks to ' +
               '0.5.')
         print(table)
-        print('\n')
+        print()
 
 
 class Statistic(object):
@@ -1069,17 +1071,21 @@ class Statistic(object):
                   round((self.place8[fantaname]*100)/n_leagues, 1))
                  for fantaname in fantanames]
 
-        # Sort the list
-        rates.sort(key=lambda x: x[1], reverse=True)
+        ordered_rates = []
+        for i in range(1, 9):
+            rates.sort(key=lambda x: sum(x[1:i+1]), reverse=True)
+            ordered_rates.append(rates[0])
+            rates = rates[1:]
 
         # Create the lists to print the table
-        only_names = [element[0] for element in rates]
-        short_data = [element[1:] for element in rates]
+        only_names = [element[0] for element in ordered_rates]
+        short_data = [element[1:] for element in ordered_rates]
         header = ['1st(%)', '2nd(%)', '3rd(%)', '4th(%)',
                   '5th(%)', '6th(%)', '7th(%)', '8th(%)']
 
         table = pd.DataFrame(short_data, only_names, header)
 
+        print('Statistics on {} random leagues:'.format(self.leagues))
         print(table)
 
     def positions4_rate(self):
@@ -1105,10 +1111,10 @@ class Statistic(object):
 
         table = pd.DataFrame(short_data, only_names, header)
 
-        print('Statistics on %d random leagues:' % self.leagues)
+        print('Statistics on {} random leagues:'.format(self.leagues))
         print(table)
 
-    def round_team_position(self, a_team_name, position):
+    def round_team_position(self, a_team_name, position, best_worst):
 
         '''Look for all the rounds where a team ends in position 'position' at
            the end of the league. Between  all the rounds found, it returns the
@@ -1124,16 +1130,25 @@ class Statistic(object):
                 points = new_league.fantateams[a_team_name].points
                 all_rounds.append((points, a_round))
 
-        all_rounds.sort(key=lambda x: x[0], reverse=True)
+        if best_worst == 'best':
+            all_rounds.sort(key=lambda x: x[0], reverse=True)
+            message = ('In the best case {} ends with {} points. ' +
+                       'The round is:\n')
+        else:
+            all_rounds.sort(key=lambda x: x[0])
+            message = ('In the worst case {} ends with {} points. ' +
+                       'The round is:\n')
 
-        print('\n')
+        print()
         if all_rounds:
-            print('Number of rounds found where %s ends in position %d in the'
-                  ' final ranking: %d' % (a_team_name, position,
-                                          len(all_rounds)))
-            print('In the best case %s ends with %d points. The round is:\n'
-                  % (a_team_name, all_rounds[0][0]))
-            return all_rounds[0][1]
+            print('Number of rounds found where {} ends in position {} in the'
+                  ' final ranking: {}'.format(a_team_name, position,
+                                              len(all_rounds)))
+            print(message.format(a_team_name, all_rounds[0][0]))
+            for day in all_rounds[0][1]:
+                for match in day:
+                    print(match)
+                print()
         else:
             print('No rounds found.')
 
@@ -1143,15 +1158,15 @@ all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
 
-print('\n')
-a = League(our_round, n_days, 'ST')
-a.play_league()
-a.print_league()
+#print('\n')
+#a = League(our_round, n_days, 'ST')
+#a.play_league()
+#a.print_league()
 #b = League(our_round, n_days, 'FG')
 #b.play_league()
 #b.print_league()
-a.print_contributes()
-a.print_rates_bonus_malus()
+#a.print_contributes()
+#a.print_rates_bonus_malus()
 #a.best_players(2, 'ST')
-c = Statistic(10000, n_days, 'ST')
-c.positions4_rate()
+#c = Statistic(10000, n_days, 'ST')
+#c.positions8_rate()
