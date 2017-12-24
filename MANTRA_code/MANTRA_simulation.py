@@ -295,6 +295,8 @@ class Fantateam(object):
         self.abs_points = 0
         self.malus = 0
         self.lucky_points = 0
+        self.matches_in_ten = 0
+        self.matches_in_nine = 0
         self.lineups = lineups[self.name]
         self.fields = []   # All the players playing after MANTRA evaluation
         self.players = fantaplayers[self.name]
@@ -402,6 +404,16 @@ class Match(object):
         # Update the final lineup after the match
         self.fantateams[self.team1].fields.append(self.final_field1)
         self.fantateams[self.team2].fields.append(self.final_field2)
+
+        if len(self.final_field1) == 10:
+            self.fantateams[self.team1].matches_in_ten += 1
+        elif len(self.final_field1) == 9:
+            self.fantateams[self.team1].matches_in_nine += 1
+
+        if len(self.final_field2) == 10:
+            self.fantateams[self.team2].matches_in_ten += 1
+        elif len(self.final_field2) == 9:
+            self.fantateams[self.team2].matches_in_nine += 1
 
         # Create a list of all players who will contribute to the final
         # fantavote calculation and finally calculate the abs_points for each
@@ -688,7 +700,6 @@ class League(object):
                      self.fantateams[team].goals_scored,
                      self.fantateams[team].goals_taken,
                      self.fantateams[team].goals_diff,
-                     self.fantateams[team].malus,
                      self.fantateams[team].abs_points) for team in fantanames]
 
         # Sort the data according to
@@ -696,7 +707,7 @@ class League(object):
         all_data.sort(key=lambda x: x[2], reverse=True)        # Victories
         all_data.sort(key=lambda x: x[7], reverse=True)        # Diff goals
         all_data.sort(key=lambda x: x[5], reverse=True)        # Goals scored
-        all_data.sort(key=lambda x: x[9], reverse=True)        # Abs points
+        all_data.sort(key=lambda x: x[8], reverse=True)        # Abs points
         all_data = self.classifica_avulsa(all_data)            # Class. Avulsa
         all_data.sort(key=lambda x: x[1], reverse=True)        # Points
 
@@ -898,8 +909,7 @@ class League(object):
 
         only_names, all_data = self.create_final_data()
         short_data = [team[1:] for team in all_data]
-        header = ['Points', 'V', 'N', 'P', 'Gs', 'Gt', 'Dr', 'Malus',
-                  'Abs Points']
+        header = ['Points', 'V', 'N', 'P', 'Gs', 'Gt', 'Dr', 'Abs Points']
 
         table = pd.DataFrame(short_data, only_names, header)
 
@@ -907,25 +917,6 @@ class League(object):
             print('Alvin482')
         else:
             print('Fantagazzetta')
-
-        print(table)
-        print()
-
-    def print_lucky_points(self):
-
-        '''Print the ranking based on the points gained for a difference of 0.5
-           in the absolute points of the two teams during each match of the
-           league.'''
-
-        fin_list = [(team, self.fantateams[team].lucky_points)
-                    for team in fantanames]
-
-        fin_list.sort(key=lambda x: x[1], reverse=True)
-
-        first_col = [x[0] for x in fin_list]
-        data = [x[1] for x in fin_list]
-
-        table = pd.DataFrame(data, first_col, ['Lucky Points'])
 
         print(table)
         print()
@@ -998,16 +989,19 @@ class League(object):
             malus_rate = round((malus_field/(malus_field+malus_bench))*100, 1)
 
             ref_list.append((team, bonus_rate, malus_rate,
-                             self.fantateams[team].lucky_points))
+                             self.fantateams[team].lucky_points,
+                             self.fantateams[team].malus,
+                             self.fantateams[team].matches_in_ten,
+                             self.fantateams[team].matches_in_nine))
 
         names = [element[0] for element in ref_list]
         data = [element[1:] for element in ref_list]
-        header = ['Bonus(%)', 'Malus(%)', 'Lucky Points']
+        header = ['Bonus(%)', 'Malus(%)', 'Lucky Points',
+                  'N. of malus', 'Matches in 10', 'Matches in 9']
 
         table = pd.DataFrame(data, names, header)
 
-        print('% of bonus/malus points used and points obtained thanks to ' +
-              '0.5.')
+        print('% of bonus/malus points used')
         print(table)
         print()
 
