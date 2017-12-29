@@ -1,6 +1,7 @@
 import MANTRA_functions as mfwf
 import statistic_functions as sf
 import pandas as pd
+import matplotlib.pyplot as plt
 import os
 import pickle
 import copy
@@ -1005,6 +1006,51 @@ class League(object):
         print(table)
         print()
 
+    def bonus_distr(self, n_players):
+
+        fin_dict = {fantateam: {} for fantateam in self.fantateams}
+
+        for fantateam in fin_dict:
+            for day in range(1, self.n_days + 1):
+                players = self.fantateams[fantateam].fields[day - 1]
+                players = [element[1] for element in players]
+
+                for player in players:
+                    value = all_players[player].all_bonus(day, 'ST')
+
+                    if value > 0 and player in fin_dict[fantateam]:
+                        fin_dict[fantateam][player] += value
+                    elif value > 0 and player not in fin_dict[fantateam]:
+                        fin_dict[fantateam][player] = value
+
+        for fantateam in fin_dict:
+            fin_list = [(player, fin_dict[fantateam][player]) for player in
+                        fin_dict[fantateam]]
+            fin_list.sort(key=lambda x: x[1], reverse=True)
+            fin_dict[fantateam] = fin_list
+
+        fin_data = [(fantateam,
+                     [el[0] for el in fin_dict[fantateam][:n_players]],
+                     sum([el[1] for el in fin_dict[fantateam][:n_players]]),
+                     self.fantateams[fantateam].bonus_from_field) for
+                    fantateam in fin_dict]
+        fin_data = [(el[0], el[1], round((el[2]/el[3])*100, 1)) for
+                    el in fin_data]
+        fin_data.sort(key=lambda x: x[2], reverse=True)
+        
+        fantateams = [el[0] for el in fin_data]
+        players = [el[1] for el in fin_data]
+        perc = [el[2] for el in fin_data]
+        
+        bars = plt.bar(range(len(fantateams)), perc, 0.5)
+        plt.xticks(range(len(fantateams)), fantateams, fontsize=14,
+                   rotation=45, ha='right')
+        plt.ylabel('% of success', fontsize=15)
+        plt.ylim(0, 100)
+        plt.title('Total number of bets: {}', fontsize=14)
+
+#        return fin_data
+
 
 class Statistic(object):
     def __init__(self, leagues, n_days, mode):
@@ -1150,11 +1196,12 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
+#n_days = 2
 
 
-#print('\n')
-#a = League(our_round, n_days, 'ST')
-#a.play_league()
+print('\n')
+a = League(our_round, n_days, 'ST')
+a.play_league()
 #a.print_league()
 #b = League(our_round, n_days, 'FG')
 #b.play_league()
