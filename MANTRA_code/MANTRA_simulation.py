@@ -1196,12 +1196,11 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 2
 
 
-print('\n')
-a = League(our_round, n_days, 'ST')
-a.play_league()
+#print('\n')
+#a = League(our_round, n_days, 'ST')
+#a.play_league()
 #a.print_league()
 #b = League(our_round, n_days, 'FG')
 #b.play_league()
