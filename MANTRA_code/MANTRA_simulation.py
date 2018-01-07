@@ -832,7 +832,7 @@ class League(object):
                                            in teams_with_equal_points]}
 
             # Play all the matches between the teams
-            for i in range(1, n_days+1):
+            for i in range(1, self.n_days+1):
                 day = self.schedule[i]
 
                 for match in matches:
@@ -1198,10 +1198,10 @@ all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
 
 
-#print('\n')
-#a = League(our_round, n_days, 'ST')
-#a.play_league()
-#a.print_league()
+print('\n')
+a = League(our_round, n_days, 'ST')
+a.play_league()
+a.print_league()
 #b = League(our_round, n_days, 'FG')
 #b.play_league()
 #b.print_league()
