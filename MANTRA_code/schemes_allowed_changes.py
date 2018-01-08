@@ -7,21 +7,21 @@ schemes = {'343':['Dc','Dc','Dc','E','M/C','M/C','E','W/A','A/Pc','W/A'],
           
           '3421':['Dc','Dc','Dc','E','M/C','M/C','E','T/W','T/W','A/Pc'],
           
-           '352':['Dc','Dc','Dc','E/W','M/C','M','M/C','E','A/Pc','A/Pc'],
+           '352':['Dc','Dc','Dc','E','M/C','M','M/C','E/W','A/Pc','A/Pc'],
            
-           '442':['Dd','Dc','Dc','Ds','E/W','M','M/C','E/W','A/Pc','A/Pc'],
+           '442':['Ds','Dc','Dc','Dd','E/W','M/C','M','E/W','A/Pc','A/Pc'],
            
-           '433':['Dd','Dc','Dc','Ds','M/C','M','M/C','W/A','A/Pc','W/A'],
+           '433':['Ds','Dc','Dc','Dd','M/C','M','M/C','W/A','A/Pc','W/A'],
            
-          '4312':['Dd','Dc','Dc','Ds','M/C','M','M/C','T','A/Pc','A/Pc'],
+          '4312':['Ds','Dc','Dc','Dd','M/C','M','M/C','T','A/Pc','A/Pc'],
           
-          '4321':['Dd','Dc','Dc','Ds','M/C','M','M/C','T/W','T/W','A/Pc'],
+          '4321':['Ds','Dc','Dc','Dd','M/C','M','M/C','T/W','T/W','A/Pc'],
            
-          '4231':['Dd','Dc','Dc','Ds','M','M/C','T/W','T','T/W','A/Pc'],
+          '4231':['Ds','Dc','Dc','Dd','M/C','M','T/W','T','T/W','A/Pc'],
            
-          '4411':['Dd','Dc','Dc','Ds','E/W','M','M/C','E/W','T','A/Pc'],
+          '4411':['Ds','Dc','Dc','Dd','E/W','M/C','M','E/W','T','A/Pc'],
           
-          '4222':['Dd','Dc','Dc','Ds','M','M','W','T','A','A/Pc']}
+          '4222':['Ds','Dc','Dc','Dd','M','M','T','W','A','A/Pc']}
 
 
 compatible_roles = {'E':['E/W2'],

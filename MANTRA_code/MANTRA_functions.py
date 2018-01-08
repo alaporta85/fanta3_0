@@ -13,13 +13,11 @@ f.close()
 def modify_player_name(player):
 
     '''When a player leaves a team, in the website he will be marked with the
-       simbol '*' after the name, which causes errors when we look for the vote
-       of that player. This function returns the clean name of the player.'''
+       simbol ' *' after the name, which causes errors when we look for the
+       vote of that player. This function returns the clean name of the player.
+       '''
 
-    if player[-1] == '*':
-        final_name = player[:-2]
-    else:
-        final_name = player
+    final_name = player.replace(' *', '')
 
     return final_name
 
@@ -34,7 +32,7 @@ def take_vote_from_database(player, day, mode='ST'):
        (not evaluated).'''
 
     filename = ('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
-                'Day_%d.pckl' % day)
+                'Day_{}.pckl'.format(day))
 
     f = open(filename, 'rb')
     players_database = pickle.load(f)
@@ -64,7 +62,7 @@ def players_with_vote(list_of_tuples, mode='ST'):
 
         # Extract the vote, FG or ST
         if mode == 'FG':
-            vote = take_vote_from_database(player[1], day, mode='FG')
+            vote = take_vote_from_database(player[1], day, 'FG')
         else:
             vote = take_vote_from_database(player[1], day)
 
@@ -80,45 +78,22 @@ def players_with_vote(list_of_tuples, mode='ST'):
     return field, bench
 
 
-def n_of_subst(list_of_tuples, mode='ST'):
-
-    '''Returns the number of substitutions needed by the team.'''
-
-    if mode == 'FG':
-        field, bench = players_with_vote(list_of_tuples, mode='FG')
-    else:
-        field, bench = players_with_vote(list_of_tuples)
-
-    # Set the number of substitutions needed
-    n_subst = 11 - len(field)
-
-    return n_subst
-
-
 def find_gkeeper(alist):
 
-    '''Checks whether any goal keeper is present in a given list. It returns
-       the name of the first one in case there is any and False otherwise.'''
+    '''Return the goal keeper in case there is any and False otherwise.'''
 
-    gkeepers = []
     for player in alist:
         if player[2] == ['Por']:
-            gkeepers.append(player)
+            return player
 
-    if gkeepers:
-        return gkeepers[0]
-    else:
-        return False
+    return False
 
 
 def delete_gkeeper(alist):
 
     '''Returns alist without any goal keeper.'''
 
-    res = []
-    for player in alist:
-        if player[2] != ['Por']:
-            res.append(player)
+    res = [player for player in alist if player[2] != ['Por']]
 
     return res
 
@@ -178,30 +153,26 @@ def valid_lineups(field, bench, n_of_players_with_vote, n_subst):
     # combination will be made of a number of players equal to the number of
     # allowed substitutions
     players_from_bench = list(combinations(bench, n_subst))
-    all_lineups = []                  # All candidates
 
     # Combine players in the field with each combination of players from the
     # bench. The resulting lineup will be a candidate to be checked
-    for block in players_from_bench:
-        candidate = copy.copy(field)
-        for player in block:
-            candidate.append(player)
-        all_lineups.append(candidate)
+    all_candidates = [copy.copy(field) + list(block) for block in
+                      players_from_bench]
 
-    return all_lineups
+    return all_candidates
 
 
-def deploy_players(reduced_list, roles_of_module, solution):
+def deploy_players(players_to_deploy, roles_to_cover, solution):
 
     '''This function deploys the players in the lineup according to the module.
        It deploys the players, delete the role from the roles to be covered and
-       delete the player from the players to be deployed. It returns the lists
-       of the non-deployed players and non-covered roles.'''
+       delete the player from the players to be deployed. Return the lists of
+       the non-deployed players and non-covered roles.'''
 
-    new_list = copy.copy(reduced_list)
-    new_schemes = copy.copy(roles_of_module)
+    new_list = copy.copy(players_to_deploy)
+    new_schemes = copy.copy(roles_to_cover)
 
-    for player in reduced_list:
+    for player in players_to_deploy:
         role = player[2]
 
         # First we try to delete the same role: if player is a 'M' than we
@@ -215,11 +186,16 @@ def deploy_players(reduced_list, roles_of_module, solution):
         elif (role in compatible_roles
               and set(compatible_roles[role]).intersection(new_schemes)):
 
-            role_to_delete = set(compatible_roles[role])\
-                                             .intersection(new_schemes)
+            role_to_delete = set(
+                    compatible_roles[role]).intersection(new_schemes)
             role_to_delete = list(role_to_delete)[0]
             new_list.remove(player)
             new_schemes.remove(role_to_delete)
+
+        # If we are looking for an optimal or efficient solution we return
+        # False because it means it is not a valid candidate
+        elif role not in new_schemes and solution == 'optimal':
+            return False
 
         # If the role is not present in the positions to be covered and we
         # are looking for an adpted solution we do NOT do anything, just
@@ -227,18 +203,13 @@ def deploy_players(reduced_list, roles_of_module, solution):
         elif role not in new_schemes and solution == 'adapted':
             pass
 
-        # If we are looking for an optimal or efficient solution we return
-        # False because it means it is not a valid candidate
-        elif role not in new_schemes and solution == 'optimal':
-            return False
-
     return new_list, new_schemes
 
 
 def transf_wings(roles_left, module):
 
     '''Transforms the 'W' in the module (if any) according to the compatibility
-       table of the roles. It returns the modified roles.'''
+       table of the roles. Return the modified roles.'''
 
     special_modules = ['352', '442', '4411']
     adapted_roles = []
@@ -250,15 +221,14 @@ def transf_wings(roles_left, module):
     # we than modify it to be either 'W1' or 'W2' depending on the module
     # and append them
     for role in roles_left:
-        new_role = copy.copy(role)
         if 'W' in role and module in special_modules:
-            new_role = new_role.replace('W', 'W2')
+            new_role = role.replace('W', 'W2')
             adapted_roles.append(new_role)
         elif 'W' in role and module not in special_modules:
-            new_role = new_role.replace('W', 'W1')
+            new_role = role.replace('W', 'W1')
             adapted_roles.append(new_role)
         else:
-            adapted_roles.append(new_role)
+            adapted_roles.append(role)
 
     return adapted_roles
 
@@ -271,7 +241,6 @@ def order_by_role(list_of_tuples):
        errors.'''
 
     reference = ['Pc', 'A', 'T', 'W', 'C', 'M', 'E', 'Dc', 'Dd', 'Ds']
-
     final = []
 
     for role in reference:
@@ -334,7 +303,7 @@ def find_solution(list_of_tuples, module, n_of_players_with_vote):
     # Generate all the combinations of positions to be covered in the module.
     # Each combination will be made by n_of_players_with_vote (int) players.
     # Up to 3 substitutions the value of n_of_players_with_vote is 10 so there
-    # s only 1 possible combination because len(schemes[module]) == 10, 'Por'
+    # is only 1 possible combination because len(schemes[module]) == 10, 'Por'
     # is not included there. In case of 4 subst for example,
     # n_of_players_with_vote == 9 so there will be 10 possible combinations.
     # Each ordered (single role) lineup will be tested with each of these
@@ -551,42 +520,41 @@ def MANTRA_simulation(lineup, module, mode='ST'):
         nonlocal final_field
         nonlocal adapted_module
         nonlocal malus
-        nonlocal alternative_modules
 
-        # As for the efficient case we iterate over all the candidates
+        # As for the efficient case we iterate over:
+
+        # 1. All the candidates
         for candidate in all_lineups:
             candidates_single_role = all_lineups_single_role(candidate)
+
+            # 2. Each candidate transformed in single role
             for new_cand in candidates_single_role:
 
-                # And over all the modules
+                # 3. All the modules
                 for a_module in modules_for_adapted_solution:
 
-                    # If a solution for this candidate with this module exists,
-                    # we store the number of malus for this specific case
-                    if find_adapted_solution(new_cand, a_module,
-                                             n_of_players_with_vote):
+                    n_malus = find_adapted_solution(
+                            new_cand, a_module, n_of_players_with_vote)
 
-                        n_malus = find_adapted_solution(new_cand, a_module,
-                                                        n_of_players_with_vote)
+                    # If a solution for this candidate with this module exists
+                    # AND n_malus is decreased, we store the number of malus,
+                    # the module and the lineup
+                    if n_malus and n_malus < malus:
+                        malus = n_malus
+                        adapted_module = a_module
+                        final_field = new_cand
 
-                        # If it is < than the last one (or less than 4 in
-                        # the first case) we overwrite its value, the module
-                        # and the lineup. In this way we check all the lineups
-                        # and at the end we will have only the one with the
-                        # lower number of malus. We also empty the list of all
-                        # alternative modules in order to have the right list
-                        # at the end
-                        if n_malus < malus:
-                            malus = n_malus
-                            adapted_module = a_module
-                            final_field = new_cand
-                            alternative_modules = []
-                        elif n_malus == malus:
-                            alternative_modules.append(a_module)
+                        if malus == 1:
+                            # In this case we break the loop because 1 is the
+                            # minimum number of malus possible so we are not
+                            # interested in iterating over the remaining
+                            # candidates
+                            break
 
-        alternative_modules = list(set(alternative_modules))
-        if alternative_modules and adapted_module in alternative_modules:
-            alternative_modules.remove(adapted_module)
+                if malus == 1:
+                    break
+            if malus == 1:
+                break
 
     def look_for_solution(module, n_of_players_with_vote, n_subst):
 
@@ -657,10 +625,22 @@ def MANTRA_simulation(lineup, module, mode='ST'):
     # Select the players with vote and store the number of substitutions needed
     if mode == 'FG':
         field, bench = players_with_vote(new_lineup, 'FG')
-        n_subst = n_of_subst(new_lineup, mode='FG')
     else:
         field, bench = players_with_vote(new_lineup)
-        n_subst = n_of_subst(new_lineup)
+
+    n_subst = 11 - len(field)
+
+    if not n_subst:
+        malus = 0
+        ref_roles = schemes[module]
+
+        for x in range(9):
+            roles_available = ref_roles[x].split('/')
+            roles_player = field[x + 1][2]
+            if not set(roles_available).intersection(roles_player):
+                malus += 1
+
+        return field, bench, malus
 
     # Make a copy of the starting lineup. We will NOT modify this copy
     original = copy.copy(new_lineup)
@@ -668,43 +648,37 @@ def MANTRA_simulation(lineup, module, mode='ST'):
     # Initialize all the parameters. We chose 10 for malus just because it is
     # a number high enough and we look for the solution with the lower number
     # of malus
-    final_field = 0                    # The final lineup
+    final_field = []                   # The final lineup
     final_bench = []
     efficient_module = 0               # Valid module in case of eff solution
     adapted_module = 0                 # Valid module in case of adp solution
     malus = 10                         # Number of malus assigned
-    alternative_modules = []           # Modules equally valid in adp solution
     magic_number = 10                  # N. of players considered in the lineup
     all_lineups = 0                    # All candidates
 
-    # We need all the modules to be able to iterate over them in case of an
-    # efficient or adapted solution is needed
+    # We need all the modules to be able to iterate over them in case an
+    # efficient or adapted solution is needed. We also remove the module chosen
+    # by the fantaplayer and then insert it as first element. In this way, this
+    # module will be the first to be checked
     all_modules = ['343', '3412', '3421', '352', '442', '433',
                    '4312', '4321', '4231', '4411', '4222']
+    all_modules.remove(module)
+    all_modules.insert(0, module)
 
-    # Handle the goal keeper issue
-    if n_subst <= 3:
-        solve_gkeeper()
-        if find_gkeeper(field):
-            gkeeper = field[0]
-            field.remove(gkeeper)
-        else:
-            gkeeper = 0
-
-        calculation(magic_number)
-
-    else:
+    # Set the right magic_number value if n_subst > 3
+    if n_subst > 3:
         magic_number = 13 - n_subst
         n_subst = 3
 
-        solve_gkeeper()
-        if find_gkeeper(field):
-            gkeeper = field[0]
-            field.remove(gkeeper)
-        else:
-            gkeeper = 0
+    # Handle the goal keeper issue
+    solve_gkeeper()
+    if find_gkeeper(field):
+        gkeeper = field[0]
+        field.remove(gkeeper)
+    else:
+        gkeeper = 0
 
-        calculation(magic_number)
+    calculation(magic_number)
 
     if gkeeper:
         gkeeper = (gkeeper[0], gkeeper[1], gkeeper[2][0])
@@ -731,7 +705,7 @@ def MANTRA_simulation(lineup, module, mode='ST'):
 #
 #    if not efficient_module and not adapted_module:
 #        print('\n')
-#        print('Optimal solution found: module is %s' % module)
+#        print('Optimal solution found: module is {}'.format(module))
 #        print('\n')
 #        print('Malus %d' % malus)
 #    elif efficient_module:
@@ -745,9 +719,7 @@ def MANTRA_simulation(lineup, module, mode='ST'):
 #              % (module, adapted_module))
 #        print('Players with malus: %d' % malus)
 #        print('\n')
-#        print('Equivalent modules were: %s.' % alternative_modules)
-#        print('\n')
 #
 #    return printed_lineup
 
-    return final_field, final_bench, malus, printed_lineup
+    return final_field, final_bench, malus

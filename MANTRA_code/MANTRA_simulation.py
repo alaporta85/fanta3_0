@@ -1,4 +1,4 @@
-import MANTRA_functions as mfwf
+import MANTRA_functions as mf
 import statistic_functions as sf
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +6,7 @@ import os
 import pickle
 import copy
 from itertools import permutations
+import time
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
@@ -359,17 +360,17 @@ class Match(object):
         # MANTRA simulation for both teams
         module1 = self.lineup1[0]
         lineup1 = self.lineup1[1]
-        self.final_field1, self.final_bench1, malus1 = mfwf.MANTRA_simulation(
+        self.final_field1, self.final_bench1, malus1 = mf.MANTRA_simulation(
                                                                 lineup1,
                                                                 module1,
-                                                                self.mode)[:3]
+                                                                self.mode)
 
         module2 = self.lineup2[0]
         lineup2 = self.lineup2[1]
-        self.final_field2, self.final_bench2, malus2 = mfwf.MANTRA_simulation(
+        self.final_field2, self.final_bench2, malus2 = mf.MANTRA_simulation(
                                                                 lineup2,
                                                                 module2,
-                                                                self.mode)[:3]
+                                                                self.mode)
 
         # In the following block of code we add to the final_bench lists (both
         # 1 and 2) all the players that do NOT appear in the lineup of each
@@ -1200,13 +1201,15 @@ n_days = len(lineups['Ciolle United'])
 
 print('\n')
 a = League(our_round, n_days, 'ST')
+start = time.time()
 a.play_league()
+print(round(time.time() - start, 1))
 a.print_league()
 #b = League(our_round, n_days, 'FG')
 #b.play_league()
 #b.print_league()
 #a.print_contributes()
-#a.print_rates_bonus_malus()
+a.print_rates_bonus_malus()
 #a.best_players(2, 'ST')
 #c = Statistic(10000, n_days, 'ST')
 #c.positions8_rate()
