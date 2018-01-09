@@ -619,17 +619,20 @@ def MANTRA_simulation(lineup, module, mode='ST'):
             n_subst -= 1
             return calculation(a_number-1)
 
-    new_lineup = [(player[0], modify_player_name(player[1]), player[2])
-                  for player in lineup]
+    clean_lineup = [(player[0], modify_player_name(player[1]), player[2])
+                    for player in lineup]
 
     # Select the players with vote and store the number of substitutions needed
     if mode == 'FG':
-        field, bench = players_with_vote(new_lineup, 'FG')
+        field, bench = players_with_vote(clean_lineup, 'FG')
     else:
-        field, bench = players_with_vote(new_lineup)
+        field, bench = players_with_vote(clean_lineup)
 
     n_subst = 11 - len(field)
 
+    # In case no substitutions are needed, no calculation is started. In this
+    # case malus can only be due to errors coming from the fantaplayers when
+    # creating the lineup
     if not n_subst:
         malus = 0
         ref_roles = schemes[module]
@@ -642,14 +645,10 @@ def MANTRA_simulation(lineup, module, mode='ST'):
 
         return field, bench, malus
 
-    # Make a copy of the starting lineup. We will NOT modify this copy
-    original = copy.copy(new_lineup)
-
     # Initialize all the parameters. We chose 10 for malus just because it is
     # a number high enough and we look for the solution with the lower number
     # of malus
     final_field = []                   # The final lineup
-    final_bench = []
     efficient_module = 0               # Valid module in case of eff solution
     adapted_module = 0                 # Valid module in case of adp solution
     malus = 10                         # Number of malus assigned
@@ -684,42 +683,9 @@ def MANTRA_simulation(lineup, module, mode='ST'):
         gkeeper = (gkeeper[0], gkeeper[1], gkeeper[2][0])
         final_field.insert(0, gkeeper)
 
-    # This is for printing the result. We initialize the final list. In this
-    # list, only players with vote will be printed uppercase
-    printed_lineup = []
+    # Create the bench
+    field_names = [player[1] for player in final_field]
+    final_bench = [player for player in clean_lineup[11:] if player[1] not in
+                   field_names]
 
-    for player in original:
-        if player[1] in [data[1] for data in final_field]:
-            player_single_role = [new_player for new_player in final_field
-                                  if new_player[1] == player[1]][0]
-            printed_lineup.append((player[0], player[1],
-                                   player_single_role[2]))
-        else:
-            new_tuple = (player[0], player[1].title(), player[2])
-            printed_lineup.append(new_tuple)
-            new_tuple = (player[0], player[1].upper(), player[2])
-            final_bench.append(new_tuple)
-
-#    separator = '- - - - - - - - - - - - - -'
-#    printed_lineup.insert(11, separator)
-#
-#    if not efficient_module and not adapted_module:
-#        print('\n')
-#        print('Optimal solution found: module is {}'.format(module))
-#        print('\n')
-#        print('Malus %d' % malus)
-#    elif efficient_module:
-#        print('\n')
-#        print('Efficient solution found: module changed from %s to %s'
-#              % (module, efficient_module))
-#        print('\n')
-#    else:
-#        print('\n')
-#        print('Adapted solution found: module changed from %s to %s.'
-#              % (module, adapted_module))
-#        print('Players with malus: %d' % malus)
-#        print('\n')
-#
-#    return printed_lineup
-
-    return final_field, final_bench, malus
+    return final_field, final_bench, malus, efficient_module, adapted_module

@@ -57,8 +57,8 @@ players_database = {}
 # For each .pckl file we add to the database the data relative to each player
 for file in files:
     if file.endswith('.pckl'):
-        f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
-                 '%s' % file, 'rb')
+        f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+                 'votes/{}'.format(file), 'rb')
         day = pickle.load(f)
         f.close()
         for player in day:
@@ -363,21 +363,22 @@ class Match(object):
         self.final_field1, self.final_bench1, malus1 = mf.MANTRA_simulation(
                                                                 lineup1,
                                                                 module1,
-                                                                self.mode)
+                                                                self.mode)[:3]
 
         module2 = self.lineup2[0]
         lineup2 = self.lineup2[1]
         self.final_field2, self.final_bench2, malus2 = mf.MANTRA_simulation(
                                                                 lineup2,
                                                                 module2,
-                                                                self.mode)
+                                                                self.mode)[:3]
 
         # In the following block of code we add to the final_bench lists (both
         # 1 and 2) all the players that do NOT appear in the lineup of each
         # fantateam. We do this step in order to be able to calculate the ratio
         # between bonus in the final_field and total bonus. Same for malus
         filename = ('/Users/andrea/Desktop/fanta3_0/all_players_per_' +
-                    'fantateam/fantaplayers/fantaplayers_%d.pckl' % self.day)
+                    'fantateam/fantaplayers/fantaplayers_{}.pckl'.format(
+                                                                     self.day))
 
         f = open(filename, 'rb')
         daily_players = pickle.load(f)
@@ -467,6 +468,7 @@ class Match(object):
             # the case. Now we want to check tho one with the highest score
             # between the two so we sort it decreasingly
             reference_list.sort(key=lambda x: x[1], reverse=True)
+
             if reference_list[0][1] == 65.5:
                 self.fantateams[reference_list[0][0]].lucky_points -= 2
                 self.fantateams[reference_list[1][0]].lucky_points += 1
@@ -630,7 +632,9 @@ class Match(object):
 
             self.update_contributes(self.team1, self.final_field1)
             self.update_contributes(self.team2, self.final_field2)
-            self.update_lucky_points(abs_points1, abs_points2, goals1, goals2)
+            if abs_points1 != abs_points2:
+                self.update_lucky_points(abs_points1, abs_points2,
+                                         goals1, goals2)
         except TypeError:
             pass
 

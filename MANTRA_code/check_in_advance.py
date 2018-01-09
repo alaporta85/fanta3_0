@@ -4,45 +4,44 @@ import pickle
 import os
 
 f = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/' +
-         'fantaplayers/fantaplayers_13.pckl', 'rb')
+         'fantaplayers/fantaplayers_18.pckl', 'rb')
 rose = pickle.load(f)
 f.close()
 
 #%%
 
-acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO', 'yes'),
-             ('CALDARA', ['Dc'], 'ATALANTA', 'yes'),
-             ('RUGANI', ['Dc'], 'JUVENTUS', 'no'),
-             ('MANOLAS', ['Dc'], 'ROMA', 'yes'),
-             ('FLORENZI', ['E', 'C', 'W'], 'ROMA', 'yes'),
-             ('CASTRO', ['C', 'T'], 'CHIEVO', 'yes'),
-             ('ZIELINSKI', ['C', 'T'], 'NAPOLI', 'yes'),
-             ('LICHTSTEINER', ['Dd', 'E'], 'JUVENTUS', 'yes'),
-             ('CALHANOGLU', ['T'], 'MILAN', 'yes'),
-             ('CUADRADO', ['W'], 'JUVENTUS', 'yes'),
-             ("ANDRE' SILVA", ['Pc'], 'MILAN', 'no'),
-             ('CUTRONE', ['Pc'], 'MILAN', 'yes'),
-             ('EL SHAARAWY', ['A'], 'ROMA', 'yes'),
-             ('DEFREL', ['A'], 'ROMA', 'yes'),
-             ('DOUGLAS COSTA', ['W', 'A'], 'JUVENTUS', 'yes'),
-             ('STROOTMAN', ['M', 'C'], 'ROMA', 'yes'),
-             ('JORGINHO', ['M', 'C'], 'NAPOLI', 'no'),
-             ('ALLAN', ['M', 'C'], 'NAPOLI', 'yes'),
-             ('BRUNO PERES', ['Dd', 'E'], 'ROMA', 'yes'),
-             ('LETIZIA', ['Dd', 'Ds', 'E'], 'BENEVENTO', 'yes'),
-             ('GAMBERINI', ['Dc'], 'CHIEVO', 'yes'),
-             ('SAMIR', ['Ds', 'Dc'], 'UDINESE', 'yes'),
-             ('MIRANTE', ['Por'], 'BOLOGNA', 'no'),
-#             ('VIVIANO', ['Por'], 'SAMPDORIA'),
-#             ('HOWEDES', ['Dd', 'Dc'], 'JUVENTUS'),
-#             ('KARSDORP', ['Dd', 'E'], 'ROMA'),
-#             ('DE SCIGLIO', ['Dd', 'Ds', 'E'], 'JUVENTUS'),
-#             ('GOBBI', ['Ds', 'E'], 'CHIEVO'),
-#             ('DIAWARA', ['M', 'C'], 'NAPOLI'),
-#             ('BASELLI', ['C'], 'TORINO'),
-#             ('SCHICK', ['A'], 'ROMA'),
-#             ('BORRIELLO', ['Pc'], 'SPAL')
-             ]
+acpicchia = [('STRAKOSHA', ['Por'], 'LAZIO', (1, 'y')),
+             ('VIVIANO', ['Por'], 'SAMPDORIA', (23, 'y')),
+             ('MIRANTE', ['Por'], 'BOLOGNA'),
+             ('CALDARA', ['Dc'], 'ATALANTA', (3, 'y')),
+             ('MANOLAS', ['Dc'], 'ROMA', (4, 'n')),
+             ('RUGANI', ['Dc'], 'JUVENTUS', (22, 'n')),
+             ('GAMBERINI', ['Dc'], 'CHIEVO', (21, 'y')),
+             ('BRUNO PERES', ['Dd', 'E'], 'ROMA', (19, 'y')),
+             ('SAMIR', ['Ds', 'Dc'], 'UDINESE', (2, 'n')),
+             ('LICHTSTEINER', ['Dd', 'E'], 'JUVENTUS'),
+             ('LETIZIA', ['Dd', 'Ds', 'E'], 'BENEVENTO'),
+             ('HOWEDES', ['Dd', 'Dc'], 'JUVENTUS'),
+             ('GOBBI', ['Ds', 'E'], 'CHIEVO', (20, 'n')),
+             ('ALLAN', ['M', 'C'], 'NAPOLI', (18, 'y')),
+             ('STROOTMAN', ['M', 'C'], 'ROMA', (16, 'y')),
+             ('JORGINHO', ['M', 'C'], 'NAPOLI', (17, 'y')),
+             ('DIAWARA', ['M', 'C'], 'NAPOLI'),
+             ('FLORENZI', ['E', 'C', 'W'], 'ROMA', (8, 'n')),
+             ('SPINAZZOLA', ['E'], 'ATALANTA', (5, 'y')),
+             ('ZIELINSKI', ['C', 'T'], 'NAPOLI', (7, 'y')),
+             ('CASTRO', ['C', 'T'], 'CHIEVO'),
+             ('GERSON', ['C', 'T'], 'ROMA', (6, 'y')),
+             ('DOUGLAS COSTA', ['W', 'A'], 'JUVENTUS', (12, 'n')),
+             ('CUADRADO', ['W'], 'JUVENTUS', (11, 'y')),
+             ('CALHANOGLU', ['T'], 'MILAN'),
+             ('MANDZUKIC', ['A'], 'JUVENTUS', (9, 'y')),
+             ('EL SHAARAWY', ['A'], 'ROMA', (10, 'y')),
+             ('SCHICK', ['A'], 'ROMA', (13, 'y')),
+             ('DEFREL', ['A'], 'ROMA'),
+             ('BORRIELLO', ['Pc'], 'SPAL'),
+             ("ANDRE' SILVA", ['Pc'], 'MILAN', (14, 'y')),
+             ('CUTRONE', ['Pc'], 'MILAN', (15, 'y'))]
 
 bucalina = [('SZCZESNY', ['Por'], 'JUVENTUS', 'yes'),
             ('STRINIC', ['Ds', 'E'], 'SAMPDORIA', 'no'),
@@ -74,9 +73,9 @@ bucalina = [('SZCZESNY', ['Por'], 'JUVENTUS', 'yes'),
 #            ('BUFFON', ['Por'], 'JUVENTUS', 'yes'),
             ]
 
-stress = [('REINA', ['Por'], 'NAPOLI', 'yes'),
-          ('CHIELLINI', ['Ds', 'Dc'], 'JUVENTUS', 'yes'),
-          ('BENATIA', ['Dc'], 'JUVENTUS', 'yes'),
+stress = [('REINA', ['Por'], 'NAPOLI', (1, 'y')),
+          ('CHIELLINI', ['Ds', 'Dc'], 'JUVENTUS', (2, 'y')),
+          ('BENATIA', ['Dc'], 'JUVENTUS', (3, 'y')),
           ('FERRARI G', ['Dc'], 'SAMPDORIA', 'yes'),
           ('LULIC', ['E', 'C', 'W'], 'LAZIO', 'yes'),
           ('FREULER', ['M', 'C'], 'ATALANTA', 'yes'),
@@ -97,41 +96,41 @@ stress = [('REINA', ['Por'], 'NAPOLI', 'yes'),
           ('IZZO', ['Dd', 'Dc'], 'GENOA', 'yes'),
           ('SEPE', ['Por'], 'NAPOLI', 'no'),
           ('RAFAEL CABRAL', ['Por'], 'NAPOLI', 'no'),
-#          ('BARZAGLI', ['Dc'], 'JUVENTUS'),
-#          ('CAPUANO', ['Ds', 'Dc'], 'CAGLIARI'),
-#          ('DE ROSSI', ['M', 'C'], 'ROMA'),
-#          ('DI FRANCESCO F', ['W', 'A'], 'BOLOGNA'),
-#          ('NANI', ['A'], 'LAZIO'),
+          ('BARZAGLI', ['Dc'], 'JUVENTUS', (4, 'n')),
+          ('CAPUANO', ['Ds', 'Dc'], 'CAGLIARI'),
+          ('DE ROSSI', ['M', 'C'], 'ROMA'),
+          ('DI FRANCESCO F', ['W', 'A'], 'BOLOGNA'),
+          ('NANI', ['A'], 'LAZIO')
           ]
 
-ciolle = [('ALISSON', ['Por'], 'ROMA', 'yes'),
-          ('KOLAROV', ['Ds', 'E'], 'ROMA', 'no'),
-          ('SKRINIAR', ['Dc'], 'INTER', 'yes'),
-          ('KOULIBALY', ['Dc'], 'NAPOLI', 'yes'),
-          ('HYSAJ', ['Dd', 'Ds', 'E'], 'NAPOLI', 'yes'),
-          ('JANKTO', ['E', 'C'], 'UDINESE', 'yes'),
-          ('HETEMAJ', ['E', 'M'], 'CHIEVO', 'yes'),
-          ('BENASSI', ['C'], 'FIORENTINA', 'yes'),
-          ('VERDI', ['T', 'A'], 'BOLOGNA', 'no'),
-          ('CALLEJON', ['A'], 'NAPOLI', 'yes'),
-          ('ILICIC', ['T', 'A'], 'ATALANTA', 'yes'),
-          ('KEAN', ['Pc'], 'VERONA', 'yes'),
-          ('CORNELIUS', ['Pc'], 'ATALANTA', 'yes'),
-          ('PERICA', ['Pc'], 'UDINESE', 'yes'),
-          ('GAGLIARDINI', ['M', 'C'], 'INTER', 'yes'),
-          ('BARELLA', ['C', 'T'], 'CAGLIARI', 'yes'),
-          ('RINCON', ['M', 'C'], 'TORINO', 'yes'),
-          ('LINETTY', ['C'], 'SAMPDORIA', 'yes'),
-          ('RODRIGUEZ R', ['Ds', 'E'], 'MILAN', 'no'),
-          ('PADOIN', ['Dd', 'E', 'M'], 'CAGLIARI', 'no'),
-          ('NUYTINCK', ['Dc'], 'UDINESE', 'no'),
-          ('SKORUPSKI', ['Por'], 'ROMA', 'yes'),
-          ('LOBONT', ['Por'], 'ROMA', 'yes'),
-#          ('LYANCO', ['Dc'], 'TORINO', 'no'),
-#          ('MARCHISIO', ['M', 'C'], 'JUVENTUS', 'yes'),
-#          ('MUSACCHIO', ['Dc'], 'MILAN', 'no'),
-#          ('ZAPATA C', ['Dc'], 'MILAN', 'yes'),
-#          ('BELOTTI', ['Pc'], 'TORINO', 'no')
+ciolle = [('ALISSON', ['Por'], 'ROMA', (1, 'y')),
+          ('KOLAROV', ['Ds', 'E'], 'ROMA', (2, 'y')),
+          ('SKRINIAR', ['Dc'], 'INTER', (3, 'y')),
+          ('KOULIBALY', ['Dc'], 'NAPOLI', (4, 'y')),
+          ('HYSAJ', ['Dd', 'Ds', 'E'], 'NAPOLI', (5, 'y')),
+          ('JANKTO', ['E', 'C'], 'UDINESE', (6, 'y')),
+          ('HETEMAJ', ['E', 'M'], 'CHIEVO', (7, 'y')),
+          ('BENASSI', ['C'], 'FIORENTINA', (8, 'y')),
+          ('VERDI', ['T', 'A'], 'BOLOGNA', (9, 'y')),
+          ('CALLEJON', ['A'], 'NAPOLI', (10, 'y')),
+          ('ILICIC', ['T', 'A'], 'ATALANTA', (11, 'n')),
+          ('KEAN', ['Pc'], 'VERONA', (12, 'y')),
+          ('CORNELIUS', ['Pc'], 'ATALANTA', (13, 'y')),
+          ('PERICA', ['Pc'], 'UDINESE', (14, 'y')),
+          ('GAGLIARDINI', ['M', 'C'], 'INTER', (15, 'y')),
+          ('BARELLA', ['C', 'T'], 'CAGLIARI', (16, 'y')),
+          ('RINCON', ['M', 'C'], 'TORINO', (17, 'y')),
+          ('LINETTY', ['C'], 'SAMPDORIA', (18, 'y')),
+          ('RODRIGUEZ R', ['Ds', 'E'], 'MILAN', (19, 'y')),
+          ('PADOIN', ['Dd', 'E', 'M'], 'CAGLIARI', (20, 'y')),
+          ('NUYTINCK', ['Dc'], 'UDINESE', (21, 'y')),
+          ('SKORUPSKI', ['Por'], 'ROMA', (22, 'y')),
+          ('LOBONT', ['Por'], 'ROMA', (23, 'y')),
+          ('LYANCO', ['Dc'], 'TORINO', 'no'),
+          ('MARCHISIO', ['M', 'C'], 'JUVENTUS', 'yes'),
+          ('MUSACCHIO', ['Dc'], 'MILAN', 'no'),
+          ('ZAPATA C', ['Dc'], 'MILAN', 'yes'),
+          ('BELOTTI', ['Pc'], 'TORINO', 'no')
           ]
 
 pastaboy = [('BERISHA', ['Por'], 'ATALANTA', 'yes'),
@@ -168,51 +167,114 @@ pastaboy = [('BERISHA', ['Por'], 'ATALANTA', 'yes'),
 #            ('DESTRO', ['Pc'], 'BOLOGNA')
             ]
 
-mento = [('SORRENTINO', ['Por'], 'CHIEVO', 'yes'),
-         ('BIRAGHI', ['Ds', 'E'], 'FIORENTINA', 'yes'),
-         ('PEZZELLA GER', ['Dc'], 'FIORENTINA', 'no'),
-         ('ROSSETTINI', ['Dd', 'Dc'], 'GENOA', 'no'),
-         ('ROMULO', ['Dd', 'E', 'M'], 'VERONA', 'yes'),
-         ('VIVIANI', ['M', 'C'], 'SPAL', 'yes'),
-         ('KHEDIRA', ['M', 'C'], 'JUVENTUS', 'yes'),
-         ('JOAO PEDRO', ['T'], 'CAGLIARI', 'yes'),
-         ('DE PAUL', ['W', 'T'], 'UDINESE', 'no'),
-         ('INSIGNE', ['A'], 'NAPOLI', 'yes'),
-         ('ICARDI', ['Pc'], 'INTER', 'yes'),
-         ('PAVOLETTI', ['Pc'], 'CAGLIARI', 'yes'),
-         ('LAPADULA', ['Pc'], 'GENOA', 'yes'),
-         ('BIRSA', ['T'], 'CHIEVO', 'yes'),
-         ('RAMIREZ', ['W', 'T'], 'SAMPDORIA', 'yes'),
-         ('TORREIRA', ['M', 'C'], 'SAMPDORIA', 'yes'),
-         ('MANDRAGORA', ['M', 'C'], 'CROTONE', 'yes'),
-         ('HATEBOER', ['Dd', 'E'], 'ATALANTA', 'yes'),
-         ('PISACANE', ['Dd', 'Ds', 'Dc'], 'CAGLIARI', 'yes'),
-         ('ALBIOL', ['Dc'], 'NAPOLI', 'yes'),
-         ('ACERBI', ['Dc'], 'SASSUOLO', 'yes'),
-         ('SILVESTRE', ['Dc'], 'SAMPDORIA', 'yes'),
-         ('SPORTIELLO', ['Por'], 'FIORENTINA', 'yes'),
-#         ('GOMIS A', ['Por'], 'SPAL'),
-#         ('LAZAAR', ['Ds', 'E'], 'BENEVENTO'),
-#         ('FOFANA', ['M', 'C'], 'UDINESE'),
-#         ('GIL DIAS', ['W', 'A'], 'FIORENTINA'),
-#         ('NALINI', ['W', 'A'], 'CROTONE'),
-         ]
+mento = [('SPORTIELLO', ['Por'], 'FIORENTINA'),
+         ('SORRENTINO', ['Por'], 'CHIEVO'),
+         ('GOMIS A', ['Por'], 'SPAL'),
+         ('ROMULO', ['Dd', 'E', 'M'], 'VERONA'),
+         ('ACERBI', ['Dc'], 'SASSUOLO'),
+         ('PEZZELLA GER', ['Dc'], 'FIORENTINA'),
+         ('ALBIOL', ['Dc'], 'NAPOLI'),
+         ('SILVESTRE', ['Dc'], 'SAMPDORIA'),
+         ('BIRAGHI', ['Ds', 'E'], 'FIORENTINA'),
+         ('PISACANE', ['Dd', 'Ds', 'Dc'], 'CAGLIARI'),
+         ('HATEBOER', ['Dd', 'E'], 'ATALANTA'),
+         ('ROSSETTINI', ['Dd', 'Dc'], 'GENOA'),
+         ('SANTON', ['Dd', 'Ds', 'E'], 'INTER'),
+         ('KHEDIRA', ['M', 'C'], 'JUVENTUS'),
+         ('TORREIRA', ['M', 'C'], 'SAMPDORIA'),
+         ('FOFANA', ['M', 'C'], 'UDINESE'),
+         ('VIVIANI', ['M', 'C'], 'SPAL'),
+         ('MANDRAGORA', ['M', 'C'], 'CROTONE'),
+         ('RAMIREZ', ['W', 'T'], 'SAMPDORIA'),
+         ('DE PAUL', ['W', 'T'], 'UDINESE'),
+         ('GIL DIAS', ['W', 'A'], 'FIORENTINA'),
+         ('NALINI', ['W', 'A'], 'CROTONE'),
+         ('BIRSA', ['T'], 'CHIEVO'),
+         ('JOAO PEDRO', ['T'], 'CAGLIARI'),
+         ('INSIGNE', ['A'], 'NAPOLI'),
+         ('ICARDI', ['Pc'], 'INTER'),
+         ('LAPADULA', ['Pc'], 'GENOA'),
+         ('PAVOLETTI', ['Pc'], 'CAGLIARI')]
+
+
+def print_res(original, final_field, malus, efficient_module, adapted_module):
+    # This is for printing the result. We initialize the final list. In this
+    # list, only players with vote will be printed uppercase
+    printed_lineup = []
+    final_bench = []
+
+    for player in original:
+        if player[1] in [data[1] for data in final_field]:
+            player_single_role = [new_player for new_player in final_field
+                                  if new_player[1] == player[1]][0]
+            printed_lineup.append((player[0], player[1],
+                                   player_single_role[2]))
+        else:
+            new_tuple = (player[0], player[1].title(), player[2])
+            printed_lineup.append(new_tuple)
+            new_tuple = (player[0], player[1].upper(), player[2])
+            final_bench.append(new_tuple)
+
+    separator = '- - - - - - - - - - - - - -'
+    printed_lineup.insert(11, separator)
+
+    if not efficient_module and not adapted_module:
+        print()
+        print('Optimal solution found: module is {}'.format(module))
+    elif efficient_module:
+        print()
+        print('Efficient solution found: module changed ' +
+              'from {} to {}'.format(module, efficient_module))
+    else:
+        print()
+        print('Adapted solution found: module changed ' +
+              'from {} to {}'.format(module, adapted_module))
+        print('Players with malus: {}'.format(malus))
+
+    print()
+    for element in printed_lineup:
+        print(element)
 
 
 def check_in_advance(module, fantateam):
-    players_database = {player[0]: (99, 'aaa', random.randint(1, 10),
+
+    players_database = {player[0]: (99, 'no_team', random.randint(1, 10),
                         random.randint(1, 10))
-                        for player in fantateam if player[3] == 'yes'}
+                        for player in fantateam if (len(player) == 4 and
+                                                    player[3][1] == 'y')}
+
     f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
              'votes/Day_99.pckl', 'wb')
     pickle.dump(players_database, f)
     f.close()
 
-    lineup = [('Day 99', player[0], player[1]) for player in fantateam]
+    fin_lineup = []
+    for i in range(1, 24):
+        for player in fantateam:
+            try:
+                if player[3][0] == i:
+                    new_tuple = ('Day 99', player[0], player[1])
+                    fin_lineup.append(new_tuple)
+                    break
+            except IndexError:
+                continue
 
-    res = ms.MANTRA_simulation(lineup, module)
+    try:
+        (final_field, final_bench, malus, efficient_module,
+         adapted_module) = ms.MANTRA_simulation(fin_lineup, module)
+    except ValueError:
+        final_field, final_bench, malus = ms.MANTRA_simulation(
+                                                            fin_lineup, module)
+        efficient_module = 0
+        adapted_module = 0
 
     os.remove('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
               'Day_99.pckl')
 
-    return res
+    print_res(fin_lineup, final_field, malus, efficient_module, adapted_module)
+
+
+module = '343'
+fantateam = acpicchia
+
+check_in_advance(module, fantateam)
