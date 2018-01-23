@@ -636,12 +636,31 @@ def MANTRA_simulation(lineup, module, mode='ST'):
     if not n_subst:
         malus = 0
         ref_roles = schemes[module]
+        field[0] = (field[0][0], field[0][1], 'Por')
 
-        for x in range(9):
+        for x in range(10):
             roles_available = ref_roles[x].split('/')
             roles_player = field[x + 1][2]
-            if not set(roles_available).intersection(roles_player):
+            roles_shared = list(set(roles_available).intersection(
+                                                                 roles_player))
+            if roles_shared:
+                field[x + 1] = (field[x + 1][0], field[x + 1][1],
+                                roles_shared[0])
+            else:
                 malus += 1
+                for role in roles_player:
+                    temp_roles = malus_roles[role]
+                    temp_roles = [role.split('/') for role in temp_roles]
+                    temp_roles = [single_role for element in temp_roles for
+                                  single_role in element]
+                    temp_roles = ['W' if role in ('W1', 'W2') else role for
+                                  role in temp_roles]
+                    temp_roles = list(set(temp_roles))
+                    roles_shared = list(set(roles_available).intersection(
+                                                                   temp_roles))
+                    field[x + 1] = (field[x + 1][0], field[x + 1][1],
+                                    roles_shared[0])
+                    break
 
         return field, bench, malus
 
