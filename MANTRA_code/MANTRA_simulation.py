@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 import copy
-from itertools import permutations
 import time
+from itertools import permutations
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
@@ -101,117 +101,95 @@ class Player(object):
         self.FG_matches_played = len(self.FGvotes)
         self.ST_matches_played = len(self.STvotes)
 
-        def calculate_avrg(self):
+        self.update_player()
 
-            '''Set both the average based on the votes only and the one based
-               on the fantavotes (votes +- bonus/malus).'''
+    def calculate_avrg(self):
 
-            try:
-                avrg_FG = (sum([vote[1] for vote in self.FGvotes]) /
-                           self.FG_matches_played)
-                fanta_avrg_FG = (sum([vote[1] for vote in self.FGfantavotes]) /
-                                 self.FG_matches_played)
-                self.FGavrg = round(avrg_FG, 2)
-                self.FGfanta_avrg = round(fanta_avrg_FG, 2)
-            except ZeroDivisionError:
-                self.FGavrg = 0
-                self.FGfanta_avrg = 0
+        '''Set both the average based on the votes only and the one based
+           on the fantavotes (votes +- bonus/malus).'''
 
-            try:
-                avrg_ST = (sum([vote[1] for vote in self.STvotes]) /
-                           self.ST_matches_played)
-                fanta_avrg_ST = (sum([vote[1] for vote in self.STfantavotes]) /
-                                 self.ST_matches_played)
-                self.STavrg = round(avrg_ST, 2)
-                self.STfanta_avrg = round(fanta_avrg_ST, 2)
-            except ZeroDivisionError:
-                self.STavrg = 0
-                self.STfanta_avrg = 0
+        try:
+            avrg_FG = (sum([vote[1] for vote in self.FGvotes]) /
+                       self.FG_matches_played)
+            fanta_avrg_FG = (sum([vote[1] for vote in self.FGfantavotes]) /
+                             self.FG_matches_played)
+            self.FGavrg = round(avrg_FG, 2)
+            self.FGfanta_avrg = round(fanta_avrg_FG, 2)
+        except ZeroDivisionError:
+            self.FGavrg = 0
+            self.FGfanta_avrg = 0
 
-        def calculate_fantavotes(day):
+        try:
+            avrg_ST = (sum([vote[1] for vote in self.STvotes]) /
+                       self.ST_matches_played)
+            fanta_avrg_ST = (sum([vote[1] for vote in self.STfantavotes]) /
+                             self.ST_matches_played)
+            self.STavrg = round(avrg_ST, 2)
+            self.STfanta_avrg = round(fanta_avrg_ST, 2)
+        except ZeroDivisionError:
+            self.STavrg = 0
+            self.STfanta_avrg = 0
 
-            '''Calculate the fantavote of the player in the specified day.
-               'IndexError' appears when the player received no vote on that
-               day. In fact we exclude all the votes == 'n.e.' when we define
-               the attributes self.FGvotes or self.STvotes.'''
+    def calculate_fantavotes(self, day):
 
-            try:
-                FGvote = [data[1] for data in self.FGvotes
-                          if data[0] == day][0]
-            except IndexError:
-                FGvote = 0
+        '''Calculate the fantavote of the player in the specified day.
+           'IndexError' appears when the player received no vote on that
+           day. In fact we exclude all the votes == 'n.e.' when we define
+           the attributes self.FGvotes or self.STvotes.'''
 
-            try:
-                STvote = [data[1] for data in self.STvotes
-                          if data[0] == day][0]
-            except IndexError:
-                STvote = 0
+        def sum_bonus_malus(day):
 
-            # If any of the two is != 0 we create the tuple containing only the
-            # data we need. We do it by taking the tuple relative to the player
-            # on that day from the database, which has the form:
-            #
-            #   (day,team_name,FGvote,STvote,YC,RC,Gs,Gp,Gt,Ps,Pf,Og,As,Asf)
-            #
-            # and removing the first four inputs. Final tuple has the form:
-            #
-            #               (YC,RC,Gs,Gp,Gt,Ps,Pf,Og,As,Asf)
-            if FGvote or STvote:
-                all_player_data_in_day = [data[4:] for data in
-                                          players_database[self.name]
-                                          if data[0] == day][0]
+            '''all_player_data_in_day has the form:
 
-                # If we did NOT receive an IndexError before we calculate the
-                # FGvote and append it to the attribute of the player
-                if FGvote:
-                    FGfantavote = (FGvote
-                                   - 0.5*all_player_data_in_day[0]
-                                   - all_player_data_in_day[1]
-                                   + 3*all_player_data_in_day[2]
-                                   + 3*all_player_data_in_day[3]
-                                   - all_player_data_in_day[4]
-                                   + 3*all_player_data_in_day[5]
-                                   - 3*all_player_data_in_day[6]
-                                   - 2*all_player_data_in_day[7]
-                                   + all_player_data_in_day[8])
+                (YC,RC,Gs,Gp,Gt,Ps,Pf,Og,As,Asf)
+            '''
 
-                    self.FGfantavotes.append((day, FGfantavote))
+            all_player_data_in_day = [data[4:] for data in
+                                      players_database[self.name]
+                                      if data[0] == day][0]
 
-                # The same for STvote
-                if STvote:
-                    STfantavote = (STvote
-                                   - 0.5*all_player_data_in_day[0]
-                                   - all_player_data_in_day[1]
-                                   + 3*all_player_data_in_day[2]
-                                   + 3*all_player_data_in_day[3]
-                                   - all_player_data_in_day[4]
-                                   + 3*all_player_data_in_day[5]
-                                   - 3*all_player_data_in_day[6]
-                                   - 2*all_player_data_in_day[7]
-                                   + all_player_data_in_day[8])
+            res = (- 0.5*all_player_data_in_day[0] -
+                   all_player_data_in_day[1] +
+                   3*all_player_data_in_day[2] +
+                   3*all_player_data_in_day[3] -
+                   all_player_data_in_day[4] +
+                   3*all_player_data_in_day[5] -
+                   3*all_player_data_in_day[6] -
+                   2*all_player_data_in_day[7] +
+                   all_player_data_in_day[8])
 
-                    self.STfantavotes.append((day, STfantavote))
+            return res
 
-        def update_player(self):
+        try:
+            FGfantavote = self.vote(day, 'FG') + sum_bonus_malus(day)
+            self.FGfantavotes.append((day, FGfantavote))
+        except TypeError:
+            pass
 
-            '''Updates all the attributes of the player.'''
+        try:
+            STfantavote = self.vote(day) + sum_bonus_malus(day)
+            self.STfantavotes.append((day, STfantavote))
+        except TypeError:
+            pass
 
-            for day in players_database[self.name]:
-                self.team = day[1]
-                self.YC += day[4]
-                self.RC += day[5]
-                self.Gs += day[6] + day[7]
-                self.Gp += day[7]
-                self.Gt += day[8]
-                self.Ps += day[9]
-                self.Pf += day[10]
-                self.Og += day[11]
-                self.As += day[12]
-                self.Asf += day[13]
-                calculate_fantavotes(day[0])
-            calculate_avrg(self)
+    def update_player(self):
 
-        update_player(self)
+        '''Updates all the attributes of the player.'''
+
+        for day in players_database[self.name]:
+            self.team = day[1]
+            self.YC += day[4]
+            self.RC += day[5]
+            self.Gs += day[6] + day[7]
+            self.Gp += day[7]
+            self.Gt += day[8]
+            self.Ps += day[9]
+            self.Pf += day[10]
+            self.Og += day[11]
+            self.As += day[12]
+            self.Asf += day[13]
+            self.calculate_fantavotes(day[0])
+        self.calculate_avrg()
 
     def all_bonus(self, day, mode='ST'):
 
@@ -224,7 +202,7 @@ class Player(object):
             goals = data[0][6] + data[0][7]
             assists = data[0][12]
             penalties_saved = data[0][9]
-            return 3*goals+assists+3*penalties_saved
+            return 3*goals + assists + 3*penalties_saved
         else:
             return 0
 
@@ -241,7 +219,7 @@ class Player(object):
             Gt = data[0][8]
             Pf = data[0][10]
             Og = data[0][11]
-            return 0.5*YC+RC+Gt+3*Pf+2*Og
+            return 0.5*YC + RC + Gt + 3*Pf + 2*Og
         else:
             return 0
 
@@ -310,18 +288,16 @@ class Fantateam(object):
         self.defense_contribute = 0
         self.midfield_contribute = 0
         self.attack_contribute = 0
+        self.highest_abs_points = 0
+        self.highest_counter = 0
+        self.lowest_abs_points = 1000
+        self.lowest_counter = 0
 
     def lineup(self, day):
 
         '''Returns the lineup of the fantateam in that day.'''
 
         return self.lineups[day-1]
-
-    def players(self):
-
-        '''Returns all the players of the fantateam.'''
-
-        return self.players
 
 
 class Match(object):
@@ -388,16 +364,16 @@ class Match(object):
             if (player1[0] not in [element[1] for element in self.final_field1]
                 and player1[0] not in [element[1] for element in
                                        self.final_bench1]):
-                first_tuple_element = self.final_field1[0][0]
-                new_tuple = (first_tuple_element, player1[0], player1[1])
+                day = self.final_field1[0][0]
+                new_tuple = (day, player1[0], player1[1])
                 self.final_bench1.append(new_tuple)
 
         for player2 in daily_players[self.team2]:
             if (player2[0] not in [element[1] for element in self.final_field2]
                 and player2[0] not in [element[1] for element in
                                        self.final_bench2]):
-                first_tuple_element = self.final_field2[0][0]
-                new_tuple = (first_tuple_element, player2[0], player2[1])
+                day = self.final_field2[0][0]
+                new_tuple = (day, player2[0], player2[1])
                 self.final_bench2.append(new_tuple)
 
         # Update the number of malus
@@ -408,6 +384,7 @@ class Match(object):
         self.fantateams[self.team1].fields.append(self.final_field1)
         self.fantateams[self.team2].fields.append(self.final_field2)
 
+        # Update number of matches played in 10 and 9
         if len(self.final_field1) == 10:
             self.fantateams[self.team1].matches_in_ten += 1
         elif len(self.final_field1) == 9:
@@ -420,7 +397,7 @@ class Match(object):
 
         # Create a list of all players who will contribute to the final
         # fantavote calculation and finally calculate the abs_points for each
-        # team, including eventual malus
+        # team, including possible malus
         players_with_vote1 = [all_players[player[1]] for player
                               in self.final_field1]
         abs_points1 = sum([player.fantavote(self.day, self.mode) for player
@@ -443,10 +420,8 @@ class Match(object):
            it is much faster than playing the match by applying the MANTRA
            algorithm.'''
 
-        abs_points1 = [x[1] for x in abs_points[self.team1]
-                       if x[0] == self.day][0]
-        abs_points2 = [x[1] for x in abs_points[self.team2]
-                       if x[0] == self.day][0]
+        abs_points1 = abs_points[self.team1][self.day - 1][1]
+        abs_points2 = abs_points[self.team2][self.day - 1][1]
 
         return abs_points1, abs_points2
 
@@ -454,10 +429,12 @@ class Match(object):
 
         '''Updates the attribute half_point of each fantateam. This attributes
            represents the number of points in the ranking which have been
-           gained by the fantateam when just 0.5 in the total score made the
-           difference.'''
+           gained or lost by the fantateam when just 0.5 in the total score
+           made the difference.
+           It is used inside the function update_fantateams only when
+           abs_points1 IS NOT EQUAL to abs_points2.'''
 
-        reference_list = [(self.team1, abs_points1), (self.team2, abs_points2)]
+        ref_list = [(self.team1, abs_points1), (self.team2, abs_points2)]
 
         # If the result is 0-0 we need to check whether any of the teams made
         # 65.5 as final score
@@ -467,20 +444,19 @@ class Match(object):
             # will check always the first element of this list, depending on
             # the case. Now we want to check tho one with the highest score
             # between the two so we sort it decreasingly
-            reference_list.sort(key=lambda x: x[1], reverse=True)
+            ref_list.sort(key=lambda x: x[1], reverse=True)
 
-            if reference_list[0][1] == 65.5:
-                self.fantateams[reference_list[0][0]].lucky_points -= 2
-                self.fantateams[reference_list[1][0]].lucky_points += 1
+            if ref_list[0][1] == 65.5:
+                self.fantateams[ref_list[0][0]].lucky_points -= 2
+                self.fantateams[ref_list[1][0]].lucky_points += 1
 
         # In case of any draw different from 0-0
         elif goals1 == goals2:
 
-            reference_list.sort(key=lambda x: x[1], reverse=True)
+            ref_list.sort(key=lambda x: x[1], reverse=True)
 
-            if (reference_list[0][1]-66) % 6 == 5.5:
-                self.fantateams[reference_list[0][0]].lucky_points -= 2
-                self.fantateams[reference_list[1][0]].lucky_points += 1
+            self.fantateams[ref_list[0][0]].lucky_points -= 2
+            self.fantateams[ref_list[1][0]].lucky_points += 1
 
         # In case it is not a draw we have two cases: one of the teams scored 0
         # goals or both teams scored at least 1 goal. In both cases we need to
@@ -494,20 +470,18 @@ class Match(object):
 
             # Now we sort it in increasing order because we want to check the
             # element with the lowest score
-            reference_list.sort(key=lambda x: x[1])
+            ref_list.sort(key=lambda x: x[1])
 
-            if reference_list[0][1] == 65.5:
-                self.fantateams[reference_list[0][0]].lucky_points -= 1
-                self.fantateams[reference_list[1][0]].lucky_points += 2
+            self.fantateams[ref_list[0][0]].lucky_points -= 1
+            self.fantateams[ref_list[1][0]].lucky_points += 2
 
         # If both teams scored
         elif abs(goals1-goals2) == 1 and abs(abs_points1-abs_points2) < 6:
 
-            reference_list.sort(key=lambda x: x[1])
+            ref_list.sort(key=lambda x: x[1])
 
-            if (reference_list[0][1]-66) % 6 == 5.5:
-                self.fantateams[reference_list[0][0]].lucky_points -= 1
-                self.fantateams[reference_list[1][0]].lucky_points += 2
+            self.fantateams[ref_list[0][0]].lucky_points -= 1
+            self.fantateams[ref_list[1][0]].lucky_points += 2
 
     def update_bonus_malus(self, the_team, the_final_field,
                            the_final_bench):
@@ -632,11 +606,22 @@ class Match(object):
 
             self.update_contributes(self.team1, self.final_field1)
             self.update_contributes(self.team2, self.final_field2)
-            if abs_points1 != abs_points2:
+            if (abs_points1 != abs_points2 and
+               (abs_points1 % 6 == 5.5 or abs_points2 % 6 == 5.5)):
                 self.update_lucky_points(abs_points1, abs_points2,
                                          goals1, goals2)
         except TypeError:
             pass
+
+        # Update abs_points records
+        if abs_points1 > self.fantateams[self.team1].highest_abs_points:
+            self.fantateams[self.team1].highest_abs_points = abs_points1
+        if abs_points1 < self.fantateams[self.team1].lowest_abs_points:
+            self.fantateams[self.team1].lowest_abs_points = abs_points1
+        if abs_points2 > self.fantateams[self.team2].highest_abs_points:
+            self.fantateams[self.team2].highest_abs_points = abs_points2
+        if abs_points2 < self.fantateams[self.team2].lowest_abs_points:
+            self.fantateams[self.team2].lowest_abs_points = abs_points2
 
 
 class Day(object):
@@ -657,6 +642,8 @@ class Day(object):
             abs_points1, abs_points2 = the_match.play_match()
             the_match.update_fantateams(abs_points1, abs_points2)
 
+        self.update_highest_lowest_abs_points(self.day)
+
     def play_fast_day(self):
 
         '''Plays fast all the matches of the day.'''
@@ -666,6 +653,27 @@ class Day(object):
                               self.mode)
             abs_points1, abs_points2 = the_match.play_fast_match()
             the_match.update_fantateams(abs_points1, abs_points2)
+
+    def update_highest_lowest_abs_points(self, day):
+
+        '''Update the two attributes "highest_counter" and "lowest_counter".
+           They represent the number of times a fantateam scored the highest
+           and lowest abs_points of the day.'''
+
+        data = [(name, element[1]) for name in abs_points for element in
+                abs_points[name] if element[0] == day]
+        data.sort(key=lambda x: x[1], reverse=True)
+
+        maximum = data[0][1]
+        minimum = data[-1][1]
+
+        max_list = [element[0] for element in data if element[1] == maximum]
+        min_list = [element[0] for element in data if element[1] == minimum]
+
+        for name in max_list:
+            self.fantateams[name].highest_counter += 1
+        for name in min_list:
+            self.fantateams[name].lowest_counter += 1
 
 
 class League(object):
@@ -969,17 +977,31 @@ class League(object):
         print(table)
         print()
 
-    def print_rates_bonus_malus(self):
+    def print_extra_info(self):
 
-        '''Prints a table with three columns:
+        '''Prints a table with the following columns:
 
-            - First column represents the % of bonus points used, which is
-              defined as the bonus points counted divided the total bonus
-              points (counted + bench/tribune).
+            - % of bonus points used, which is defined as the bonus points
+              counted divided the total bonus points (counted + bench/tribune)
 
-            - Second column is the same as first one but with malus.
+            - % of malus points used, which is defined as the malus points
+              counted divided the total malus points (counted + bench/tribune)
 
-            - Third column represents the lucky points.'''
+            - Lucky points
+
+            - Number of 0.5 malus due to MANTRA algorithm
+
+            - Matches played in 10
+
+            - Matches played in 9
+
+            - Number of times the fantateam scored the highest abs_points of
+              the day (in parenthesis the maximum abs_points scored by the
+              fantateam in the league)
+
+            - Number of times the fantateam scored the lowest abs_points of
+              the day (in parenthesis the minimum abs_points scored by the
+              fantateam in the league)'''
 
         ranking = self.final_ranking()
 
@@ -994,20 +1016,27 @@ class League(object):
             bonus_rate = round((bonus_field/(bonus_field+bonus_bench))*100, 1)
             malus_rate = round((malus_field/(malus_field+malus_bench))*100, 1)
 
+            high = '{}({})'.format(self.fantateams[team].highest_counter,
+                                   self.fantateams[team].highest_abs_points)
+            low = '{}({})'.format(self.fantateams[team].lowest_counter,
+                                  self.fantateams[team].lowest_abs_points)
+
             ref_list.append((team, bonus_rate, malus_rate,
                              self.fantateams[team].lucky_points,
                              self.fantateams[team].malus,
                              self.fantateams[team].matches_in_ten,
-                             self.fantateams[team].matches_in_nine))
+                             self.fantateams[team].matches_in_nine,
+                             high,
+                             low))
 
         names = [element[0] for element in ref_list]
         data = [element[1:] for element in ref_list]
         header = ['Bonus(%)', 'Malus(%)', 'Lucky Points',
-                  'N. of malus', 'Matches in 10', 'Matches in 9']
+                  '#malus', ' #10', ' #9',
+                  ' MAX Abs Points', ' MIN Abs Points']
 
         table = pd.DataFrame(data, names, header)
 
-        print('% of bonus/malus points used')
         print(table)
         print()
 
@@ -1029,32 +1058,47 @@ class League(object):
                         fin_dict[fantateam][player] = value
 
         for fantateam in fin_dict:
-            fin_list = [(player, fin_dict[fantateam][player]) for player in
+            fin_list = [(fin_dict[fantateam][player], player) for player in
                         fin_dict[fantateam]]
-            fin_list.sort(key=lambda x: x[1], reverse=True)
-            fin_dict[fantateam] = fin_list
+            fin_list.sort(key=lambda x: x[0], reverse=True)
+            fin_dict[fantateam] = sf.first_n_spots(n_players, fin_list)
 
-        fin_data = [(fantateam,
-                     [el[0] for el in fin_dict[fantateam][:n_players]],
-                     sum([el[1] for el in fin_dict[fantateam][:n_players]]),
+        fin_data = [(fantateam, fin_dict[fantateam],
+                     sum([el[0] for el in fin_dict[fantateam]]),
                      self.fantateams[fantateam].bonus_from_field) for
                     fantateam in fin_dict]
         fin_data = [(el[0], el[1], round((el[2]/el[3])*100, 1)) for
                     el in fin_data]
         fin_data.sort(key=lambda x: x[2], reverse=True)
-        
+
         fantateams = [el[0] for el in fin_data]
         players = [el[1] for el in fin_data]
         perc = [el[2] for el in fin_data]
-        
-        bars = plt.bar(range(len(fantateams)), perc, 0.5)
-        plt.xticks(range(len(fantateams)), fantateams, fontsize=14,
-                   rotation=45, ha='right')
-        plt.ylabel('% of success', fontsize=15)
-        plt.ylim(0, 100)
-        plt.title('Total number of bets: {}', fontsize=14)
 
-#        return fin_data
+        fig, ax = plt.subplots()
+        bars = ax.bar(range(len(fantateams)), perc, 0.7)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        fig.set_size_inches(15, 4)
+        plt.xticks(range(len(fantateams)), fantateams, fontsize=18,
+                   rotation=45, ha='right')
+        plt.yticks(fontsize=15)
+        plt.ylim(0, 100)
+
+        plt.tick_params(axis='x',
+                        which='both',  # both major and minor ticks affected
+                        bottom='off',  # ticks along the bottom edge are off
+                        labelbottom='on'
+                        )
+        for count in range(len(fantateams)):
+            message = ''
+            for player in players[count]:
+                message += '{}, {}\n\n'.format(player[1], player[0])
+            plt.text(bars[count].get_x() + bars[count].get_width() / 2.0,
+                     bars[count].get_height() - 5, message, ha='center',
+                     va='bottom', fontsize=11)
+
+        plt.show()
 
 
 class Statistic(object):
@@ -1091,12 +1135,8 @@ class Statistic(object):
 
             # Increase the position counters for each fantateam according to
             # their positions in the ranking
-            for fantaname in ranking:
-                for position in self.all_positions:
-                    if (ranking.index(fantaname)
-                       == self.all_positions.index(position)):
-                        position[fantaname] += 1
-                        break
+            for x in range(len(ranking)):
+                self.all_positions[x][ranking[x]] += 1
 
     def positions8_rate(self):
 
@@ -1127,32 +1167,6 @@ class Statistic(object):
         short_data = [element[1:] for element in ordered_rates]
         header = ['1st(%)', '2nd(%)', '3rd(%)', '4th(%)',
                   '5th(%)', '6th(%)', '7th(%)', '8th(%)']
-
-        table = pd.DataFrame(short_data, only_names, header)
-
-        print('Statistics on {} random leagues:'.format(self.leagues))
-        print(table)
-
-    def positions4_rate(self):
-
-        '''Short version of the previous function. It prints the statistics
-           relative to the first three positions in the ranking and the last
-           one.'''
-
-        n_leagues = self.leagues
-
-        rates = [(fantaname,
-                  round((self.place1[fantaname]*100)/n_leagues, 1),
-                  round((self.place2[fantaname]*100)/n_leagues, 1),
-                  round((self.place3[fantaname]*100)/n_leagues, 1),
-                  round((self.place8[fantaname]*100)/n_leagues, 1))
-                 for fantaname in fantanames]
-
-        rates.sort(key=lambda x: x[1], reverse=True)
-
-        only_names = [element[0] for element in rates]
-        short_data = [element[1:] for element in rates]
-        header = ['1st(%)', '2nd(%)', '3rd(%)', '8th(%)']
 
         table = pd.DataFrame(short_data, only_names, header)
 
@@ -1201,19 +1215,17 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
+#n_days = 3
 
 
-print()
-a = League(our_round, n_days, 'ST')
-start = time.time()
-a.play_league()
-print(round(time.time() - start, 1))
-a.print_league()
-#b = League(our_round, n_days, 'FG')
-#b.play_league()
-#b.print_league()
-a.print_contributes()
-#a.print_rates_bonus_malus()
-#a.best_players(2, 'ST')
-#c = Statistic(10000, n_days, 'ST')
+#print()
+#a = League(our_round, n_days, 'ST')
+#start = time.time()
+#a.play_league()
+#print(round(time.time() - start, 1))
+#a.print_league()
+#a.print_contributes()
+#a.print_extra_info()
+#c = Statistic(10, n_days, 'ST')
 #c.positions8_rate()
+#a.bonus_distr(2)

@@ -270,3 +270,77 @@ def generate_schedule(a_round, total_days):
         fin_list = (a_round*n_complete_rounds) + last_days
 
     return {i: fin_list[i-1] for i in range(1, total_days+1)}
+
+
+def first_n_spots(integer, alist):
+
+    '''
+    Input 'alist' is a sorted list of tuples and has the form:
+
+        alist = [(43.5, MILAN), (40.2, JUVENTUS), (40.2, INTER), (38.7, LAZIO)]
+
+    Return the first 'integer' elements of alist. In case there are elements
+    with the same value, all those elements will be included.
+    In the example above with integer = 2, function should return the first 2
+    teams of the list, MILAN and JUVENTUS. But actually INTER shares the spot
+    with JUVENTUS because they have the same value. That means in this case
+
+        first_n_spots(2, alist)
+
+    will return
+
+        [(43.5, MILAN), (40.2, JUVENTUS), (40.2, INTER)]
+
+    Used inside create_message.
+    '''
+
+    if len(alist) <= integer:
+        return alist
+    else:
+        if alist[integer - 1][0] != alist[integer][0]:
+            return alist[:integer]
+        else:
+            return first_n_spots(integer + 1, alist)
+
+
+def group_by_value(integer, alist):
+
+    '''
+    Input 'alist' is the output of first_n_spots.
+    Return a list where the elements with the same value are grouped. If
+
+        alist = [(43.5, MILAN), (40.2, JUVENTUS), (40.2, INTER)]
+
+    then group_by_value(alist) will return
+
+        [(43.5, [MILAN]), (40.2, [JUVENTUS, INTER])]
+
+    Used inside create_message.
+    '''
+
+    output = first_n_spots(integer, alist)
+    only_values = [element[0] for element in output]
+
+    if len(set(only_values)) == len(output):
+        new_list = [(element[0], [element[1]]) for element in output]
+        return new_list
+    else:
+        last = output[0][0]
+        temp = [output[0][1]]
+        fin = []
+        for x in range(1, len(output)):
+            perc = output[x][0]
+            team = output[x][1]
+            if perc == last and x != len(output) - 1:
+                temp.append(team)
+            elif perc == last and x == len(output) - 1:
+                temp.append(team)
+                fin.append((last, temp))
+                return fin
+            elif perc != last and x != len(output) - 1:
+                fin.append((last, temp))
+                temp = [team]
+                last = perc
+            else:
+                fin.append((last, temp))
+                return fin
