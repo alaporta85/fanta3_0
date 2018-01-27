@@ -6,6 +6,7 @@ import os
 import pickle
 import copy
 import time
+import statistics
 from itertools import permutations
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -995,6 +996,8 @@ class League(object):
 
             - Matches played in 9
 
+            - Average absolute points (in parenthesis the standard deviation)
+
             - Number of times the fantateam scored the highest abs_points of
               the day (in parenthesis the maximum abs_points scored by the
               fantateam in the league)
@@ -1016,6 +1019,10 @@ class League(object):
             bonus_rate = round((bonus_field/(bonus_field+bonus_bench))*100, 1)
             malus_rate = round((malus_field/(malus_field+malus_bench))*100, 1)
 
+            avrg_abs = round(self.fantateams[team].abs_points/self.n_days, 1)
+            std = round(statistics.pstdev([el[1] for el in abs_points[team]]),
+                        1)
+
             high = '{}({})'.format(self.fantateams[team].highest_counter,
                                    self.fantateams[team].highest_abs_points)
             low = '{}({})'.format(self.fantateams[team].lowest_counter,
@@ -1026,6 +1033,7 @@ class League(object):
                              self.fantateams[team].malus,
                              self.fantateams[team].matches_in_ten,
                              self.fantateams[team].matches_in_nine,
+                             '{}({})'.format(avrg_abs, std),
                              high,
                              low))
 
@@ -1033,7 +1041,7 @@ class League(object):
         data = [element[1:] for element in ref_list]
         header = ['Bonus(%)', 'Malus(%)', 'Lucky Points',
                   '#malus', ' #10', ' #9',
-                  ' MAX Abs Points', ' MIN Abs Points']
+                  'Avrg Abs', ' MAX Abs', ' MIN Abs']
 
         table = pd.DataFrame(data, names, header)
 
