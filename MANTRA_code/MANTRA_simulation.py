@@ -614,6 +614,8 @@ class Match(object):
         except TypeError:
             pass
 
+        return (self.day, self.team1, self.team2, goals1, goals2)
+
         # Update abs_points records
         if abs_points1 > self.fantateams[self.team1].highest_abs_points:
             self.fantateams[self.team1].highest_abs_points = abs_points1
@@ -637,13 +639,18 @@ class Day(object):
 
         '''Plays all the matches of the day.'''
 
+        day_results = []
+
         for match in self.matches:
             the_match = Match(match[0], match[1], self.day, self.fantateams,
                               self.mode)
             abs_points1, abs_points2 = the_match.play_match()
-            the_match.update_fantateams(abs_points1, abs_points2)
+            atuple = the_match.update_fantateams(abs_points1, abs_points2)
+            day_results.append(atuple)
 
         self.update_highest_lowest_abs_points(self.day)
+
+        return day_results
 
     def play_fast_day(self):
 
@@ -684,6 +691,56 @@ class League(object):
         self.mode = mode
         self.schedule = sf.generate_schedule(self.a_round, self.n_days)
         self.fantateams = {team: Fantateam(team) for team in fantanames}
+        self.match_max_goals = []
+        self.day_max_goals = []
+        self.day_min_goals = []
+
+    def update_match_max_goals(self, day_results):
+
+        day_results.sort(key=lambda x: x[3] + x[4], reverse=True)
+        maximum = max([el[3] + el[4] for el in day_results])
+        day_results = [el for el in day_results if el[3] + el[4] == maximum]
+        if self.match_max_goals:
+            old = self.match_max_goals[0][3] + self.match_max_goals[0][4]
+            new = day_results[0][3] + day_results[0][4]
+
+            if new == old:
+                for result in day_results:
+                    self.match_max_goals.append(result)
+            elif new > old:
+                self.match_max_goals = []
+                for result in day_results:
+                    self.match_max_goals.append(result)
+
+        else:
+            for result in day_results:
+                self.match_max_goals.append(result)
+
+    def update_day_max_goals(self, day_results):
+        if self.day_max_goals:
+            old = sum([el[3] + el[4] for el in self.day_max_goals[0]])
+            new = sum([el[3] + el[4] for el in day_results])
+
+            if new == old:
+                self.day_max_goals.append(day_results)
+            elif new > old:
+                self.day_max_goals = []
+                self.day_max_goals.append(day_results)
+        else:
+            self.day_max_goals.append(day_results)
+
+    def update_day_min_goals(self, day_results):
+        if self.day_min_goals:
+            old = sum([el[3] + el[4] for el in self.day_min_goals[0]])
+            new = sum([el[3] + el[4] for el in day_results])
+
+            if new == old:
+                self.day_min_goals.append(day_results)
+            elif new < old:
+                self.day_min_goals = []
+                self.day_min_goals.append(day_results)
+        else:
+            self.day_min_goals.append(day_results)
 
     def play_league(self):
 
@@ -691,7 +748,11 @@ class League(object):
 
         for i in self.schedule:
             day = Day(i, self.schedule, self.fantateams, self.mode)
-            day.play_day()
+            day_results = day.play_day()
+
+            self.update_match_max_goals(day_results)
+            self.update_day_max_goals(day_results)
+            self.update_day_min_goals(day_results)
 
     def play_fast_league(self):
 
@@ -1048,6 +1109,38 @@ class League(object):
         print(table)
         print()
 
+    def print_extra_info2(self):
+
+        message = 'Matches with highest number of goals:\n\n'
+        for match in self.match_max_goals:
+            message += ('      * {} - {} ({}-{}) on day {}.'
+                        .format(match[1], match[2], match[3], match[4],
+                                match[0]))
+
+        message += '\n\n\nDays with highest number of goals:'
+        for day in self.day_max_goals:
+            league_day = day[0][0]
+            goals = sum([el[3] + el[4] for el in day])
+            message += '\n\n   Day {}, {} goals\n'.format(league_day, goals)
+            for match in day:
+                message += '      * {} - {} ({}-{})\n'.format(match[1],
+                                                              match[2],
+                                                              match[3],
+                                                              match[4])
+
+        message += '\n\nDays with lowest number of goals:'
+        for day in self.day_min_goals:
+            league_day = day[0][0]
+            goals = sum([el[3] + el[4] for el in day])
+            message += '\n\n   Day {}, {} goals\n'.format(league_day, goals)
+            for match in day:
+                message += '      * {} - {} ({}-{})\n'.format(match[1],
+                                                              match[2],
+                                                              match[3],
+                                                              match[4])
+
+        print(message)
+
     def bonus_distr(self, n_players):
 
         fin_dict = {fantateam: {} for fantateam in self.fantateams}
@@ -1223,7 +1316,7 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 3
+#n_days = 5
 
 
 #print()
@@ -1234,6 +1327,7 @@ n_days = len(lineups['Ciolle United'])
 #a.print_league()
 #a.print_contributes()
 #a.print_extra_info()
+#a.print_extra_info2()
 #c = Statistic(10, n_days, 'ST')
 #c.positions8_rate()
 #a.bonus_distr(2)
