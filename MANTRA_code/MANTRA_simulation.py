@@ -614,8 +614,6 @@ class Match(object):
         except TypeError:
             pass
 
-        return (self.day, self.team1, self.team2, goals1, goals2)
-
         # Update abs_points records
         if abs_points1 > self.fantateams[self.team1].highest_abs_points:
             self.fantateams[self.team1].highest_abs_points = abs_points1
@@ -625,6 +623,8 @@ class Match(object):
             self.fantateams[self.team2].highest_abs_points = abs_points2
         if abs_points2 < self.fantateams[self.team2].lowest_abs_points:
             self.fantateams[self.team2].lowest_abs_points = abs_points2
+
+        return (self.day, self.team1, self.team2, goals1, goals2)
 
 
 class Day(object):
@@ -1177,7 +1177,7 @@ class League(object):
         perc = [el[2] for el in fin_data]
 
         fig, ax = plt.subplots()
-        bars = ax.bar(range(len(fantateams)), perc, 0.7)
+        bars = ax.bar(range(len(fantateams)), perc, 0.6, color='#3333ff')
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         fig.set_size_inches(15, 4)
@@ -1197,7 +1197,7 @@ class League(object):
                 message += '{}, {}\n\n'.format(player[1], player[0])
             plt.text(bars[count].get_x() + bars[count].get_width() / 2.0,
                      bars[count].get_height() - 5, message, ha='center',
-                     va='bottom', fontsize=11)
+                     va='bottom', fontsize=10)
 
         plt.show()
 
@@ -1316,14 +1316,12 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 5
+#n_days = 2
 
 
 #print()
 #a = League(our_round, n_days, 'ST')
-#start = time.time()
 #a.play_league()
-#print(round(time.time() - start, 1))
 #a.print_league()
 #a.print_contributes()
 #a.print_extra_info()
