@@ -1143,27 +1143,50 @@ class League(object):
 
     def bonus_distr(self, n_players):
 
+        '''For each team, a list of data is created. This list has the form:
+
+                [(fantateam, list_of_players, bonus_percentage), ...]
+
+           where
+
+                - list_of_players is a list of tuples like (35.5, ICARDI),
+                  where 35.5 is the total number of bonus points brought by
+                  ICARDI. This list has n_players elements.
+
+                - bonus_percentage is a float, representing ICARDI's contribute
+                  to the total bonus points of the fantateam
+
+           The % of the best n_players players for each fantateam is shown on a
+           bar plot. On top of each bar, the name of the player and the bonus.
+        '''
+
         fin_dict = {fantateam: {} for fantateam in self.fantateams}
 
+        # Fill the dict
         for fantateam in fin_dict:
             for day in range(1, self.n_days + 1):
                 players = self.fantateams[fantateam].fields[day - 1]
                 players = [element[1] for element in players]
 
                 for player in players:
-                    value = all_players[player].all_bonus(day, 'ST')
+                    pos = all_players[player].all_bonus(day, 'ST')
+                    neg = all_players[player].all_malus(day, 'ST')
+                    value = pos - neg
 
-                    if value > 0 and player in fin_dict[fantateam]:
+                    if player in fin_dict[fantateam]:
                         fin_dict[fantateam][player] += value
-                    elif value > 0 and player not in fin_dict[fantateam]:
+                    else:
                         fin_dict[fantateam][player] = value
 
+        # Substitute the values of the dict with new ones which are now sorted
+        # and contain only the first n_players spots
         for fantateam in fin_dict:
             fin_list = [(fin_dict[fantateam][player], player) for player in
                         fin_dict[fantateam]]
             fin_list.sort(key=lambda x: x[0], reverse=True)
             fin_dict[fantateam] = sf.first_n_spots(n_players, fin_list)
 
+        # Create the data containing the % and sort them according to it
         fin_data = [(fantateam, fin_dict[fantateam],
                      sum([el[0] for el in fin_dict[fantateam]]),
                      self.fantateams[fantateam].bonus_from_field) for
@@ -1195,8 +1218,9 @@ class League(object):
             message = ''
             for player in players[count]:
                 message += '{}, {}\n\n'.format(player[1], player[0])
+            message = message[:-2]
             plt.text(bars[count].get_x() + bars[count].get_width() / 2.0,
-                     bars[count].get_height() - 5, message, ha='center',
+                     bars[count].get_height() + 4, message, ha='center',
                      va='bottom', fontsize=10)
 
         plt.show()
@@ -1326,6 +1350,6 @@ n_days = len(lineups['Ciolle United'])
 #a.print_contributes()
 #a.print_extra_info()
 #a.print_extra_info2()
+#a.bonus_distr(2)
 #c = Statistic(10, n_days, 'ST')
 #c.positions8_rate()
-#a.bonus_distr(2)
