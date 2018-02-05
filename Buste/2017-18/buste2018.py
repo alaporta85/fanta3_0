@@ -1,6 +1,7 @@
 import os
 import copy
 import pandas as pd
+from tabulate import tabulate
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
@@ -33,9 +34,7 @@ def number_of_falses():
        because Ciolle lost their priority so all the rest shifts up.
     """
 
-    res = [el for team in all_data for el in all_data[team] if not el]
-
-    return len(res)
+    return len([el for team in all_data for el in all_data[team] if not el])
 
 
 def final_sum(astring):
@@ -71,7 +70,7 @@ def final_sum(astring):
                     new = new.replace(letter, '')
             players_money += int(new)
 
-    return (own_money, players_money)
+    return own_money, players_money
 
 
 def players_offered_to_pay(adict, team, astring):
@@ -116,6 +115,8 @@ def create_data_dict():
 
        The dict 'all_data' contains all the offers, team by team, in order of
        priority.
+
+       It also fill the dict 'mails_to_print' with the original offers.
     """
 
     all_data = {}
@@ -123,11 +124,12 @@ def create_data_dict():
     for filename in all_files:
         busta = []
         team = filename.split('_')[0]
-        f = open(filename, 'r')
+        f = open(filename)
         content = f.readlines()
         f.close()
         for line in content:
             line = line.replace('\n', '')
+            mails_to_print[team].append(line)
             nome = line.split('/')[0].upper()
             soldi = int(line.split('/')[1])
             players_offered_to_pay(players_used_to_pay, team,
@@ -244,7 +246,11 @@ times = {filename.split('_')[0]: filename.split('_')[1][:-4] for filename in
 ordered_by_time = [filename.split('_')[0] for filename in all_files]
 res = {name: [] for name in ordered_by_time}
 
+mails_to_print = {name: [] for name in money_left}
 all_data, players_used_to_pay = create_data_dict()
+for name in mails_to_print:
+    while len(mails_to_print[name]) < max_players_per_mail:
+        mails_to_print[name].append('')
 
 n_falses = number_of_falses()
 
@@ -262,29 +268,30 @@ while n_falses < spots_to_fill:
     n_falses = number_of_falses()
 
 # To print the results
-teams = []
-players = []
 max_players_acquired = max([len(res[name]) for name in res])
-money_after_all = [(name, money_left[name]) for name in money_left]
-money_after_all.sort(key=lambda x: x[1], reverse=True)
+four_names = ['Ciolle United', 'FC Pastaboy', 'FC ROXY', 'AC PICCHIA']
+dict1 = {name: mails_to_print[name] for name in four_names}
+dict2 = {name: mails_to_print[name] for name in res if name not in four_names}
 
 for team in res:
-    teams.append(team)
-    players.append([''] + res[team])
-    while len(players[-1]) < max_players_acquired + 1:
-        players[-1].append('')
-
-df = pd.DataFrame(players, teams)
-df.columns = [''] * len(df.columns)
-print()
-print()
-print(df.T)
-print()
-print('Soldi rimanenti:\n')
-for el in money_after_all:
-    print('    {}: {}'.format(el[0], el[1]))
+    while len(res[team]) < max_players_acquired:
+        res[team].append('')
 
 
-del all_files, candidates, df, last_name, max_players_acquired
-del max_players_per_mail, players, players_used_to_pay, priority
-del ordered_by_time, team, teams, times, money_left, el
+table1 = tabulate(pd.DataFrame(dict1), showindex=False, headers='keys',
+                  tablefmt="orgtbl", stralign='center')
+table2 = tabulate(pd.DataFrame(dict2), showindex=False, headers='keys',
+                  tablefmt="orgtbl", stralign='center')
+table3 = tabulate(pd.DataFrame(res), showindex=False, headers='keys',
+                  tablefmt="orgtbl", stralign='center')
+table4 = tabulate(pd.DataFrame(money_left, index=[0]), showindex=False,
+                  headers='keys', tablefmt="orgtbl", numalign='center')
+
+print('\n\n\nBUSTE ORIGINALI:\n')
+print(table1)
+print('\n\n')
+print(table2)
+print('\n\n\nESITO BUSTE:\n')
+print(table3)
+print('\n\n\nSOLDI RIMANENTI:\n')
+print(table4)
