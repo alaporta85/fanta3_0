@@ -1,0 +1,5 @@
+Diamanti/30/[verdi(10), 20]
+Borriello/20/[nico lopez(13), 7]
+defrel/15/[amauri(11), 4]
+lodi/11/[verdi(10), 1]
+romagnoli/6/[gastaldello(9)]

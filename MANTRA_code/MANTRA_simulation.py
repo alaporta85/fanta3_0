@@ -293,6 +293,15 @@ class Fantateam(object):
         self.highest_counter = 0
         self.lowest_abs_points = 1000
         self.lowest_counter = 0
+        # These four dicts are defined to store the data team by team
+        self.tbt_abs_scored = {name: 0 for name in fantanames if
+                               name != self.name}
+        self.tbt_abs_taken = {name: 0 for name in fantanames if
+                              name != self.name}
+        self.tbt_goals_scored = {name: 0 for name in fantanames if
+                                 name != self.name}
+        self.tbt_goals_taken = {name: 0 for name in fantanames if
+                                name != self.name}
 
     def lineup(self, day):
 
@@ -589,6 +598,17 @@ class Match(object):
             self.fantateams[self.team1].defeats += 1
             self.fantateams[self.team2].victories += 1
             self.fantateams[self.team2].points += 3
+        
+        # fffffffffffffffff
+        self.fantateams[self.team1].tbt_abs_scored[self.team2] += abs_points1
+        self.fantateams[self.team1].tbt_abs_taken[self.team2] += abs_points2
+        self.fantateams[self.team1].tbt_goals_scored[self.team2] += goals1
+        self.fantateams[self.team1].tbt_goals_taken[self.team2] += goals2
+
+        self.fantateams[self.team2].tbt_abs_scored[self.team1] += abs_points2
+        self.fantateams[self.team2].tbt_abs_taken[self.team1] += abs_points1
+        self.fantateams[self.team2].tbt_goals_scored[self.team1] += goals2
+        self.fantateams[self.team2].tbt_goals_taken[self.team1] += goals1
 
         # Update bonus and malus. The 'try' method is used to avoid errors
         # during Statistics calculation, where this update is not needed. In
@@ -1056,6 +1076,40 @@ class League(object):
             - Matches played in 10
 
             - Matches played in 9
+        '''
+
+        ranking = self.final_ranking()
+
+        ref_list = []
+
+        for team in ranking:
+            bonus_field = self.fantateams[team].bonus_from_field
+            bonus_bench = self.fantateams[team].bonus_from_bench
+            malus_field = self.fantateams[team].malus_from_field
+            malus_bench = self.fantateams[team].malus_from_bench
+
+            bonus_rate = round((bonus_field/(bonus_field+bonus_bench))*100, 1)
+            malus_rate = round((malus_field/(malus_field+malus_bench))*100, 1)
+
+            ref_list.append((team, bonus_rate, malus_rate,
+                             self.fantateams[team].lucky_points,
+                             self.fantateams[team].malus,
+                             self.fantateams[team].matches_in_ten,
+                             self.fantateams[team].matches_in_nine))
+
+        names = [element[0] for element in ref_list]
+        data = [element[1:] for element in ref_list]
+        header = ['Bonus(%)', 'Malus(%)', 'Lucky Points',
+                  '#malus', ' #10', ' #9']
+
+        table = pd.DataFrame(data, names, header)
+
+        print(table)
+        print()
+
+    def print_extra_info2(self):
+
+        '''Prints a table with the following columns:
 
             - Average absolute points (in parenthesis the standard deviation)
 
@@ -1072,13 +1126,6 @@ class League(object):
         ref_list = []
 
         for team in ranking:
-            bonus_field = self.fantateams[team].bonus_from_field
-            bonus_bench = self.fantateams[team].bonus_from_bench
-            malus_field = self.fantateams[team].malus_from_field
-            malus_bench = self.fantateams[team].malus_from_bench
-
-            bonus_rate = round((bonus_field/(bonus_field+bonus_bench))*100, 1)
-            malus_rate = round((malus_field/(malus_field+malus_bench))*100, 1)
 
             avrg_abs = round(self.fantateams[team].abs_points/self.n_days, 1)
             std = round(statistics.pstdev([el[1] for el in abs_points[team]]),
@@ -1089,27 +1136,18 @@ class League(object):
             low = '{}({})'.format(self.fantateams[team].lowest_counter,
                                   self.fantateams[team].lowest_abs_points)
 
-            ref_list.append((team, bonus_rate, malus_rate,
-                             self.fantateams[team].lucky_points,
-                             self.fantateams[team].malus,
-                             self.fantateams[team].matches_in_ten,
-                             self.fantateams[team].matches_in_nine,
-                             '{}({})'.format(avrg_abs, std),
-                             high,
-                             low))
+            ref_list.append((team, '{}({})'.format(avrg_abs, std), high, low))
 
         names = [element[0] for element in ref_list]
         data = [element[1:] for element in ref_list]
-        header = ['Bonus(%)', 'Malus(%)', 'Lucky Points',
-                  '#malus', ' #10', ' #9',
-                  'Avrg Abs', ' MAX Abs', ' MIN Abs']
+        header = ['Avrg Abs', ' MAX Abs', ' MIN Abs']
 
         table = pd.DataFrame(data, names, header)
 
         print(table)
         print()
 
-    def print_extra_info2(self):
+    def print_extra_info3(self):
 
         message = 'Matches with highest number of goals:\n\n'
         for match in self.match_max_goals:
@@ -1340,12 +1378,12 @@ class Statistic(object):
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 2
+#n_days = 5
 
 
-#print()
-#a = League(our_round, n_days, 'ST')
-#a.play_league()
+print()
+a = League(our_round, n_days, 'ST')
+a.play_league()
 #a.print_league()
 #a.print_contributes()
 #a.print_extra_info()
