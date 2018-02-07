@@ -129,7 +129,7 @@ def create_data_dict():
         f.close()
         for line in content:
             line = line.replace('\n', '')
-            mails_to_print[team].append(line)
+            mails_to_print[team].append(line.replace('/', ' - '))
             nome = line.split('/')[0].upper()
             soldi = int(line.split('/')[1])
             players_offered_to_pay(players_used_to_pay, team,
@@ -219,7 +219,7 @@ def assign_player(candidates):
     players_to_sell = are_players_available(team_calling, player_name)
 
     if price <= money_available and players_to_sell:
-        res[team_calling].append((player_name, price))
+        res[team_calling].append('{}, {}'.format(player_name, price))
         all_data[team_calling][priority] = False
         money_left[team_calling] = money_available - price
         for name in all_data:
@@ -278,9 +278,9 @@ for team in res:
 
 
 table1 = tabulate(pd.DataFrame(dict1), showindex=False, headers='keys',
-                  tablefmt="orgtbl", stralign='center')
+                  tablefmt="orgtbl", stralign='left')
 table2 = tabulate(pd.DataFrame(dict2), showindex=False, headers='keys',
-                  tablefmt="orgtbl", stralign='center')
+                  tablefmt="orgtbl", stralign='left')
 table3 = tabulate(pd.DataFrame(res), showindex=False, headers='keys',
                   tablefmt="orgtbl", stralign='center')
 table4 = tabulate(pd.DataFrame(money_left, index=[0]), showindex=False,

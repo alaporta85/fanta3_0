@@ -12,10 +12,11 @@ f.close()
 
 def modify_player_name(player):
 
-    '''When a player leaves a team, in the website he will be marked with the
+    """
+       When a player leaves a team, in the website he will be marked with the
        simbol ' *' after the name, which causes errors when we look for the
        vote of that player. This function returns the clean name of the player.
-       '''
+    """
 
     final_name = player.replace(' *', '')
 
@@ -24,12 +25,14 @@ def modify_player_name(player):
 
 def take_vote_from_database(player, day, mode='ST'):
 
-    '''This function returns the vote from the database for the specified
+    """
+       This function returns the vote from the database for the specified
        player in that specific day. By default, the mode is 'ST' (statistical)
        which means we take the Alvin482 vote. When 'FG' is specified as mode
        than we take the normal votes from Fantagazzetta. In case player does
        NOT have a vote in that day, it manages the KeyError and returns n.e.
-       (not evaluated).'''
+       (not evaluated).
+    """
 
     filename = ('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes/' +
                 'Day_{}.pckl'.format(day))
@@ -49,18 +52,18 @@ def take_vote_from_database(player, day, mode='ST'):
 
 def players_with_vote(list_of_tuples, mode='ST'):
 
-    '''Return two lists (field and bench) which represent the players who
-       received vote in the field and in the bench, respectively.'''
+    """
+       Return two lists (field and bench) which represent the players who
+       received vote in the field and in the bench, respectively.
+    """
 
     field = []
     bench = []
 
     for player in list_of_tuples:
 
-        # Extract the day
         day = int(player[0].split()[1])
 
-        # Extract the vote, FG or ST
         if mode == 'FG':
             vote = take_vote_from_database(player[1], day, 'FG')
         else:
@@ -80,7 +83,7 @@ def players_with_vote(list_of_tuples, mode='ST'):
 
 def find_gkeeper(alist):
 
-    '''Return the goal keeper in case there is any and False otherwise.'''
+    """Return the goal keeper in case there is any and False otherwise."""
 
     for player in alist:
         if player[2] == ['Por']:
@@ -91,7 +94,7 @@ def find_gkeeper(alist):
 
 def delete_gkeeper(alist):
 
-    '''Returns alist without any goal keeper.'''
+    """Returns alist without any goal keeper."""
 
     res = [player for player in alist if player[2] != ['Por']]
 
@@ -100,13 +103,15 @@ def delete_gkeeper(alist):
 
 def all_lineups_single_role(list_of_tuples):
 
-    '''Returns a list of lineups and in each of them every player has only one
+    """
+       Returns a list of lineups and in each of them every player has only one
        role. If the input is for example [('MESSI',[T,A]), ('BELOTTI', [Pc])]
        than the output will be
 
           [(('MESSI',T), ('BELOTTI', Pc)), (('MESSI',A), ('BELOTTI', Pc))]
 
-       The final list contains all the combinations of players' roles.'''
+       The final list contains all the combinations of players' roles.
+    """
 
     players_single_role = []
     players_multiple_roles = []
@@ -141,13 +146,15 @@ def all_lineups_single_role(list_of_tuples):
     return final_cand
 
 
-def valid_lineups(field, bench, n_of_players_with_vote, n_subst):
+def valid_lineups(field, bench, n_subst):
 
-    '''This function returns a list containing ALL the possible lineups. To
+    """
+       This function returns a list containing ALL the possible lineups. To
        create them we first create all the combinations of players from the
        bench taking into account the n_subst allowed. After this, for each
        combination created we create the lineup by putting together the field
-       + the combination.'''
+       + the combination.
+    """
 
     # Generate all the combination of the players in the bench. Each
     # combination will be made of a number of players equal to the number of
@@ -164,10 +171,12 @@ def valid_lineups(field, bench, n_of_players_with_vote, n_subst):
 
 def deploy_players(players_to_deploy, roles_to_cover, solution):
 
-    '''This function deploys the players in the lineup according to the module.
+    """
+       This function deploys the players in the lineup according to the module.
        It deploys the players, delete the role from the roles to be covered and
        delete the player from the players to be deployed. Return the lists of
-       the non-deployed players and non-covered roles.'''
+       the non-deployed players and non-covered roles.
+    """
 
     new_list = copy.copy(players_to_deploy)
     new_schemes = copy.copy(roles_to_cover)
@@ -208,8 +217,10 @@ def deploy_players(players_to_deploy, roles_to_cover, solution):
 
 def transf_wings(roles_left, module):
 
-    '''Transforms the 'W' in the module (if any) according to the compatibility
-       table of the roles. Return the modified roles.'''
+    """
+       Transforms the 'W' in the module (if any) according to the compatibility
+       table of the roles. Return the modified roles.
+    """
 
     special_modules = ['352', '442', '4411']
     adapted_roles = []
@@ -235,10 +246,12 @@ def transf_wings(roles_left, module):
 
 def order_by_role(list_of_tuples):
 
-    '''Order the players according to their roles. We do this because it is
+    """
+       Order the players according to their roles. We do this because it is
        much more efficient to deploy the players starting from positions which
        are more advanced in the field (Pc, A...). Random deployment causes
-       errors.'''
+       errors.
+    """
 
     reference = ['Pc', 'A', 'T', 'W', 'C', 'M', 'E', 'Dc', 'Dd', 'Ds']
     final = []
@@ -253,7 +266,8 @@ def order_by_role(list_of_tuples):
 
 def find_solution(list_of_tuples, module, n_of_players_with_vote):
 
-    '''Check if a solution is available, according to the module.
+    """
+       Check if a solution is available, according to the module.
        It is used in the cases of optimal and efficient solution. For the
        optimal solution it is applied only to the module chosen by the
        fantaplayer while for the efficient solution it is applied to all the
@@ -266,13 +280,15 @@ def find_solution(list_of_tuples, module, n_of_players_with_vote):
        combinations of the roles in the module. This is used when more than 3
        substitutions are needed and the algorithm tries to find a solution
        for each candidate with all the possible combinations of roles.
-       It returns True in case a solution exists. Otherwise False.'''
+       It returns True in case a solution exists. Otherwise False.
+    """
 
     def calculate(candidate, roles_of_module):
 
-        '''This function applies the deploy_players function to look for the
+        """This function applies the deploy_players function to look for the
            solution, if it exists. If all the players are deployed it returns
-           True, otherwise False.'''
+           True, otherwise False.
+        """
 
         # "try" method is used to handle the cases when the function
         # deploy_players returns False instead of the two lists (to_deploy_list
@@ -323,15 +339,19 @@ def find_solution(list_of_tuples, module, n_of_players_with_vote):
 
 def find_adapted_solution(list_of_tuples, module, n_of_players_with_vote):
 
-    '''This function checks if an adapted solution is available, according to
+    """
+       This function checks if an adapted solution is available, according to
        the module. By using all the functions defined inside it will return
        the number of malus assigned if an adapted solution exists and False if
-       not.'''
+       not.
+    """
 
     def malus_roles_left(players_left, roles_left):
 
-        '''Checks whether it is possible to deploy all the players by assinging
-           a certain number of malus.'''
+        """
+           Checks whether it is possible to deploy all the players by assinging
+           a certain number of malus.
+        """
 
         # Permutations of the players still to be deployed. We do that because
         # we only want that combination of players in which ALL of them are
@@ -394,9 +414,11 @@ def find_adapted_solution(list_of_tuples, module, n_of_players_with_vote):
 
     def calculate(candidate, roles_of_module):
 
-        '''This function applies the deploy_players function to look for the
+        """
+           This function applies the deploy_players function to look for the
            solution, if it exists. If all the players are deployed it returns
-           True, otherwise False.'''
+           True, otherwise False.
+        """
 
         # See find_solution for explanation on the try method
         try:
@@ -431,20 +453,24 @@ def find_adapted_solution(list_of_tuples, module, n_of_players_with_vote):
     return False
 
 
-def MANTRA_simulation(lineup, module, mode='ST'):
+def mantra_simulation(lineup, module, mode='ST'):
 
-    '''This function returns the lineup chosen by the fantaplayer where all the
+    """
+       This function returns the lineup chosen by the fantaplayer where all the
        players who contribute to the final score are uppercase and the others
        lowercase. It first tries to find an optimal solution. If it exists it
        will be returned otherwise the function will look for an efficient
        solution. Again, if it exists it will be returned otherwise the function
-       will return an adapted solution.'''
+       will return an adapted solution.
+    """
 
-    def try_optimal_solution(module, n_of_players_with_vote, n_subst):
+    def try_optimal_solution(module, n_of_players_with_vote):
 
-        '''If an optimal solution exists this function assign it to the
+        """
+           If an optimal solution exists this function assign it to the
            variable "final" which is defined inside MANTRA_simulation but not
-           globally. That's why we refers to it later by using "nonlocal".'''
+           globally. That's why we refers to it later by using "nonlocal".
+        """
 
         nonlocal all_lineups
         nonlocal final_field
@@ -470,11 +496,13 @@ def MANTRA_simulation(lineup, module, mode='ST'):
                 malus = 0
                 break
 
-    def try_efficient_solution(module, n_of_players_with_vote, n_subst):
+    def try_efficient_solution(module, n_of_players_with_vote):
 
-        '''If an optimal solution is not found we look for an efficient one.
+        """
+           If an optimal solution is not found we look for an efficient one.
            In case an efficient solution exists we store the lineup and the
-           module.'''
+           module.
+        """
 
         modules_for_efficient_solution = copy.copy(all_modules)
         modules_for_efficient_solution.remove(module)
@@ -508,11 +536,13 @@ def MANTRA_simulation(lineup, module, mode='ST'):
                 malus = 0
                 break
 
-    def try_adapted_solution(module, n_of_players_with_vote, n_subst):
+    def try_adapted_solution(n_of_players_with_vote):
 
-        '''If an efficient solution is not found we look for an adapted one.
+        """
+           If an efficient solution is not found we look for an adapted one.
            In case it exists we store the lineup, the module, the number of
-           malus assigned and the other modules that are equally valid.'''
+           malus assigned and the other modules that are equally valid.
+        """
 
         modules_for_adapted_solution = copy.copy(all_modules)
 
@@ -556,22 +586,26 @@ def MANTRA_simulation(lineup, module, mode='ST'):
             if malus == 1:
                 break
 
-    def look_for_solution(module, n_of_players_with_vote, n_subst):
+    def look_for_solution(module, n_of_players_with_vote):
 
-        '''It sequentially applies the three functions to look for the right
-           solution.'''
+        """
+           It sequentially applies the three functions to look for the right
+           solution.
+        """
 
-        try_optimal_solution(module, n_of_players_with_vote, n_subst)
+        try_optimal_solution(module, n_of_players_with_vote)
         if not final_field:
-            try_efficient_solution(module, n_of_players_with_vote, n_subst)
+            try_efficient_solution(module, n_of_players_with_vote)
         if not final_field:
-            try_adapted_solution(module, n_of_players_with_vote, n_subst)
+            try_adapted_solution(n_of_players_with_vote)
 
     def solve_gkeeper():
 
-        '''Goal keeper substitution has to be the first thing to solve, if
+        """
+           Goal keeper substitution has to be the first thing to solve, if
            needed. Here we modify field, bench and n_subst depending on whether
-           the gkeepers has vote or not.'''
+           the gkeepers has vote or not.
+        """
 
         nonlocal field
         nonlocal bench
@@ -599,12 +633,14 @@ def MANTRA_simulation(lineup, module, mode='ST'):
 
     def calculation(a_number):
 
-        '''This is the function that is recursively applied to find the correct
+        """
+           This is the function that is recursively applied to find the correct
            lineup. The input 'a_number' is an integer which represents the
            number of players (gkeeper excluded) who will partecipate in the
            lineup calculation. In case the algorithm does not find any solution
            after the first iteration it repeats the process considering 1
-           substitution and 1 player less.'''
+           substitution and 1 player less.
+        """
 
         nonlocal field
         nonlocal bench
@@ -612,8 +648,8 @@ def MANTRA_simulation(lineup, module, mode='ST'):
         nonlocal n_subst
         nonlocal all_lineups
 
-        all_lineups = valid_lineups(field, bench, module, n_subst)
-        look_for_solution(module, a_number, n_subst)
+        all_lineups = valid_lineups(field, bench, n_subst)
+        look_for_solution(module, a_number)
 
         if not final_field:
             n_subst -= 1

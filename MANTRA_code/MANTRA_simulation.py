@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import os
 import pickle
 import copy
-import time
 import statistics
 from itertools import permutations
 pd.set_option('display.max_columns', 500)
@@ -71,9 +70,6 @@ for file in files:
 for player in players_database:
     players_database[player].sort(key=lambda x: x[0])
 
-# Finally we delete some variables we do not need anymore
-del day, file, files, player
-
 
 class Player(object):
     def __init__(self, name):
@@ -106,8 +102,10 @@ class Player(object):
 
     def calculate_avrg(self):
 
-        '''Set both the average based on the votes only and the one based
-           on the fantavotes (votes +- bonus/malus).'''
+        """
+           Set both the average based on the votes only and the one based
+           on the fantavotes (votes +- bonus/malus).
+        """
 
         try:
             avrg_FG = (sum([vote[1] for vote in self.FGvotes]) /
@@ -133,17 +131,20 @@ class Player(object):
 
     def calculate_fantavotes(self, day):
 
-        '''Calculate the fantavote of the player in the specified day.
+        """
+           Calculate the fantavote of the player in the specified day.
            'IndexError' appears when the player received no vote on that
            day. In fact we exclude all the votes == 'n.e.' when we define
-           the attributes self.FGvotes or self.STvotes.'''
+           the attributes self.FGvotes or self.STvotes.
+        """
 
         def sum_bonus_malus(day):
 
-            '''all_player_data_in_day has the form:
+            """
+               all_player_data_in_day has the form:
 
                 (YC,RC,Gs,Gp,Gt,Ps,Pf,Og,As,Asf)
-            '''
+            """
 
             all_player_data_in_day = [data[4:] for data in
                                       players_database[self.name]
@@ -175,7 +176,7 @@ class Player(object):
 
     def update_player(self):
 
-        '''Updates all the attributes of the player.'''
+        """Updates all the attributes of the player."""
 
         for day in players_database[self.name]:
             self.team = day[1]
@@ -192,9 +193,9 @@ class Player(object):
             self.calculate_fantavotes(day[0])
         self.calculate_avrg()
 
-    def all_bonus(self, day, mode='ST'):
+    def all_bonus(self, day):
 
-        '''Return all the bonus points given by the Player on that day.'''
+        """Return all the bonus points given by the Player on that day."""
 
         data = [atuple for atuple in players_database[self.name]
                 if atuple[0] == day]
@@ -207,9 +208,9 @@ class Player(object):
         else:
             return 0
 
-    def all_malus(self, day, mode='ST'):
+    def all_malus(self, day):
 
-        '''Return all the malus points given by the Player on that day.'''
+        """Return all the malus points given by the Player on that day."""
 
         data = [atuple for atuple in players_database[self.name]
                 if atuple[0] == day]
@@ -226,7 +227,7 @@ class Player(object):
 
     def vote(self, day, mode='ST'):
 
-        '''Return the vote of the player in that day.'''
+        """Return the vote of the player in that day."""
 
         if mode == 'FG':
             try:
@@ -245,7 +246,7 @@ class Player(object):
 
     def fantavote(self, day, mode='ST'):
 
-        '''Return the vote of the player in that day.'''
+        """Return the vote of the player in that day."""
 
         if mode == 'FG':
             try:
@@ -305,7 +306,7 @@ class Fantateam(object):
 
     def lineup(self, day):
 
-        '''Returns the lineup of the fantateam in that day.'''
+        """Returns the lineup of the fantateam in that day."""
 
         return self.lineups[day-1]
 
@@ -326,10 +327,12 @@ class Match(object):
 
     def calculate_goals(self, a_number):
 
-        '''Returns the number of goals scored by the fantateam in the match.
+        """
+           Returns the number of goals scored by the fantateam in the match.
            The input 'a_number' represents the abs_points of the day, which is
            given by the sum of all fantavotes of the players taking part to the
-           match.'''
+           match.
+        """
 
         if a_number < 66:
             return 0
@@ -338,22 +341,24 @@ class Match(object):
 
     def play_match(self):
 
-        '''Plays the match by applying the MANTRA algorithm. We extract the
+        """
+           Plays the match by applying the MANTRA algorithm. We extract the
            final field and the final bench in order to be able to create later
-           statistics on the bonus coming either from field and bench.'''
+           statistics on the bonus coming either from field and bench.
+        """
 
         # Separate module and player in two different variables and launch the
         # MANTRA simulation for both teams
         module1 = self.lineup1[0]
         lineup1 = self.lineup1[1]
-        self.final_field1, self.final_bench1, malus1 = mf.MANTRA_simulation(
+        self.final_field1, self.final_bench1, malus1 = mf.mantra_simulation(
                                                                 lineup1,
                                                                 module1,
                                                                 self.mode)[:3]
 
         module2 = self.lineup2[0]
         lineup2 = self.lineup2[1]
-        self.final_field2, self.final_bench2, malus2 = mf.MANTRA_simulation(
+        self.final_field2, self.final_bench2, malus2 = mf.mantra_simulation(
                                                                 lineup2,
                                                                 module2,
                                                                 self.mode)[:3]
@@ -422,13 +427,15 @@ class Match(object):
 
     def play_fast_match(self):
 
-        '''Play the match by taking directly the absolute points from the dict.
+        """
+           Play the match by taking directly the absolute points from the dict.
            This can be used only in 'ST' mode because it is the one we are
            using on the website. To be able to use it in 'FG', a dict with all
            the FG absolute points must be created first. It is used when we
            want to generate statistics by playing thousand of leagues because
            it is much faster than playing the match by applying the MANTRA
-           algorithm.'''
+           algorithm.
+        """
 
         abs_points1 = abs_points[self.team1][self.day - 1][1]
         abs_points2 = abs_points[self.team2][self.day - 1][1]
@@ -437,12 +444,14 @@ class Match(object):
 
     def update_lucky_points(self, abs_points1, abs_points2, goals1, goals2):
 
-        '''Updates the attribute half_point of each fantateam. This attributes
+        """
+           Updates the attribute half_point of each fantateam. This attributes
            represents the number of points in the ranking which have been
            gained or lost by the fantateam when just 0.5 in the total score
            made the difference.
            It is used inside the function update_fantateams only when
-           abs_points1 IS NOT EQUAL to abs_points2.'''
+           abs_points1 IS NOT EQUAL to abs_points2.
+        """
 
         ref_list = [(self.team1, abs_points1), (self.team2, abs_points2)]
 
@@ -493,34 +502,31 @@ class Match(object):
             self.fantateams[ref_list[0][0]].lucky_points -= 1
             self.fantateams[ref_list[1][0]].lucky_points += 2
 
-    def update_bonus_malus(self, the_team, the_final_field,
-                           the_final_bench):
+    def update_bonus_malus(self, the_team, the_final_field, the_final_bench):
 
-        '''Update the four attributes of each fantateam relative to the bonus
+        """
+           Update the four attributes of each fantateam relative to the bonus
            and malus points coming from field and bench, separately. In the
-           calculation votes are NOT included, only the bonus points.'''
+           calculation votes are NOT included, only the bonus points.
+        """
 
         for player in the_final_field:
             if player[1] in all_players:
-                total_bonus = all_players[player[1]].all_bonus(self.day,
-                                                               self.mode)
+                total_bonus = all_players[player[1]].all_bonus(self.day)
                 self.fantateams[the_team].bonus_from_field += total_bonus
-                total_malus = all_players[player[1]].all_malus(self.day,
-                                                               self.mode)
+                total_malus = all_players[player[1]].all_malus(self.day)
                 self.fantateams[the_team].malus_from_field += total_malus
 
         for player in the_final_bench:
             if player[1] in all_players:
-                total_bonus = all_players[player[1]].all_bonus(self.day,
-                                                               self.mode)
+                total_bonus = all_players[player[1]].all_bonus(self.day)
                 self.fantateams[the_team].bonus_from_bench += total_bonus
-                total_malus = all_players[player[1]].all_malus(self.day,
-                                                               self.mode)
+                total_malus = all_players[player[1]].all_malus(self.day)
                 self.fantateams[the_team].malus_from_bench += total_malus
 
     def update_contributes(self, the_team, the_final_lineup):
 
-        '''Updates the 4 attributes of each fantateam.'''
+        """Updates the 4 attributes of each fantateam."""
 
         roles_defense = ['Dc', 'Dd', 'Ds']
         roles_midfield = ['E', 'M', 'C', 'W', 'T']
@@ -528,7 +534,7 @@ class Match(object):
 
         def count_players(the_final_lineup):
 
-            '''Counts the players in each area according to their role.'''
+            """Counts the players in each area according to their role."""
 
             count_def = 0
             count_mid = 0
@@ -565,7 +571,7 @@ class Match(object):
 
     def update_fantateams(self, abs_points1, abs_points2):
 
-        '''Updates all the parameters realtive to each fantateam.'''
+        """Updates all the parameters realtive to each fantateam."""
 
         # Update the abs_points attribute of both fantateams
         self.fantateams[self.team1].abs_points += abs_points1
@@ -618,11 +624,9 @@ class Match(object):
         # 'update_bonus_malus' with those attribute as inputs will cause a
         # TypeError because in this case they are 'int', so not iterable
         try:
-            self.update_bonus_malus(self.team1,
-                                    self.final_field1,
+            self.update_bonus_malus(self.team1, self.final_field1,
                                     self.final_bench1)
-            self.update_bonus_malus(self.team2,
-                                    self.final_field2,
+            self.update_bonus_malus(self.team2, self.final_field2,
                                     self.final_bench2)
 
             self.update_contributes(self.team1, self.final_field1)
@@ -644,7 +648,7 @@ class Match(object):
         if abs_points2 < self.fantateams[self.team2].lowest_abs_points:
             self.fantateams[self.team2].lowest_abs_points = abs_points2
 
-        return (self.day, self.team1, self.team2, goals1, goals2)
+        return self.day, self.team1, self.team2, goals1, goals2
 
 
 class Day(object):
@@ -657,7 +661,7 @@ class Day(object):
 
     def play_day(self):
 
-        '''Plays all the matches of the day.'''
+        """Plays all the matches of the day."""
 
         day_results = []
 
@@ -674,7 +678,7 @@ class Day(object):
 
     def play_fast_day(self):
 
-        '''Plays fast all the matches of the day.'''
+        """Plays fast all the matches of the day."""
 
         for match in self.matches:
             the_match = Match(match[0], match[1], self.day, self.fantateams,
@@ -684,9 +688,11 @@ class Day(object):
 
     def update_highest_lowest_abs_points(self, day):
 
-        '''Update the two attributes "highest_counter" and "lowest_counter".
+        """
+           Update the two attributes "highest_counter" and "lowest_counter".
            They represent the number of times a fantateam scored the highest
-           and lowest abs_points of the day.'''
+           and lowest abs_points of the day.
+        """
 
         data = [(name, element[1]) for name in abs_points for element in
                 abs_points[name] if element[0] == day]
@@ -1207,8 +1213,8 @@ class League(object):
                 players = [element[1] for element in players]
 
                 for player in players:
-                    pos = all_players[player].all_bonus(day, 'ST')
-                    neg = all_players[player].all_malus(day, 'ST')
+                    pos = all_players[player].all_bonus(day)
+                    neg = all_players[player].all_malus(day)
                     value = pos - neg
 
                     if player in fin_dict[fantateam]:
@@ -1381,9 +1387,9 @@ n_days = len(lineups['Ciolle United'])
 #n_days = 5
 
 
-print()
-a = League(our_round, n_days, 'ST')
-a.play_league()
+# print()
+# a = League(our_round, n_days, 'ST')
+# a.play_league()
 #a.print_league()
 #a.print_contributes()
 #a.print_extra_info()

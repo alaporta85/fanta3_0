@@ -1,6 +1,7 @@
 import os
 import copy
 import pandas as pd
+import pickle
 from tabulate import tabulate
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -129,7 +130,7 @@ def create_data_dict():
         f.close()
         for line in content:
             line = line.replace('\n', '')
-            mails_to_print[team].append(line)
+            mails_to_print[team].append(line.replace('/', ' - '))
             nome = line.split('/')[0].upper()
             soldi = int(line.split('/')[1])
             players_offered_to_pay(players_used_to_pay, team,
@@ -218,8 +219,9 @@ def assign_player(candidates):
     money_available = money_left[team_calling] + player_to_call[1][2][1]
     players_to_sell = are_players_available(team_calling, player_name)
 
-    if price <= money_available and players_to_sell:
-        res[team_calling].append((player_name, price))
+    if (quotazioni[player_name] <= price <= money_available and
+            players_to_sell):
+        res[team_calling].append('{}, {}'.format(player_name, price))
         all_data[team_calling][priority] = False
         money_left[team_calling] = money_available - price
         for name in all_data:
@@ -232,6 +234,12 @@ def assign_player(candidates):
 priority = 0
 max_players_per_mail = 5
 last_name = ''
+
+f = open('/Users/andrea/Desktop/fanta3_0/Buste/' +
+         'quotazioni/quotazioni.pckl', 'rb')
+quotazioni = pickle.load(f)
+f.close()
+
 money_left = {'Giochici Giochici Stars': 20, 'Bucalina FC': 21,
               'Ciolle United': 23, 'FC Pastaboy': 48, 'FC ROXY': 20,
               'AC PICCHIA': 156, 'Fc Stress': 20, 'FC BOMBAGALLO': 29}
@@ -269,7 +277,7 @@ while n_falses < spots_to_fill:
 
 # To print the results
 max_players_acquired = max([len(res[name]) for name in res])
-four_names = ['Ciolle United', 'FC Pastaboy', 'FC ROXY', 'AC PICCHIA']
+four_names = ['Ciolle United', 'FC Pastaboy', 'FC ROXY']
 dict1 = {name: mails_to_print[name] for name in four_names}
 dict2 = {name: mails_to_print[name] for name in res if name not in four_names}
 
@@ -279,15 +287,15 @@ for team in res:
 
 
 table1 = tabulate(pd.DataFrame(dict1), showindex=False, headers='keys',
-                  tablefmt="orgtbl", stralign='center')
+                  tablefmt="orgtbl")
 table2 = tabulate(pd.DataFrame(dict2), showindex=False, headers='keys',
-                  tablefmt="orgtbl", stralign='center')
+                  tablefmt="orgtbl")
 table3 = tabulate(pd.DataFrame(res), showindex=False, headers='keys',
                   tablefmt="orgtbl", stralign='center')
 table4 = tabulate(pd.DataFrame(money_left, index=[0]), showindex=False,
                   headers='keys', tablefmt="orgtbl", numalign='center')
 
-print('\n\n\nBUSTE ORIGINALI:\n')
+print('\nBUSTE ORIGINALI:\n')
 print(table1)
 print('\n\n')
 print(table2)
