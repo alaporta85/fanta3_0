@@ -6,69 +6,77 @@ import os
 import pickle
 import copy
 import statistics
+import time
 from itertools import permutations
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
 
-# Load the list with our round
-g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
-         'our_round.pckl', 'rb')
-our_round = pickle.load(g)
-g.close()
 
-# Load the dict with all the lineups day by day
-h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
-         'lineups.pckl', 'rb')
-lineups = pickle.load(h)
-h.close()
+def load_all_dicts():
+    # Load the list with our round
+    g = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
+             'our_round.pckl', 'rb')
+    our_round = pickle.load(g)
+    g.close()
 
-# Load the dict with all the players of each fantateam. This dict if made of
-# all the fantaplayers updated to the last played day
-i = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/' +
-         'all_players_per_fantateam.pckl', 'rb')
-fantaplayers = pickle.load(i)
-i.close()
+    # Load the dict with all the lineups day by day
+    h = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+             'lineups.pckl', 'rb')
+    lineups = pickle.load(h)
+    h.close()
 
-# Load the dict with the names of the fantateams
-p = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
-         'fantateams_names.pckl', 'rb')
-fantanames = pickle.load(p)
-p.close()
+    # Load the dict with all the players of each fantateam. This dict if made
+    # of all the fantaplayers updated to the last played day
+    i = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/' +
+             'all_players_per_fantateam.pckl', 'rb')
+    fantaplayers = pickle.load(i)
+    i.close()
 
-# Load the absolute points. Used to play fast leagues
-m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
-         'abs_points.pckl', 'rb')
-abs_points = pickle.load(m)
-m.close()
+    # Load the dict with the names of the fantateams
+    p = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
+             'fantateams_names.pckl', 'rb')
+    fantanames = pickle.load(p)
+    p.close()
 
-# Create a dict with the roles of the players. It will be used to select the
-# best players role by role
-all_roles = {player[0]: player[1] for team in fantaplayers
-             for player in fantaplayers[team]}
+    # Load the absolute points. Used to play fast leagues
+    m = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+             'abs_points.pckl', 'rb')
+    abs_points = pickle.load(m)
+    m.close()
 
-# Votes are stored in different .pckl files for different days. Here we create
-# a unique dict with all the votes. First we create the list with all the files
-files = os.listdir('/Users/andrea/Desktop/fanta3_0/' +
-                   'cday_lineups_votes/votes')
+    # Create a dict with the roles of the players. It will be used to select
+    # the best players role by role
+    all_roles = {player[0]: player[1] for team in fantaplayers
+                 for player in fantaplayers[team]}
 
-# Initialize the database
-players_database = {}
+    # Votes are stored in different .pckl files for different days. Here we
+    # create a unique dict with all the votes. First we create the list with
+    # all the files
+    files = os.listdir('/Users/andrea/Desktop/fanta3_0/' +
+                       'cday_lineups_votes/votes')
 
-# For each .pckl file we add to the database the data relative to each player
-for file in files:
-    if file.endswith('.pckl'):
-        f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
-                 'votes/{}'.format(file), 'rb')
-        day = pickle.load(f)
-        f.close()
-        for player in day:
-            if player in players_database:
-                players_database[player].append(day[player])
-            else:
-                players_database[player] = [day[player]]
+    # Initialize the database
+    players_database = {}
 
-for player in players_database:
-    players_database[player].sort(key=lambda x: x[0])
+    # For each .pckl file we add to the database the data relative to each
+    # player
+    for file in files:
+        if file.endswith('.pckl'):
+            f = open('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/' +
+                     'votes/{}'.format(file), 'rb')
+            day = pickle.load(f)
+            f.close()
+            for player in day:
+                if player in players_database:
+                    players_database[player].append(day[player])
+                else:
+                    players_database[player] = [day[player]]
+
+    for player in players_database:
+        players_database[player].sort(key=lambda x: x[0])
+
+    return (our_round, lineups, fantaplayers, fantanames,
+            abs_points, all_roles, players_database)
 
 
 class Player(object):
@@ -770,7 +778,7 @@ class League(object):
 
     def play_league(self):
 
-        '''Plays all the matches in the schedule.'''
+        """Plays all the matches in the schedule."""
 
         for i in self.schedule:
             day = Day(i, self.schedule, self.fantateams, self.mode)
@@ -782,7 +790,7 @@ class League(object):
 
     def play_fast_league(self):
 
-        '''Plays fast all the matches in the schedule.'''
+        """Plays fast all the matches in the schedule."""
 
         for i in self.schedule:
             day = Day(i, self.schedule, self.fantateams, self.mode)
@@ -790,9 +798,11 @@ class League(object):
 
     def create_final_data(self):
 
-        '''Returns a list with only the names of the fantateams in order of
+        """
+           Returns a list with only the names of the fantateams in order of
            ranking and another list containing all the data of the league per
-           fantateam.'''
+           fantateam.
+        """
 
         all_data = [(self.fantateams[team].name,
                      self.fantateams[team].points,
@@ -819,15 +829,17 @@ class League(object):
 
     def final_ranking(self):
 
-        '''Returns the names in order of ranking.'''
+        """Returns the names in order of ranking."""
 
         return self.create_final_data()[0]
 
     def best_players(self, pos, mode):
 
-        '''Prints the table of the best players divided per role according to
+        """
+           Prints the table of the best players divided per role according to
            the vote and fantavote average, separately. Each table will show a
-           number of players which is equal to 'pos'.'''
+           number of players which is equal to 'pos'.
+        """
 
         roles_defense = ['Dc', 'Dd', 'Ds']
         roles_midfield = ['E', 'M', 'C', 'W', 'T']
@@ -917,13 +929,17 @@ class League(object):
 
     def classifica_avulsa(self, ranking):
 
-        '''Return the ranking ordered according the rules of classifica
-           avulsa.'''
+        """
+           Return the ranking ordered according the rules of classifica
+           avulsa.
+        """
 
         def mini_league(teams_with_equal_points):
 
-            '''Calculate the classifica avulsa between the teams with same
-               points in the ranking.'''
+            """
+               Calculate the classifica avulsa between the teams with same
+               points in the ranking.
+            """
 
             names = [element[0] for element in teams_with_equal_points]
 
@@ -978,8 +994,10 @@ class League(object):
 
         def order_ranking(res, ranking, team_points):
 
-            '''Look for teams with equal points and, if found, call the
-               function mini_league to calculate the classifica avulsa.'''
+            """
+               Look for teams with equal points and, if found, call the
+               function mini_league to calculate the classifica avulsa.
+            """
 
             copy_of_res = copy.copy(res)
 
@@ -1007,7 +1025,7 @@ class League(object):
 
     def print_league(self):
 
-        '''Returns a table showing all the data of the league per fantateam.'''
+        """Returns a table showing all the data of the league per fantateam."""
 
         only_names, all_data = self.create_final_data()
         short_data = [team[1:] for team in all_data]
@@ -1025,7 +1043,8 @@ class League(object):
 
     def print_contributes(self):
 
-        '''Print a table where all the contributes by area in the field.
+        """
+           Print a table where all the contributes by area in the field.
            The 4 areas are: goal-keeper, defense, midfield, attack.
            The contribute is defined as the average fantavote of the players of
            a specific area. Example:
@@ -1040,7 +1059,8 @@ class League(object):
 
 
            Sum of all the defense votes is 65, Since the total n. of players is
-           10, the contribute will be 6.5.'''
+           10, the contribute will be 6.5.
+        """
 
         ranking = self.final_ranking()
 
@@ -1067,7 +1087,8 @@ class League(object):
 
     def print_extra_info(self):
 
-        '''Prints a table with the following columns:
+        """
+           Prints a table with the following columns:
 
             - % of bonus points used, which is defined as the bonus points
               counted divided the total bonus points (counted + bench/tribune)
@@ -1082,7 +1103,7 @@ class League(object):
             - Matches played in 10
 
             - Matches played in 9
-        '''
+        """
 
         ranking = self.final_ranking()
 
@@ -1115,7 +1136,8 @@ class League(object):
 
     def print_extra_info2(self):
 
-        '''Prints a table with the following columns:
+        """
+           Prints a table with the following columns:
 
             - Average absolute points (in parenthesis the standard deviation)
 
@@ -1125,7 +1147,8 @@ class League(object):
 
             - Number of times the fantateam scored the lowest abs_points of
               the day (in parenthesis the minimum abs_points scored by the
-              fantateam in the league)'''
+              fantateam in the league).
+        """
 
         ranking = self.final_ranking()
 
@@ -1187,7 +1210,8 @@ class League(object):
 
     def bonus_distr(self, n_players):
 
-        '''For each team, a list of data is created. This list has the form:
+        """
+           For each team, a list of data is created. This list has the form:
 
                 [(fantateam, list_of_players, bonus_percentage), ...]
 
@@ -1202,7 +1226,7 @@ class League(object):
 
            The % of the best n_players players for each fantateam is shown on a
            bar plot. On top of each bar, the name of the player and the bonus.
-        '''
+        """
 
         fin_dict = {fantateam: {} for fantateam in self.fantateams}
 
@@ -1292,7 +1316,7 @@ class Statistic(object):
 
     def create_statistic(self):
 
-        '''Creates the data which are relative to all the leagues played.'''
+        """Creates the data which are relative to all the leagues played."""
 
         # For each round we create the league and play it
         for a_round in self.list_of_rounds:
@@ -1307,9 +1331,9 @@ class Statistic(object):
             for x in range(len(ranking)):
                 self.all_positions[x][ranking[x]] += 1
 
-    def positions8_rate(self):
+    def positions8_rate(self, print_table=True):
 
-        '''Prints the statistics for all the positions.'''
+        """Prints the statistics for all the positions."""
 
         n_leagues = self.leagues
 
@@ -1333,20 +1357,25 @@ class Statistic(object):
 
         # Create the lists to print the table
         only_names = [element[0] for element in ordered_rates]
-        short_data = [element[1:] for element in ordered_rates]
-        header = ['1st(%)', '2nd(%)', '3rd(%)', '4th(%)',
-                  '5th(%)', '6th(%)', '7th(%)', '8th(%)']
+        if print_table:
+            short_data = [element[1:] for element in ordered_rates]
+            header = ['1st(%)', '2nd(%)', '3rd(%)', '4th(%)',
+                      '5th(%)', '6th(%)', '7th(%)', '8th(%)']
 
-        table = pd.DataFrame(short_data, only_names, header)
+            table = pd.DataFrame(short_data, only_names, header)
 
-        print('Statistics on {} random leagues:'.format(self.leagues))
-        print(table)
+            print('Statistics on {} random leagues:'.format(self.leagues))
+            print(table)
+        else:
+            return only_names
 
     def round_team_position(self, a_team_name, position, best_worst):
 
-        '''Look for all the rounds where a team ends in position 'position' at
+        """
+           Look for all the rounds where a team ends in position 'position' at
            the end of the league. Between  all the rounds found, it returns the
-           one whit more points.'''
+           one whit more points.
+        """
 
         all_rounds = []
 
@@ -1381,19 +1410,44 @@ class Statistic(object):
             print('No rounds found.')
 
 
+def test_numb_iter(iterations, n_days):
+    points_to_plot = []
+    list1 = [1] + [x for x in range(5, 101, 5)]
+    list2 = [x for x in range(250, 1001, 250)]
+    list3 = [x for x in range(2500, 10001, 2500)]
+    fin_list = list1 + list2 + list3
+    for x in fin_list:
+        print(str(x) + ' leagues')
+        res = {name: [] for name in fantanames}
+        for y in range(iterations):
+            temp = Statistic(x, n_days, 'ST')
+            ranking = temp.positions8_rate(False)
+            for z in ranking:
+                res[z].append(ranking.index(z) + 1)
+        for name in res:
+            res[name] = statistics.pstdev(res[name])
+        fin_value = sum([res[name] for name in res]) / len(ranking)
+        points_to_plot.append(round(fin_value, 1))
+
+    plt.plot(fin_list, points_to_plot)
+    plt.savefig('test.png')
+
+
+our_round, lineups, fantaplayers,\
+    fantanames, abs_points, all_roles, players_database = load_all_dicts()
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 n_days = len(lineups['Ciolle United'])
-#n_days = 5
+# n_days = 5
 
 
 # print()
 # a = League(our_round, n_days, 'ST')
 # a.play_league()
-#a.print_league()
-#a.print_contributes()
-#a.print_extra_info()
-#a.print_extra_info2()
-#a.bonus_distr(2)
-#c = Statistic(10, n_days, 'ST')
-#c.positions8_rate()
+# a.print_league()
+# a.print_contributes()
+# a.print_extra_info()
+# a.print_extra_info2()
+# a.bonus_distr(2)
+# c = Statistic(10, n_days, 'ST')
+# c.positions8_rate()

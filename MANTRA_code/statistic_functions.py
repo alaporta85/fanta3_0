@@ -6,8 +6,10 @@ import os
 
 def no_repeated_teams(day, teams):
 
-    '''Checks whether a team appears more than once in one day. If not, the day
-       is a valid one and returns True, else False.'''
+    """
+       Checks whether a team appears more than once in one day. If not, the day
+       is a valid one and returns True, else False.
+    """
 
     res = [team for match in day for team in match]
     if len(set(res)) == len(teams):
@@ -18,9 +20,11 @@ def no_repeated_teams(day, teams):
 
 def available_days(day, all_days, teams):
 
-    '''Returns the list of the days which are available in the round where the
+    """
+       Returns the list of the days which are available in the round where the
        day "day" is already present. This is to avoid that any match can be
-       played more than once in one round.'''
+       played more than once in one round.
+    """
 
     res = []
     for new_day in all_days:
@@ -33,12 +37,14 @@ def available_days(day, all_days, teams):
 
 def leagues_generator(teams, n_rounds):
 
-    '''Returns a list of 'n_rounds' rounds between ALL the combinations which
-       are possible with given set of teams.'''
+    """
+       Returns a list of 'n_rounds' rounds between ALL the combinations which
+       are possible with given set of teams.
+    """
 
     def recursive_rounds(a_round, all_valid_days):
 
-        '''Creates recursively the rounds.'''
+        """Creates recursively the rounds."""
 
         nonlocal all_valid_rounds
 
@@ -82,7 +88,8 @@ def leagues_generator(teams, n_rounds):
 
 def clean_round(a_round):
 
-    '''Takes a string as input which has the form:
+    """
+       Takes a string as input which has the form:
 
         [(('A','B'),('C','D'),('E','F'),('G','H')),(('A','C'),.......]
 
@@ -91,7 +98,8 @@ def clean_round(a_round):
         ABCDEFGHAC..........
 
        Such string will be then written in the .txt file inside the function
-       all_leagues_generator_txt(teams).'''
+       all_leagues_generator_txt(teams).
+    """
 
     res = str(a_round).replace("'", '').replace('[', '')\
                       .replace(']', '').replace(',', '')\
@@ -102,7 +110,8 @@ def clean_round(a_round):
 
 def all_leagues_generator_txt(teams):
 
-    '''Generates a .txt file containing all the possible rounds considering
+    """
+       Generates a .txt file containing all the possible rounds considering
        the input 'teams'. Each line in the file is a complete round. In our
        case we generate it by using letters as team names. Since there are 8
        teams, each round has:
@@ -115,11 +124,12 @@ def all_leagues_generator_txt(teams):
 
        So each line in our file will have 56 letters, each letter representing
        one of the real fantateams. The transformation from letters to real team
-       will be done later by using the function real_round_from_line.'''
+       will be done later by using the function real_round_from_line.
+    """
 
     def recursive_rounds(a_round, all_valid_days):
 
-        '''Writes recursively the rounds in the file.'''
+        """Writes recursively the rounds in the file."""
 
         for day in all_valid_days:
             a_round_copy = copy.copy(a_round)
@@ -158,11 +168,13 @@ def all_leagues_generator_txt(teams):
 
 def reduced_leagues_txt(filename, number):
 
-    '''Creates another .txt file with 'number' random leagues. This is done to
+    """
+       Creates another .txt file with 'number' random leagues. This is done to
        avoid opening the original big file when producing the statistics of the
        fantaleague. Since it is clear that 8-10 thousands leagues in the
        simulation are enough to have statistically reliable results, a good
-       value for the input 'number' is around 50000.'''
+       value for the input 'number' is around 50000.
+    """
 
     myfile = open('/Users/andrea/Desktop/fanta3_0/MANTRA code/' +
                   'Reduced_Leagues_8teams.txt', 'w')
@@ -175,7 +187,7 @@ def reduced_leagues_txt(filename, number):
 
 def get_random_line(filename):
 
-    '''Returns the content of a random line inside a .txt file.'''
+    """Returns the content of a random line inside a .txt file."""
 
     # First extract the number of bytes of the file
     total_bytes = os.stat(filename).st_size
@@ -203,13 +215,15 @@ def get_random_line(filename):
 
 def real_round_from_line(line):
 
-    '''Takes the input which is a random line from the .txt file and has the
+    """
+       Takes the input which is a random line from the .txt file and has the
        form:
 
            ABCDEFGHAC..........
 
        and transforms it into a complete round with the real names of the
-       fantateams by using the dict 'letters'.'''
+       fantateams by using the dict 'letters'.
+    """
 
     letters = {'A': 'Ciolle United',
                'B': 'FC Pastaboy',
@@ -238,12 +252,14 @@ def real_round_from_line(line):
 
 def random_rounds(number):
 
-    '''Returns a list of 'number' random rounds ready to be used in the
+    """
+       Returns a list of 'number' random rounds ready to be used in the
        simulation. Each of these rounds will be used later to generate a
        complete schedule by using the function generate_schedule(a_round,
-       total_days).'''
+       total_days).
+    """
 
-    myfile = ('/Users/andrea/Desktop/fanta3_0/All_Leagues_8teams.txt')
+    myfile = '/Users/andrea/Desktop/fanta3_0/All_Leagues_8teams.txt'
 
     res = []
     for x in range(number):
@@ -256,8 +272,10 @@ def random_rounds(number):
 
 def generate_schedule(a_round, total_days):
 
-    '''Returns a dict which represents the complete schedule, created by the
-       input a_round and containing 'total_days' days.'''
+    """
+       Returns a dict which represents the complete schedule, created by the
+       input a_round and containing 'total_days' days.
+    """
 
     if not total_days % len(a_round):
         number = total_days//len(a_round)
@@ -274,7 +292,7 @@ def generate_schedule(a_round, total_days):
 
 def first_n_spots(integer, alist):
 
-    '''
+    """
     Input 'alist' is a sorted list of tuples and has the form:
 
         alist = [(43.5, MILAN), (40.2, JUVENTUS), (40.2, INTER), (38.7, LAZIO)]
@@ -292,7 +310,7 @@ def first_n_spots(integer, alist):
         [(43.5, MILAN), (40.2, JUVENTUS), (40.2, INTER)]
 
     Used inside create_message.
-    '''
+    """
 
     if len(alist) <= integer:
         return alist
@@ -305,7 +323,7 @@ def first_n_spots(integer, alist):
 
 def group_by_value(integer, alist):
 
-    '''
+    """
     Input 'alist' is the output of first_n_spots.
     Return a list where the elements with the same value are grouped. If
 
@@ -316,7 +334,7 @@ def group_by_value(integer, alist):
         [(43.5, [MILAN]), (40.2, [JUVENTUS, INTER])]
 
     Used inside create_message.
-    '''
+    """
 
     output = first_n_spots(integer, alist)
     only_values = [element[0] for element in output]
