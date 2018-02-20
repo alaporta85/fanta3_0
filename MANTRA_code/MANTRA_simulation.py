@@ -6,7 +6,6 @@ import os
 import pickle
 import copy
 import statistics
-import time
 from itertools import permutations
 pd.set_option('display.max_columns', 500)
 pd.set_option('display.width', 1000)
@@ -311,6 +310,7 @@ class Fantateam(object):
                                  name != self.name}
         self.tbt_goals_taken = {name: 0 for name in fantanames if
                                 name != self.name}
+        self.trend = []
 
     def lineup(self, day):
 
@@ -776,6 +776,12 @@ class League(object):
         else:
             self.day_min_goals.append(day_results)
 
+    def update_trends(self):
+        ref = self.fantateams[self.final_ranking()[0]].points
+        for team in self.fantateams:
+            points = self.fantateams[team].points
+            self.fantateams[team].trend.append((ref - points))
+
     def play_league(self):
 
         """Plays all the matches in the schedule."""
@@ -784,6 +790,7 @@ class League(object):
             day = Day(i, self.schedule, self.fantateams, self.mode)
             day_results = day.play_day()
 
+            self.update_trends()
             self.update_match_max_goals(day_results)
             self.update_day_max_goals(day_results)
             self.update_day_min_goals(day_results)
@@ -1293,6 +1300,11 @@ class League(object):
 
         plt.show()
 
+    def print_trends(self, team):
+        plt.plot(range(1, n_days + 1), self.fantateams[team].trend)
+        plt.gca().invert_yaxis()
+        plt.show()
+
 
 class Statistic(object):
     def __init__(self, leagues, n_days, mode):
@@ -1451,3 +1463,4 @@ n_days = len(lineups['Ciolle United'])
 # a.bonus_distr(2)
 # c = Statistic(10, n_days, 'ST')
 # c.positions8_rate()
+# a.print_trends('Ciolle United')
