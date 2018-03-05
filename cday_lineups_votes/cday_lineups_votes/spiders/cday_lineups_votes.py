@@ -62,14 +62,34 @@ f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
 serieA_teams = pickle.load(f)
 f.close()
 
+days_to_skip = [27]
+
 
 class Cday_lineups_votes(scrapy.Spider):
 
     def __init__(self):
-        self.last_scraped_day = 0  # Last scraped day inside 'lineups.pckl'
-        self.url_day = 0           # Day we are actually scraping
+        self.all_scraped_days = sorted([int(file.split('_')[1][:-5]) for
+                                        file in os.listdir('votes') if
+                                        file.endswith('.pckl')])
+        self.missing_days = [x for x in range(1, 39) if
+                             x not in self.all_scraped_days and
+                             x not in days_to_skip]
+
+        try:
+            self.last_scraped_day = self.all_scraped_days[-1]
+        except IndexError:
+            self.last_scraped_day = 0
+
         self.cday = 0              # Days of Serie A already played
         self.count = 0             # Counter (see below inside parse_cday)
+        self.start_urls = ['https://www.fantagazzetta.com/voti-fantacalcio' +
+                           '-serie-a']
+        self.lineups_urls = ['http://leghe.fantagazzetta.com/fantascandalo/' +
+                             'formazioni?g={}'.format(x) for x in
+                             self.missing_days]
+        self.votes_urls = ['https://www.fantagazzetta.com/voti-' +
+                           'fantacalcio-serie-a/2017-18/{}'.format(x) for x in
+                           self.missing_days]
 
         # Load the names of the fanta-teams
         f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round' +
@@ -77,49 +97,16 @@ class Cday_lineups_votes(scrapy.Spider):
         self.teams_names = pickle.load(f)
         f.close()
 
-        # Set this condition to set properly the value of last day which is
-        # already scraped. If the file 'lineups.pckl' doesn't exist inside the
-        # wdir this value is 0, as initialized inside __init__. On the other
-        # hand, if it is not the first time we run the script and there is
-        # already a .pckl file containing the previous lineups what we do is:
-        if os.path.isfile('lineups.pckl'):
-
-            # Open the file containing the previous lineups
-            f = open('lineups.pckl', 'rb')
-            lineups = pickle.load(f)
-            f.close()
-
-            # Choose a random fanta-team from the lineups dict
-            random_team = random.choice(list(lineups))
-
-            # Take the value of the last day from which the lineup is scraped
-            # and set it as last_scraped_day
-            self.last_scraped_day = int(lineups[random_team][-1][1][0][0][4:])
-
     # To handle some 302 Redirecting issues
     handle_httpstatus_list = [302]
 
     name = 'cday_lineups_votes'
 
-    # Divide all the links to scrape in three different lists. The reason
-    # is that we need the value of self.cday to be scraped first because it
-    # will be used later during the lineups' and votes' scraping. Putting all
-    # the links inside start_urls would result in a random scraping
-    start_urls = ['https://www.fantagazzetta.com/voti-fantacalcio-serie-a']
-
-    lineups_urls = ['http://leghe.fantagazzetta.com/fantascandalo/' +
-                    'formazioni?g=%d' % x for x in range(1, 39)]
-
-    votes_urls = ['https://www.fantagazzetta.com/voti-' +
-                  'fantacalcio-serie-a/2017-18/%d' % x for x in range(1, 39)]
-
     def start_requests(self):
         for url in self.start_urls:
-            yield SplashRequest(url, self.parse_cday,
-                                endpoint='render.html',
-                                args={'wait': 0.5})
+            yield SplashRequest(url, self.parse_cday, args={'wait': 0.5})
 
-    def lineups_scraping(self, splash_response, teams_names):
+    def lineups_scraping(self, splash_response, url_day, teams_names):
 
         # Initialize the lineups dict
         lineups = {team: [] for team in teams_names}
@@ -155,8 +142,8 @@ class Cday_lineups_votes(scrapy.Spider):
                                       'text()').extract()[3]
             abs_points2 = float(abs_points2.replace(',', '.'))
 
-            abs_points[team1].append((self.url_day, abs_points1))
-            abs_points[team2].append((self.url_day, abs_points2))
+            abs_points[team1].append((url_day, abs_points1))
+            abs_points[team2].append((url_day, abs_points2))
 
             # This element contains the two lineups
             lineups_container = table.xpath('.//tbody')
@@ -180,7 +167,7 @@ class Cday_lineups_votes(scrapy.Spider):
                             './/td/span[contains(@class,"role")]/text()')\
                         .extract()
 
-                    fin_tuple = ('Day %s' % self.url_day, name, roles)
+                    fin_tuple = ('Day {}'.format(url_day), name, roles)
 
                     fin_list.append(fin_tuple)
 
@@ -196,10 +183,12 @@ class Cday_lineups_votes(scrapy.Spider):
 
         return lineups, abs_points
 
-    def votes_scraping(self, splash_response):
+    def votes_scraping(self, splash_response, url_day):
 
-        '''This function scrapes all the data for each player in Serie A,
-           creates the final tuple and store all the data in a .pckl file.'''
+        """
+           This function scrapes all the data for each player in Serie A,
+           creates the final tuple and store all the data in a .pckl file.
+        """
 
         # 20 tables containing the data of the players for a specific day of
         # the season
@@ -368,7 +357,7 @@ class Cday_lineups_votes(scrapy.Spider):
                                   .xpath('.//text()').extract_first())
 
                     # Create the final tuple
-                    fin_tuple = (self.url_day, team_name, FG_vote, ST_vote,
+                    fin_tuple = (url_day, team_name, FG_vote, ST_vote,
                                  YC, RC, Gs, Gp, Gt, Ps, Pf, Og, As, Asf)
 
                     # Store the result inside the dict
@@ -379,7 +368,7 @@ class Cday_lineups_votes(scrapy.Spider):
         if copy_serieA_teams:
 
             filename = ('/Users/andrea/Desktop/fanta3_0/all_players_per_team' +
-                        '/players/players_%d.pckl' % self.url_day)
+                        '/players/players_{}.pckl'.format(url_day))
 
             f = open(filename, 'rb')
             all_players_per_team = pickle.load(f)
@@ -387,8 +376,7 @@ class Cday_lineups_votes(scrapy.Spider):
 
             # For each team left we create the default tuple
             for team in copy_serieA_teams:
-                fin_tuple = (self.url_day, team, 6, 6, 0, 0, 0, 0,
-                             0, 0, 0, 0, 0, 0)
+                fin_tuple = (url_day, team, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
                 # And we assign it to every player of that team
                 for player in all_players_per_team[team]:
@@ -396,7 +384,7 @@ class Cday_lineups_votes(scrapy.Spider):
 
         # Save the database
         filename = ('/Users/andrea/Desktop/fanta3_0/cday_lineups_votes/votes' +
-                    '/Day_%d.pckl' % self.url_day)
+                    '/Day_{}.pckl'.format(url_day))
         f = open(filename, 'wb')
         pickle.dump(players_database, f)
         f.close()
@@ -409,92 +397,56 @@ class Cday_lineups_votes(scrapy.Spider):
                 '//h3[contains(@class,"visible-sm-block")]/span/text()')
                 .extract()[1])
 
+        self.lineups_urls = [url for url in self.lineups_urls if
+                             int(url.split('=')[1]) <= self.cday]
+
+        if not self.lineups_urls:
+            print("\nNo data to be scraped.\nDays skipped: {}.\n".format(
+                    days_to_skip))
+            return
+
         # Print to check in Terminal that everything is fine
-        print('\n')
-        print('Matches played in Serie A until today: %d.' % self.cday)
-        print('\n')
+        print('\nMatches played in Serie A: {}.\n'.format(self.cday))
 
         # Now we can start scraping the links inside lineups_urls. After some
         # work on the link we remove it from the list. The process will be
         # finished when lineups_urls is empy
-        while len(self.lineups_urls):
-
+        while self.lineups_urls:
             url = self.lineups_urls[0]
-            # url_day is the day extracted from the link from which we want to
-            # scrape. We extract it by using the actual string representing the
-            # link, not from the html of the webpage
-            self.url_day = int(url.split('=')[1])
             self.lineups_urls.remove(url)
-
-            # First we check if url_day is a day not yet scraped
-            if self.url_day > self.last_scraped_day:
-
-                # If not, we check that url_day is a day not yet played
-                if self.url_day < self.cday:
-                    yield SplashRequest(url, self.parse_lineups,
-                                        endpoint='render.html',
-                                        args={'wait': 0.5})
-
-                # If we want scrape the page of the last day played we have to
-                # be careful and do it only once. Doing it a second time would
-                # cause wrong results because all the links related to non
-                # played days point to the page of the last played day
-                elif self.url_day == self.cday and self.count == 0:
-                    self.count = 1
-                    yield SplashRequest(url, self.parse_lineups,
-                                        endpoint='render.html',
-                                        args={'wait': 0.5})
+            yield SplashRequest(url, self.parse_lineups, args={'wait': 0.5})
 
         # Same as for self.lineups_urls but in this case we do it for
         # self.votes_urls
         while self.votes_urls:
             url = self.votes_urls[0]
-            self.url_day = int(url.split('/')[-1])
             self.votes_urls.remove(url)
-            if (self.url_day > self.last_scraped_day
-               and self.url_day <= self.cday):
-                yield SplashRequest(url, self.parse_votes,
-                                    endpoint='render.html',
-                                    args={'wait': 0.5})
+            yield SplashRequest(url, self.parse_votes, args={'wait': 0.5})
 
     def parse_lineups(self, response):
 
-        # Here we need to extract again the url_day but not from the link we
-        # want to scrape like before. This time we extract it directly from
-        # the html we are scraping. We do this way because this parse_lineup
-        # function is called after all the SplashRequests are sent. This means
-        # that the value of url_day before entering in this function will be
-        # the last value extracted from the string of the last link to which
-        # the SplashRequest is sent (38 in our case). So if we don't set again
-        # the correct value for url_day for each webpage we are scraping the
-        # result will be that all the lineups will be scraped correctly but in
-        # all the tuples the first element would be 'Day 38', which is wrong.
-        self.url_day = response.xpath(
-                '//span[contains(@id,"LabelGiornata")]/text()')\
-                .extract_first().split()[0]
-        self.url_day = int(self.url_day)
+        # Here we need to extract the url_day from the html we are scraping.
+        url_day = int(response.xpath(
+                '//span[contains(@id,"LabelGiornata")]/text()')
+                .extract_first().split()[0])
+
+        new_lineups, new_abs_points = self.lineups_scraping(response, url_day,
+                                                            self.teams_names)
 
         # If there is no file created yet, we scrape and then store the result
         if not os.path.isfile('lineups.pckl'):
-            lineups, abs_points = self.lineups_scraping(response,
-                                                        self.teams_names)
-
-            for fantateam in lineups:
-                lineups[fantateam].sort(key=lambda x:
-                                        int(x[1][0][0].split(' ')[1]))
 
             f = open('lineups.pckl', 'wb')
-            pickle.dump(lineups, f)
+            pickle.dump(new_lineups, f)
             f.close()
 
             f = open('abs_points.pckl', 'wb')
-            pickle.dump(abs_points, f)
+            pickle.dump(new_abs_points, f)
             f.close()
 
-        # If there is already the file with some already scraped data inside
-        # then we first open it and load the content. Then we scrape the new
-        # data, append them to the loaded variable, sort the by day and
-        # overwrite the old file with the updated one.
+        # else we open it, load the content and append the new results to the
+        # loaded variable, sort the by day and overwrite the old file with the
+        # updated one.
         else:
             f = open('lineups.pckl', 'rb')
             lineups = pickle.load(f)
@@ -504,22 +456,14 @@ class Cday_lineups_votes(scrapy.Spider):
             abs_points = pickle.load(f)
             f.close()
 
-            new_lineups, new_abs_points = self.lineups_scraping(
-                    response, self.teams_names)
-
             for fantateam in lineups:
                 lineups[fantateam].append(new_lineups[fantateam][0])
-                lineups[fantateam] = sorted(lineups[fantateam],
-                                            key=lambda x: x[1][0])
+                lineups[fantateam].sort(
+                        key=lambda x: int(x[1][0][0].split(' ')[1]))
 
-            for fantateam in abs_points:
                 abs_points[fantateam].append(new_abs_points[fantateam][0])
                 abs_points[fantateam] = sorted(abs_points[fantateam],
                                                key=lambda x: x[0])
-
-            for fantateam in lineups:
-                lineups[fantateam].sort(key=lambda x:
-                                        int(x[1][0][0].split(' ')[1]))
 
             f = open('lineups.pckl', 'wb')
             pickle.dump(lineups, f)
@@ -530,21 +474,18 @@ class Cday_lineups_votes(scrapy.Spider):
             f.close()
 
         # Print to check in Terminal that everything is fine
-        print('\n')
-        print('Lineups and abs_points from day %d scraped successfully.'
-              % self.url_day)
-        print('\n')
+        print('\nLineups and abs_points from day ' +
+              '{} scraped successfully.\n'.format(url_day))
 
     def parse_votes(self, response):
 
         # Define again the day for the same reasons as for parse_lineups
-        self.url_day = int(response.xpath(
+        url_day = int(response.xpath(
                 '//input[contains(@id,"hGiornata")]/@value').extract_first())
 
         # Scraping of the database
-        self.votes_scraping(response)
+        self.votes_scraping(response, url_day)
 
         # Print to check in Terminal that everything is fine
-        print('\n')
-        print("Players' data from day %d scraped successfully." % self.url_day)
-        print('\n')
+        print("\nPlayers' data from day ' +"
+              "{} scraped successfully.\n".format(url_day))

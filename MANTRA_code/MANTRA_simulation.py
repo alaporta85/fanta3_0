@@ -786,7 +786,7 @@ class League(object):
 
         """Plays all the matches in the schedule."""
 
-        for i in self.schedule:
+        for i in [x for x in self.schedule if x not in days_to_skip]:
             day = Day(i, self.schedule, self.fantateams, self.mode)
             day_results = day.play_day()
 
@@ -799,7 +799,7 @@ class League(object):
 
         """Plays fast all the matches in the schedule."""
 
-        for i in self.schedule:
+        for i in [x for x in self.schedule if x not in days_to_skip]:
             day = Day(i, self.schedule, self.fantateams, self.mode)
             day.play_fast_day()
 
@@ -956,7 +956,8 @@ class League(object):
                                            in teams_with_equal_points]}
 
             # Play all the matches between the teams
-            for i in range(1, self.n_days+1):
+            for i in [x for x in range(1, self.n_days+1) if
+                      x not in days_to_skip]:
                 day = self.schedule[i]
 
                 for match in matches:
@@ -1047,6 +1048,8 @@ class League(object):
 
         print(table)
         print()
+        if days_to_skip:
+            print("Days {} not included.".format(days_to_skip))
 
     def print_contributes(self):
 
@@ -1239,7 +1242,8 @@ class League(object):
 
         # Fill the dict
         for fantateam in fin_dict:
-            for day in range(1, self.n_days + 1):
+            for day in [x for x in range(1, self.n_days + 1) if
+                        x not in days_to_skip]:
                 players = self.fantateams[fantateam].fields[day - 1]
                 players = [element[1] for element in players]
 
@@ -1449,7 +1453,8 @@ our_round, lineups, fantaplayers,\
     fantanames, abs_points, all_roles, players_database = load_all_dicts()
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
-n_days = len(lineups['Ciolle United'])
+days_to_skip = [27]
+n_days = abs_points['Ciolle United'][-1][0] + len(days_to_skip)
 # n_days = 5
 
 
