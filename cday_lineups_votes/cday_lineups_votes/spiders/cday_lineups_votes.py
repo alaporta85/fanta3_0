@@ -399,6 +399,8 @@ class Cday_lineups_votes(scrapy.Spider):
 
         self.lineups_urls = [url for url in self.lineups_urls if
                              int(url.split('=')[1]) <= self.cday]
+        self.votes_urls = [url for url in self.votes_urls if
+                           int(url.split('/')[5]) <= self.cday]
 
         if not self.lineups_urls:
             print("\nNo data to be scraped.\nDays skipped: {}.\n".format(
@@ -487,5 +489,5 @@ class Cday_lineups_votes(scrapy.Spider):
         self.votes_scraping(response, url_day)
 
         # Print to check in Terminal that everything is fine
-        print("\nPlayers' data from day ' +"
+        print("\nPlayers' data from day "
               "{} scraped successfully.\n".format(url_day))

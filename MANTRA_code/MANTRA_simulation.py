@@ -316,7 +316,16 @@ class Fantateam(object):
 
         """Returns the lineup of the fantateam in that day."""
 
-        return self.lineups[day-1]
+        lineup = [x for x in self.lineups if int(x[1][0][0].split()[1]) == day]
+
+        return lineup[0]
+
+    def players_of_the_day(self, day):
+
+        field = [x for x in self.fields if int(x[0][0].split()[1]) == day][0]
+        field = [el[1] for el in field]
+
+        return field
 
 
 class Match(object):
@@ -383,20 +392,21 @@ class Match(object):
         daily_players = pickle.load(f)
         f.close()
 
-        for player1 in daily_players[self.team1]:
-            if (player1[0] not in [element[1] for element in self.final_field1]
-                and player1[0] not in [element[1] for element in
-                                       self.final_bench1]):
+        field1 = [element[1] for element in self.final_field1]
+        bench1 = [element[1] for element in self.final_bench1]
+        field2 = [element[1] for element in self.final_field2]
+        bench2 = [element[1] for element in self.final_bench2]
+
+        for name, role, _ in daily_players[self.team1]:
+            if name not in field1 and name not in bench1:
                 day = self.final_field1[0][0]
-                new_tuple = (day, player1[0], player1[1])
+                new_tuple = (day, name, role)
                 self.final_bench1.append(new_tuple)
 
-        for player2 in daily_players[self.team2]:
-            if (player2[0] not in [element[1] for element in self.final_field2]
-                and player2[0] not in [element[1] for element in
-                                       self.final_bench2]):
+        for name, role, _ in daily_players[self.team2]:
+            if name not in field2 and name not in bench2:
                 day = self.final_field2[0][0]
-                new_tuple = (day, player2[0], player2[1])
+                new_tuple = (day, name, role)
                 self.final_bench2.append(new_tuple)
 
         # Update the number of malus
@@ -445,8 +455,10 @@ class Match(object):
            algorithm.
         """
 
-        abs_points1 = abs_points[self.team1][self.day - 1][1]
-        abs_points2 = abs_points[self.team2][self.day - 1][1]
+        abs_points1 = [x[1] for x in abs_points[self.team1] if
+                       x[0] == self.day][0]
+        abs_points2 = [x[1] for x in abs_points[self.team2] if
+                       x[0] == self.day][0]
 
         return abs_points1, abs_points2
 
@@ -510,7 +522,7 @@ class Match(object):
             self.fantateams[ref_list[0][0]].lucky_points -= 1
             self.fantateams[ref_list[1][0]].lucky_points += 2
 
-    def update_bonus_malus(self, the_team, the_final_field, the_final_bench):
+    def update_bonus_malus(self, team, field, bench):
 
         """
            Update the four attributes of each fantateam relative to the bonus
@@ -518,19 +530,19 @@ class Match(object):
            calculation votes are NOT included, only the bonus points.
         """
 
-        for player in the_final_field:
+        for player in field:
             if player[1] in all_players:
                 total_bonus = all_players[player[1]].all_bonus(self.day)
-                self.fantateams[the_team].bonus_from_field += total_bonus
+                self.fantateams[team].bonus_from_field += total_bonus
                 total_malus = all_players[player[1]].all_malus(self.day)
-                self.fantateams[the_team].malus_from_field += total_malus
+                self.fantateams[team].malus_from_field += total_malus
 
-        for player in the_final_bench:
+        for player in bench:
             if player[1] in all_players:
                 total_bonus = all_players[player[1]].all_bonus(self.day)
-                self.fantateams[the_team].bonus_from_bench += total_bonus
+                self.fantateams[team].bonus_from_bench += total_bonus
                 total_malus = all_players[player[1]].all_malus(self.day)
-                self.fantateams[the_team].malus_from_bench += total_malus
+                self.fantateams[team].malus_from_bench += total_malus
 
     def update_contributes(self, the_team, the_final_lineup):
 
@@ -728,6 +740,7 @@ class League(object):
         self.match_max_goals = []
         self.day_max_goals = []
         self.day_min_goals = []
+        self.matches_played = 0
 
     def update_match_max_goals(self, day_results):
 
@@ -786,9 +799,14 @@ class League(object):
 
         """Plays all the matches in the schedule."""
 
-        for i in [x for x in self.schedule if x not in days_to_skip]:
-            day = Day(i, self.schedule, self.fantateams, self.mode)
+        # for i in [x for x in self.schedule if x not in days_to_skip]:
+        for i in days[:self.n_days]:
+            try:
+                day = Day(i, self.schedule, self.fantateams, self.mode)
+            except KeyError:
+                continue
             day_results = day.play_day()
+            self.matches_played += 1
 
             self.update_trends()
             self.update_match_max_goals(day_results)
@@ -799,7 +817,8 @@ class League(object):
 
         """Plays fast all the matches in the schedule."""
 
-        for i in [x for x in self.schedule if x not in days_to_skip]:
+        # for i in [x for x in self.schedule if x not in days_to_skip]:
+        for i in days[:self.n_days]:
             day = Day(i, self.schedule, self.fantateams, self.mode)
             day.play_fast_day()
 
@@ -956,9 +975,13 @@ class League(object):
                                            in teams_with_equal_points]}
 
             # Play all the matches between the teams
-            for i in [x for x in range(1, self.n_days+1) if
-                      x not in days_to_skip]:
-                day = self.schedule[i]
+            # for i in [x for x in range(1, self.n_days+1) if
+            #           x not in days_to_skip]:
+            for i in days[:self.n_days]:
+                try:
+                    day = self.schedule[i]
+                except KeyError:
+                    continue
 
                 for match in matches:
                     if match in day:
@@ -1076,13 +1099,13 @@ class League(object):
 
         ref_list = [(team,
                      round(self.fantateams[team].
-                           gkeeper_contribute/n_days, 1),
+                           gkeeper_contribute/self.matches_played, 1),
                      round(self.fantateams[team].
-                           defense_contribute/n_days, 1),
+                           defense_contribute/self.matches_played, 1),
                      round(self.fantateams[team].
-                           midfield_contribute/n_days, 1),
+                           midfield_contribute/self.matches_played, 1),
                      round(self.fantateams[team].
-                           attack_contribute/n_days, 1))
+                           attack_contribute/self.matches_played, 1))
                     for team in ranking]
 
         names = [element[0] for element in ref_list]
@@ -1166,7 +1189,8 @@ class League(object):
 
         for team in ranking:
 
-            avrg_abs = round(self.fantateams[team].abs_points/self.n_days, 1)
+            avrg_abs = round(self.fantateams[team].
+                             abs_points/self.matches_played, 1)
             std = round(statistics.pstdev([el[1] for el in abs_points[team]]),
                         1)
 
@@ -1242,12 +1266,13 @@ class League(object):
 
         # Fill the dict
         for fantateam in fin_dict:
-            for day in [x for x in range(1, self.n_days + 1) if
-                        x not in days_to_skip]:
-                players = self.fantateams[fantateam].fields[day - 1]
-                players = [element[1] for element in players]
+            for day in days[:self.n_days]:
+                try:
+                    field = self.fantateams[fantateam].players_of_the_day(day)
+                except IndexError:
+                    continue
 
-                for player in players:
+                for player in field:
                     pos = all_players[player].all_bonus(day)
                     neg = all_players[player].all_malus(day)
                     value = pos - neg
@@ -1311,10 +1336,9 @@ class League(object):
 
 
 class Statistic(object):
-    def __init__(self, leagues, n_days, mode):
+    def __init__(self, leagues, n_days):
         self.leagues = leagues
         self.n_days = n_days
-        self.mode = mode
         self.place1 = {team: 0 for team in fantanames}
         self.place2 = {team: 0 for team in fantanames}
         self.place3 = {team: 0 for team in fantanames}
@@ -1336,7 +1360,7 @@ class Statistic(object):
 
         # For each round we create the league and play it
         for a_round in self.list_of_rounds:
-            new_league = League(a_round, self.n_days, self.mode)
+            new_league = League(a_round, self.n_days, 'ST')
             new_league.play_fast_league()
 
             # Extract the ranking
@@ -1396,7 +1420,7 @@ class Statistic(object):
         all_rounds = []
 
         for a_round in self.list_of_rounds:
-            new_league = League(a_round, self.n_days, self.mode)
+            new_league = League(a_round, self.n_days, 'ST')
             new_league.play_fast_league()
             ranking = new_league.final_ranking()
             if ranking[position-1] == a_team_name:
@@ -1454,9 +1478,9 @@ our_round, lineups, fantaplayers,\
 teams = [name for name in fantanames]
 all_players = {player: Player(player) for player in players_database}
 days_to_skip = [27]
-n_days = abs_points['Ciolle United'][-1][0] + len(days_to_skip)
+n_days = len(abs_points['Ciolle United']) + len(days_to_skip)
+days = [x for x in range(1, n_days + 1) if x not in days_to_skip]
 # n_days = 5
-
 
 # print()
 # a = League(our_round, n_days, 'ST')
@@ -1466,6 +1490,6 @@ n_days = abs_points['Ciolle United'][-1][0] + len(days_to_skip)
 # a.print_extra_info()
 # a.print_extra_info2()
 # a.bonus_distr(2)
-# c = Statistic(10, n_days, 'ST')
+# c = Statistic(7000, n_days)
 # c.positions8_rate()
 # a.print_trends('Ciolle United')
