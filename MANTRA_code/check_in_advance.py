@@ -124,38 +124,38 @@ ciolle = [('ALISSON', ['Por'], 'ROMA', (1, 'y')),
           ('KEAN', ['Pc'], 'VERONA', (12, 'y'))
           ]
 
-pastaboy = [('CONSIGLI', ['Por'], 'SASSUOLO'),
-            ('BERISHA', ['Por'], 'ATALANTA', (23, 'y')),
-            ('SIRIGU', ['Por'], 'TORINO', (1, 'y')),
-            ('ALEX SANDRO', ['Ds', 'E'], 'JUVENTUS', (2, 'n')),
-            ('FAZIO', ['Dc'], 'ROMA', (4, 'n')),
-            ('BONUCCI', ['Dc'], 'MILAN', (20, 'y')),
-            ("D'AMBROSIO", ['Dd', 'Ds', 'E'], 'INTER', (22, 'y')),
-            ('MIRANDA', ['Dc'], 'INTER', (3, 'y')),
-            ('DE SILVESTRI', ['Dd', 'E'], 'TORINO', (5, 'y')),
-            ('ANSALDI', ['Dd', 'Ds', 'E'], 'TORINO'),
-            ('ASAMOAH', ['Ds', 'E'], 'JUVENTUS', (18, 'y')),
-            ('CANNAVARO', ['Dc'], 'SASSUOLO'),
-            ('TOMOVIC', ['Dd', 'Dc'], 'CHIEVO', (21, 'y')),
-            ('JUAN JESUS', ['Ds', 'Dc'], 'ROMA', (19, 'y')),
-            ('CESAR', ['Dc'], 'CHIEVO'),
-            ('MATUIDI', ['M', 'C'], 'JUVENTUS', (17, 'n')),
-            ('CRISTANTE', ['M', 'C'], 'ATALANTA', (16, 'y')),
-            ('VECINO', ['M', 'C'], 'INTER', (7, 'y')),
-            ('RADOVANOVIC', ['M', 'C'], 'CHIEVO'),
-            ('HAMSIK', ['C', 'T'], 'NAPOLI', (8, 'y')),
-            ('BONAVENTURA', ['C', 'W', 'T'], 'MILAN', (14, 'y')),
-            ('BARAK', ['C', 'T'], 'UDINESE', (6, 'n')),
-            ('BERNARDESCHI', ['W', 'A'], 'JUVENTUS', (9, 'y')),
-            ('EYSSERIC', ['W', 'T'], 'FIORENTINA'),
-            ('UNDER', ['W'], 'ROMA'),
-            ('TAARABT', ['T', 'A'], 'GENOA', (13, 'y')),
-            ('PALACIO', ['A'], 'BOLOGNA', (15, 'y')),
-            ('FARIAS', ['A'], 'CAGLIARI', (11, 'y')),
-            ('SAU', ['A'], 'CAGLIARI'),
-            ('NIANG', ['A'], 'TORINO', (10, 'y')),
-            ('IMMOBILE', ['Pc'], 'LAZIO'),
-            ('ZAPATA D', ['Pc'], 'SAMPDORIA', (12, 'y'))]
+pastaboy = [('SIRIGU', ['Por'], 'TORINO', (1, 'y')),
+            ('CONSIGLI', ['Por'], 'SASSUOLO'),
+ ('BERISHA', ['Por'], 'ATALANTA', (24, 'y')),
+ ('ALEX SANDRO', ['Ds', 'E'], 'JUVENTUS', (5, 'y')),
+ ('BONUCCI', ['Dc'], 'MILAN', (4, 'y')),
+ ('DE SILVESTRI', ['Dd', 'E'], 'TORINO', (23, 'y')),
+ ('FAZIO', ['Dc'], 'ROMA', (3, 'y')),
+ ("D'AMBROSIO", ['Dd', 'Ds', 'E'], 'INTER', (21, 'y')),
+ ('MIRANDA', ['Dc'], 'INTER', (2, 'y')),
+ ('ANSALDI', ['Dd', 'Ds', 'E'], 'TORINO'),
+ ('DE MAIO', ['Dc'], 'BOLOGNA'),
+ ('TOMOVIC', ['Dd', 'Dc'], 'CHIEVO', (20, 'y')),
+ ('ASAMOAH', ['Ds', 'E'], 'JUVENTUS'),
+ ('LISANDRO LOPEZ', ['Dc'], 'INTER'),
+ ('JUAN JESUS', ['Ds', 'Dc'], 'ROMA'),
+ ('MATUIDI', ['M', 'C'], 'JUVENTUS', (18, 'y')),
+ ('CRISTANTE', ['M', 'C'], 'ATALANTA', (7, 'y')),
+ ('VECINO', ['M', 'C'], 'INTER', (17, 'n')),
+ ('RADOVANOVIC', ['M', 'C'], 'CHIEVO', (16, 'y')),
+ ('HAMSIK', ['C', 'T'], 'NAPOLI', (6, 'y')),
+ ('BONAVENTURA', ['C', 'W', 'T'], 'MILAN', (8, 'y')),
+ ('BARAK', ['C', 'T'], 'UDINESE', (15, 'y')),
+ ('BENASSI', ['C'], 'FIORENTINA', (19, 'y')),
+ ('BERNARDESCHI', ['W', 'A'], 'JUVENTUS'),
+ ('UNDER', ['W'], 'ROMA', (9, 'n')),
+ ('TAARABT', ['T', 'A'], 'GENOA'),
+ ('PALACIO', ['A'], 'BOLOGNA'),
+ ('NIANG', ['A'], 'TORINO', (14, 'y')),
+ ('IMMOBILE', ['Pc'], 'LAZIO', (10, 'y')),
+ ('ZAPATA D', ['Pc'], 'SAMPDORIA', (12, 'y')),
+ ('BABACAR', ['Pc'], 'SASSUOLO', (13, 'y')),
+ ('CODA M', ['Pc'], 'BENEVENTO', (11, 'y'))]
 
 mento = [('SPORTIELLO', ['Por'], 'FIORENTINA'),
          ('SORRENTINO', ['Por'], 'CHIEVO'),
@@ -264,7 +264,7 @@ def check_in_advance(module, fantateam):
     print_res(fin_lineup, final_field, malus, efficient_module, adapted_module)
 
 
-module = '4312'
-fantateam = bombagall
+module = '352'
+fantateam = pastaboy
 
 check_in_advance(module, fantateam)
