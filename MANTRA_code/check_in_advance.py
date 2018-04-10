@@ -4,7 +4,7 @@ import pickle
 import os
 
 f = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/' +
-         'fantaplayers/fantaplayers_24.pckl', 'rb')
+         'fantaplayers/fantaplayers_27.pckl', 'rb')
 rose = pickle.load(f)
 f.close()
 
@@ -97,32 +97,34 @@ stress = [('REINA', ['Por'], 'NAPOLI', (1, 'y')),
           ]
 
 ciolle = [('ALISSON', ['Por'], 'ROMA', (1, 'y')),
-          ('LOBONT', ['Por'], 'ROMA', (23, 'y')),
-          ('SKORUPSKI', ['Por'], 'ROMA', (22, 'y')),
-          ('KOULIBALY', ['Dc'], 'NAPOLI', (4, 'y')),
-          ('KOLAROV', ['Ds', 'E'], 'ROMA'),
-          ('SKRINIAR', ['Dc'], 'INTER', (3, 'y')),
-          ('HYSAJ', ['Dd', 'Ds', 'E'], 'NAPOLI', (2, 'n')),
-          ('NUYTINCK', ['Dc'], 'UDINESE'),
-          ('PADOIN', ['Dd', 'E', 'M'], 'CAGLIARI', (19, 'y')),
-          ('BURDISSO', ['Dc'], 'TORINO', (21, 'y')),
-          ('CANCELO', ['Dd', 'E'], 'INTER', (5, 'y')),
-          ('CASTAN', ['Dc'], 'CAGLIARI', (20, 'y')),
-          ('RINCON', ['M', 'C'], 'TORINO', (18, 'y')),
-          ('MARCHISIO', ['M', 'C'], 'JUVENTUS', (7, 'y')),
-          ('JANKTO', ['E', 'C'], 'UDINESE', (15, 'y')),
-          ('HETEMAJ', ['E', 'M'], 'CHIEVO', (17, 'y')),
-          ('DZEMAILI', ['C', 'T'], 'BOLOGNA', (6, 'y')),
-          ('LINETTY', ['C'], 'SAMPDORIA', (8, 'y')),
-          ('BARELLA', ['C', 'T'], 'CAGLIARI', (14, 'y')),
-          ('GIACCHERINI', ['W', 'T'], 'CHIEVO', (16, 'y')),
-          ('VERDI', ['T', 'A'], 'BOLOGNA'),
-          ('ILICIC', ['T', 'A'], 'ATALANTA', (9, 'y')),
-          ('CALLEJON', ['A'], 'NAPOLI', (11, 'y')),
-          ('BELOTTI', ['Pc'], 'TORINO', (10, 'y')),
-          ('CORNELIUS', ['Pc'], 'ATALANTA', (13, 'y')),
-          ('KEAN', ['Pc'], 'VERONA', (12, 'y'))
-          ]
+ ('SKORUPSKI', ['Por'], 'ROMA', (22, 'y')),
+ ('LOBONT', ['Por'], 'ROMA', (23, 'y')),
+ ('KOULIBALY', ['Dc'], 'NAPOLI', (3, 'y')),
+ ('SKRINIAR', ['Dc'], 'INTER', (4, 'y')),
+ ('KOLAROV', ['Ds', 'E'], 'ROMA', (17, 'y')),
+ ('HYSAJ', ['Dd', 'Ds', 'E'], 'NAPOLI', (18, 'y')),
+ ('PADOIN', ['Dd', 'E', 'M'], 'CAGLIARI', (19, 'y')),
+ ('CANCELO', ['Dd', 'E'], 'INTER', (5, 'y')),
+ ('BURDISSO', ['Dc'], 'TORINO'),
+ ('CONTI', ['Dd', 'E'], 'MILAN'),
+ ('RANOCCHIA', ['Dc'], 'INTER', (20, 'n')),
+ ('CASTAN', ['Dc'], 'CAGLIARI', (2, 'y')),
+ ('LYANCO', ['Dc'], 'TORINO'),
+ ('CHIRICHES', ['Dc'], 'NAPOLI'),
+ ('TONELLI', ['Dc'], 'NAPOLI', (21, 'n')),
+ ('RINCON', ['M', 'C'], 'TORINO'),
+ ('MARCHISIO', ['M', 'C'], 'JUVENTUS', (16, 'n')),
+ ('JANKTO', ['E', 'C'], 'UDINESE', (8, 'y')),
+ ('HETEMAJ', ['E', 'M'], 'CHIEVO', (15, 'y')),
+ ('MILINKOVIC-SAVIC', ['C', 'T'], 'LAZIO', (7, 'y')),
+ ('DZEMAILI', ['C', 'T'], 'BOLOGNA', (6, 'y')),
+ ('LINETTY', ['C'], 'SAMPDORIA', (14, 'n')),
+ ('GIACCHERINI', ['W', 'T'], 'CHIEVO'),
+ ('VERDI', ['T', 'A'], 'BOLOGNA', (9, 'y')),
+ ('ILICIC', ['T', 'A'], 'ATALANTA', (13, 'n')),
+ ('BELOTTI', ['Pc'], 'TORINO', (11, 'y')),
+ ('CORNELIUS', ['Pc'], 'ATALANTA', (12, 'n')),
+ ('KEAN', ['Pc'], 'VERONA', (10, 'n'))]
 
 pastaboy = [('SIRIGU', ['Por'], 'TORINO', (1, 'y')),
             ('CONSIGLI', ['Por'], 'SASSUOLO'),
@@ -264,7 +266,7 @@ def check_in_advance(module, fantateam):
     print_res(fin_lineup, final_field, malus, efficient_module, adapted_module)
 
 
-module = '352'
-fantateam = pastaboy
+module = '3412'
+fantateam = ciolle
 
 check_in_advance(module, fantateam)

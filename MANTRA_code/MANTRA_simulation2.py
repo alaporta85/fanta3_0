@@ -1,4 +1,4 @@
-import MANTRA_functions as mf
+import MANTRA_functions2 as mf
 import statistic_functions as sf
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ def load_all_dicts():
     lineups = pickle.load(h)
     h.close()
 
-    # Load the dict with all the players of each fantateam. This dict if made
+    # Load the dict with all the players of each fantateam. This dict is made
     # of all the fantaplayers updated to the last played day
     i = open('/Users/andrea/Desktop/fanta3_0/all_players_per_fantateam/' +
              'all_players_per_fantateam.pckl', 'rb')
@@ -55,7 +55,7 @@ def load_all_dicts():
                        'cday_lineups_votes/votes')
 
     # Initialize the database
-    players_database = {}
+    players_db = {}
 
     # For each .pckl file we add to the database the data relative to each
     # player
@@ -66,16 +66,16 @@ def load_all_dicts():
             day = pickle.load(f)
             f.close()
             for player in day:
-                if player in players_database:
-                    players_database[player].append(day[player])
+                if player in players_db:
+                    players_db[player].append(day[player])
                 else:
-                    players_database[player] = [day[player]]
+                    players_db[player] = [day[player]]
 
-    for player in players_database:
-        players_database[player].sort(key=lambda x: x[0])
+    for player in players_db:
+        players_db[player].sort(key=lambda x: x[0])
 
     return (our_round, lineups, fantaplayers, fantanames,
-            abs_points, all_roles, players_database)
+            abs_points, all_roles, players_db)
 
 
 class Player(object):
@@ -83,12 +83,12 @@ class Player(object):
         self.name = name
         self.team = ''
         self.FGvotes = [(data[0], data[2]) for data in
-                        players_database[self.name] if data[2] != 'n.e.']
+                        players_db[self.name] if data[2] != 'n.e.']
         self.FGfantavotes = []
         self.FGavrg = 0
         self.FGfanta_avrg = 0
         self.STvotes = [(data[0], data[3]) for data in
-                        players_database[self.name] if data[3] != 'n.e.']
+                        players_db[self.name] if data[3] != 'n.e.']
         self.STfantavotes = []
         self.STavrg = 0
         self.STfanta_avrg = 0
@@ -154,7 +154,7 @@ class Player(object):
             """
 
             all_player_data_in_day = [data[4:] for data in
-                                      players_database[self.name]
+                                      players_db[self.name]
                                       if data[0] == day][0]
 
             res = (- 0.5*all_player_data_in_day[0] -
@@ -185,7 +185,7 @@ class Player(object):
 
         """Updates all the attributes of the player."""
 
-        for day in players_database[self.name]:
+        for day in players_db[self.name]:
             self.team = day[1]
             self.YC += day[4]
             self.RC += day[5]
@@ -204,7 +204,7 @@ class Player(object):
 
         """Return all the bonus points given by the Player on that day."""
 
-        data = [atuple for atuple in players_database[self.name]
+        data = [atuple for atuple in players_db[self.name]
                 if atuple[0] == day]
 
         if data:
@@ -219,7 +219,7 @@ class Player(object):
 
         """Return all the malus points given by the Player on that day."""
 
-        data = [atuple for atuple in players_database[self.name]
+        data = [atuple for atuple in players_db[self.name]
                 if atuple[0] == day]
 
         if data:
@@ -371,6 +371,7 @@ class Match(object):
         self.final_field1, self.final_bench1, malus1 = mf.mantra_simulation(
                                                                 lineup1,
                                                                 module1,
+                                                                players_db,
                                                                 self.mode)[:3]
 
         module2 = self.lineup2[0]
@@ -378,6 +379,7 @@ class Match(object):
         self.final_field2, self.final_bench2, malus2 = mf.mantra_simulation(
                                                                 lineup2,
                                                                 module2,
+                                                                players_db,
                                                                 self.mode)[:3]
 
         # In the following block of code we add to the final_bench lists (both
@@ -882,7 +884,7 @@ class League(object):
         # For each player in the database we TRY to extract the role. We use
         # 'try' because not all the players present in the database are in the
         # roles dict. In that case we will have a KeyError and we pass.
-        for player in players_database:
+        for player in players_db:
             try:
                 roles = all_roles[player]
 
@@ -1450,7 +1452,7 @@ class Statistic(object):
             print('No rounds found.')
 
 
-def test_numb_iter(iterations, n_days):
+def optimal_numb_iter(iterations, n_days):
     points_to_plot = []
     list1 = [1] + [x for x in range(5, 101, 5)]
     list2 = [x for x in range(250, 1001, 250)]
@@ -1474,10 +1476,10 @@ def test_numb_iter(iterations, n_days):
 
 
 our_round, lineups, fantaplayers,\
-    fantanames, abs_points, all_roles, players_database = load_all_dicts()
+    fantanames, abs_points, all_roles, players_db = load_all_dicts()
 teams = [name for name in fantanames]
-all_players = {player: Player(player) for player in players_database}
-days_to_skip = []
+all_players = {player: Player(player) for player in players_db}
+days_to_skip = [27]
 n_days = len(abs_points['Ciolle United']) + len(days_to_skip)
 days = [x for x in range(1, n_days + 1) if x not in days_to_skip]
 # n_days = 5

@@ -62,7 +62,7 @@ f = open('/Users/andrea/Desktop/fanta3_0/serieA_fantateams_our_round/' +
 serieA_teams = pickle.load(f)
 f.close()
 
-days_to_skip = [27]
+days_to_skip = []
 
 
 class Cday_lineups_votes(scrapy.Spider):
