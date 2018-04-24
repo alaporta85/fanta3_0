@@ -159,34 +159,35 @@ pastaboy = [('SIRIGU', ['Por'], 'TORINO', (1, 'y')),
  ('BABACAR', ['Pc'], 'SASSUOLO', (13, 'y')),
  ('CODA M', ['Pc'], 'BENEVENTO', (11, 'y'))]
 
-mento = [('SPORTIELLO', ['Por'], 'FIORENTINA'),
-         ('SORRENTINO', ['Por'], 'CHIEVO'),
-         ('GOMIS A', ['Por'], 'SPAL'),
-         ('ROMULO', ['Dd', 'E', 'M'], 'VERONA'),
-         ('ACERBI', ['Dc'], 'SASSUOLO'),
-         ('PEZZELLA GER', ['Dc'], 'FIORENTINA'),
-         ('ALBIOL', ['Dc'], 'NAPOLI'),
-         ('SILVESTRE', ['Dc'], 'SAMPDORIA'),
-         ('BIRAGHI', ['Ds', 'E'], 'FIORENTINA'),
-         ('PISACANE', ['Dd', 'Ds', 'Dc'], 'CAGLIARI'),
-         ('HATEBOER', ['Dd', 'E'], 'ATALANTA'),
-         ('ROSSETTINI', ['Dd', 'Dc'], 'GENOA'),
-         ('SANTON', ['Dd', 'Ds', 'E'], 'INTER'),
-         ('KHEDIRA', ['M', 'C'], 'JUVENTUS'),
-         ('TORREIRA', ['M', 'C'], 'SAMPDORIA'),
-         ('FOFANA', ['M', 'C'], 'UDINESE'),
-         ('VIVIANI', ['M', 'C'], 'SPAL'),
-         ('MANDRAGORA', ['M', 'C'], 'CROTONE'),
-         ('RAMIREZ', ['W', 'T'], 'SAMPDORIA'),
-         ('DE PAUL', ['W', 'T'], 'UDINESE'),
-         ('GIL DIAS', ['W', 'A'], 'FIORENTINA'),
-         ('NALINI', ['W', 'A'], 'CROTONE'),
-         ('BIRSA', ['T'], 'CHIEVO'),
-         ('JOAO PEDRO', ['T'], 'CAGLIARI'),
-         ('INSIGNE', ['A'], 'NAPOLI'),
-         ('ICARDI', ['Pc'], 'INTER'),
-         ('LAPADULA', ['Pc'], 'GENOA'),
-         ('PAVOLETTI', ['Pc'], 'CAGLIARI')]
+mento = [('PERIN', ['Por'], 'GENOA', (1, 'y')),
+ ('SPORTIELLO', ['Por'], 'FIORENTINA'),
+ ('SORRENTINO', ['Por'], 'CHIEVO', (12, 'y')),
+ ('SILVESTRE', ['Dc'], 'SAMPDORIA', (20, 'n')),
+ ('ROMULO', ['Dd', 'E', 'M'], 'VERONA', (19, 'y')),
+ ('ALBIOL', ['Dc'], 'NAPOLI', (3, 'y')),
+ ('PEZZELLA GER', ['Dc'], 'FIORENTINA'),
+ ('RODRIGUEZ R', ['Ds', 'E'], 'MILAN', (8, 'y')),
+ ('ACERBI', ['Dc'], 'SASSUOLO', (4, 'y')),
+ ('BIRAGHI', ['Ds', 'E'], 'FIORENTINA', (21, 'n')),
+ ('HATEBOER', ['Dd', 'E'], 'ATALANTA', (22, 'y')),
+ ('SPOLLI', ['Dc'], 'GENOA'),
+ ('ADNAN', ['Ds', 'E'], 'UDINESE', (5, 'y')),
+ ('PISACANE', ['Dd', 'Ds', 'Dc'], 'CAGLIARI', (2, 'y')),
+ ('KHEDIRA', ['M', 'C'], 'JUVENTUS', (6, 'y')),
+ ('TORREIRA', ['M', 'C'], 'SAMPDORIA', (17, 'y')),
+ ('PULGAR', ['M', 'C'], 'BOLOGNA'),
+ ('VIVIANI', ['M', 'C'], 'SPAL', (7, 'n')),
+ ('BARBERIS', ['M', 'C'], 'CROTONE', (18, 'y')),
+ ('RAMIREZ', ['W', 'T'], 'SAMPDORIA'),
+ ('DE PAUL', ['W', 'T'], 'UDINESE', (9, 'n')),
+ ('NALINI', ['W', 'A'], 'CROTONE', (16, 'y')),
+ ('GIL DIAS', ['W', 'A'], 'FIORENTINA', (15, 'y')),
+ ('BIRSA', ['T'], 'CHIEVO', (23, 'y')),
+ ('JOAO PEDRO', ['T'], 'CAGLIARI'),
+ ('INSIGNE', ['A'], 'NAPOLI', (14, 'y')),
+ ('PANDEV', ['A'], 'GENOA', (10, 'y')),
+ ('ICARDI', ['Pc'], 'INTER', (11, 'y')),
+ ('PAVOLETTI', ['Pc'], 'CAGLIARI', (13, 'y'))]
 
 
 def print_res(original, final_field, malus, efficient_module, adapted_module):
@@ -267,6 +268,6 @@ def check_in_advance(module, fantateam):
 
 
 module = '3412'
-fantateam = ciolle
+fantateam = mento
 
 check_in_advance(module, fantateam)
