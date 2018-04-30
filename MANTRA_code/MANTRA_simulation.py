@@ -1064,11 +1064,6 @@ class League(object):
 
         table = pd.DataFrame(short_data, only_names, header)
 
-        if self.mode == 'ST':
-            print('Alvin482')
-        else:
-            print('Fantagazzetta')
-
         print(table)
         print()
         if days_to_skip:
@@ -1450,7 +1445,7 @@ class Statistic(object):
             print('No rounds found.')
 
 
-def test_numb_iter(iterations, n_days):
+def optimal_numb_iter(iterations, n_days):
     points_to_plot = []
     list1 = [1] + [x for x in range(5, 101, 5)]
     list2 = [x for x in range(250, 1001, 250)]
@@ -1460,7 +1455,7 @@ def test_numb_iter(iterations, n_days):
         print(str(x) + ' leagues')
         res = {name: [] for name in fantanames}
         for y in range(iterations):
-            temp = Statistic(x, n_days, 'ST')
+            temp = Statistic(x, n_days)
             ranking = temp.positions8_rate(False)
             for z in ranking:
                 res[z].append(ranking.index(z) + 1)
