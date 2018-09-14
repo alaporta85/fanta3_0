@@ -49,7 +49,6 @@ import scrapy
 from scrapy_splash import SplashRequest
 import pickle
 import os
-import random
 import copy
 
 path = '/Users/andrea/Desktop/fanta3_0/cday_lineups_votes'
@@ -288,7 +287,7 @@ class Cday_lineups_votes(scrapy.Spider):
                         if 'trn-ry' in card:
                             YC = 1
                             RC = 0
-                        elif 'trn-rr' in card:
+                        else:
                             YC = 0
                             RC = 1
 
